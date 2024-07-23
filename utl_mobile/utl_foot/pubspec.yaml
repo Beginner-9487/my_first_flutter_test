@@ -1,0 +1,45 @@
+name: utl_foot
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+
+  flutter_background_processor:
+    path: ../../flutter_background_processor
+  flutter_ble:
+    path: ../../flutter_ble
+  flutter_file_handler:
+    path: ../../flutter_file_handler
+  flutter_r:
+    path: ../../flutter_r
+  flutter_util:
+    path: ../../flutter_util
+  utl_mobile:
+    path: ..
+
+  pytorch_mobile: ^0.2.2
+
+#  isolate: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/models/foot_magnets_convert_into_pressure.pt
+    - assets/images/foot_left.png
+    - assets/images/foot_right.png

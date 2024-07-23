@@ -1,0 +1,8 @@
+{
+  "@@locale": "zh_TW",
+  "appName": "UTL Leakage",
+  "extraLeakage" : "外漏",
+  "intraOsmosis" : "內滲",
+  "connect": "連線",
+  "disconnect": "斷線"
+}

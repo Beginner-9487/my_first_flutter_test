@@ -1,0 +1,88 @@
+name: utl_mobile
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  cupertino_icons: ^1.0.2
+  dio: any
+  dio_cookie_manager: any
+  cookie_jar: any
+  http: ^0.13.3
+  http_mock_adapter: any
+  path_provider: any
+  device_info: any
+  shared_preferences: any
+  json_annotation: any
+  bloc: any
+  flutter_bloc: any
+  equatable: any
+  cached_network_image: any
+  #  flutter_swiper: any
+#  flutter_webview_plugin: any
+  url_launcher: any
+  flare_flutter: any
+  package_info: any
+  provider: any
+  #  data_plugin:
+  #    git:
+  #      url: https://github.com/CCY0122/bmob-flutter-sdk.git
+  #      path: data_plugin/
+
+  flutter_blue_plus: any
+  fl_chart: any
+
+  flutter_background_service: ^5.0.5
+  flutter_background_service_ios: ^5.0.0
+  flutter_background_service_android: ^6.2.2
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  device_info_plus: ^9.0.2
+  # optional if you wish to use a custom foreground service notification
+  flutter_local_notifications: ^14.1.1
+
+  syncfusion_flutter_charts: 20.4.48
+  syncfusion_flutter_xlsio: any
+
+  # excel
+  excel: any
+
+  flutter_background_processor:
+    path: ../flutter_background_processor
+  flutter_ble:
+    path: ../flutter_ble
+  flutter_file_handler:
+    path: ../flutter_file_handler
+  flutter_r:
+    path: ../flutter_r
+  flutter_util:
+    path: ../flutter_util
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  json_serializable: any
+  build_runner: ^2.4.7
+  mockito: ^5.4.3
+  flutter_driver:
+    sdk: flutter
+  test: any
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Stiff
+      fonts:
+        - asset: assets/fonts/font_stiff.ttf
+  generate: true

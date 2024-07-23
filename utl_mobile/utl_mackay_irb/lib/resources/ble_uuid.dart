@@ -1,0 +1,2 @@
+const String INPUT_UUID = "0000fff3-0000-1000-8000-00805f9b34fb";
+const String OUTPUT_UUID = "0000fff6-0000-1000-8000-00805f9b34fb";
