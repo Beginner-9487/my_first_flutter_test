@@ -4,60 +4,67 @@ import 'package:flutter_util/cracking_code/bytes_converter.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 
 int _rawToType(List<int> raw) {
-  return BytesConverter.byteArrayToSignedInt(
-      [
-        raw[0],
-      ]
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[0],
+    ],
+    little: false,
   );
 }
 
 int _rawToNumberOfData(List<int> raw) {
-  return BytesConverter.byteArrayToSignedInt(
-      [
-        raw[1],
-        raw[2],
-      ]
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[1],
+      raw[2],
+    ],
+    little: false,
   );
 }
 
 int _rawToIndex(List<int> raw) {
-  return BytesConverter.byteArrayToSignedInt(
-      [
-        raw[3],
-        raw[4],
-      ]
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[3],
+      raw[4],
+    ],
+    little: false,
   );
 }
 
 double get _xPrecision => 1000.0;
 double _rawToVoltage(List<int> raw) {
-  return BytesConverter.byteArrayToSignedInt(
-      [
-        raw[5],
-        raw[6],
-      ]
-    ) + (BytesConverter.byteArrayToSignedInt(
-      [
-        raw[7],
-        raw[8],
-      ]
-    ).toDouble() / _xPrecision);
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[5],
+      raw[6],
+    ],
+    little: false,
+  ) + (BytesConverter.byteArrayToInt16(
+    [
+      raw[7],
+      raw[8],
+    ],
+    little: false,
+  ).toDouble() / _xPrecision);
 }
 
 double get _yPrecision => 1000000.0;
 double _rawToCurrent(List<int> raw) {
-  return BytesConverter.byteArrayToSignedInt(
-      [
-        raw[9],
-        raw[10],
-      ]
-  ) + (BytesConverter.byteArrayToSignedInt(
-      [
-        raw[11],
-        raw[12],
-        raw[13],
-        raw[14],
-      ]
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[9],
+      raw[10],
+    ],
+    little: false,
+  ) + (BytesConverter.byteArrayToInt32(
+    [
+      raw[11],
+      raw[12],
+      raw[13],
+      raw[14],
+    ],
+    little: false,
   ).toDouble() / _yPrecision);
 }
 

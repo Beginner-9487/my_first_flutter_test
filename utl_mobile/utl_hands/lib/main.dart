@@ -21,7 +21,7 @@ mainInit() async {
   BLEPacketToHand blePacketToHand = BLEPacketToHand(handRepository, bleRepository);
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   FlutterRingtonePlayer flutterRingTonePlayer = FlutterRingtonePlayer();
-  GlobalVariable.init(initTime, bleRepository, blePacketToHand, handRepository, sharedPreferences, flutterRingTonePlayer);
+  GlobalVariables.init(initTime, bleRepository, blePacketToHand, handRepository, sharedPreferences, flutterRingTonePlayer);
   runApp(const AppRoot());
 }
 

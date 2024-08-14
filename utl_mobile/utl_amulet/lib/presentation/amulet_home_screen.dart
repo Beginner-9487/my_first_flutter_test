@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_r/r.dart';
 import 'package:flutter_util/screen/screen_size_utils.dart';
 import 'package:utl_amulet/application/domain/amulet_repository.dart';
+import 'package:utl_amulet/application/services/posture_service.dart';
 import 'package:utl_amulet/application/use_cases/line_chart_use_case_amulet.dart';
 import 'package:utl_amulet/application/use_cases/read_file_use_case.dart';
 import 'package:utl_amulet/resources/app_theme.dart';
@@ -46,6 +47,7 @@ class _AmuletHomeScreenState extends HomeScreenState<AmuletHomeScreen> {
 
   /// Bloc
   final UpdateBloc _infoFilterButtonBloc = UpdateBloc();
+  final UpdateBloc _postureButtonBloc = UpdateBloc();
 
   UpdateBloc lineChartUpdateBloc = UpdateBloc();
   LineChartListenerBloc lineChartListenerBloc = LineChartListenerBloc();
@@ -107,8 +109,8 @@ class _AmuletHomeScreenState extends HomeScreenState<AmuletHomeScreen> {
           x: row.points.first.x,
           yList: (_xIndex != null && _xIndex! < row.points.length)
               ? row.points
-                .where((element) => element.x.toDouble() == row.points[_xIndex!].x)
-                .map((e) => e.y)
+              .where((element) => element.x.toDouble() == row.points[_xIndex!].x)
+              .map((e) => e.y)
               : null,
         );
       },
@@ -137,7 +139,31 @@ class _AmuletHomeScreenState extends HomeScreenState<AmuletHomeScreen> {
       const Icon(Icons.bluetooth_searching_rounded):
       _bleScanningView,
       const Icon(Icons.dashboard):
-      _lineChartDashboardView,
+      Scaffold(
+        body: _lineChartDashboardView,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            PostureService.posture = !PostureService.posture;
+            _postureButtonBloc.add(const UpdateEvent());
+          },
+          backgroundColor: Colors.green,
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<UpdateBloc>(
+                  create: (BuildContext context) => _postureButtonBloc
+              ),
+            ],
+            child: BlocBuilder<UpdateBloc, UpdateState>(
+                bloc: _postureButtonBloc,
+                builder: (context, state) {
+                  return (PostureService.posture)
+                      ? const Text("1")
+                      : const Text("0");
+                }
+            ),
+          ),
+        ),
+      ),
     };
     _tabViewController = TabController(length: _tabsView.length, vsync: this);
     _tabBar = TabBar(
@@ -157,41 +183,67 @@ class _AmuletHomeScreenState extends HomeScreenState<AmuletHomeScreen> {
           builder: (context, state) {
             return Column(
               children: [
-                IconButton(
-                  color: (lineChartUseCaseAmulet.showAcc) ? AppTheme.bleConnectedColor : null,
-                  onPressed: () {
-                    lineChartUseCaseAmulet.showAcc = !lineChartUseCaseAmulet.showAcc;
-                    lineChartListenerBloc.add(LineChartEventRefresh());
-                    _infoFilterButtonBloc.add(const UpdateEvent());
-                  },
-                  icon: const Icon(Icons.directions_run),
-                ),
-                IconButton(
-                  color: (lineChartUseCaseAmulet.showGyro) ? AppTheme.bleConnectedColor : null,
-                  onPressed: () {
-                    lineChartUseCaseAmulet.showGyro = !lineChartUseCaseAmulet.showGyro;
-                    lineChartListenerBloc.add(LineChartEventRefresh());
-                    _infoFilterButtonBloc.add(const UpdateEvent());
-                  },
-                  icon: const Icon(Icons.sports_gymnastics_rounded),
-                ),
-                IconButton(
-                  color: (lineChartUseCaseAmulet.showMag) ? AppTheme.bleConnectedColor : null,
-                  onPressed: () {
-                    lineChartUseCaseAmulet.showMag = !lineChartUseCaseAmulet.showMag;
-                    lineChartListenerBloc.add(LineChartEventRefresh());
-                    _infoFilterButtonBloc.add(const UpdateEvent());
-                  },
-                  icon: const Icon(Icons.usb_outlined),
-                ),
-                IconButton(
-                  color: (lineChartUseCaseAmulet.showOthers) ? AppTheme.bleConnectedColor : null,
-                  onPressed: () {
-                    lineChartUseCaseAmulet.showOthers = !lineChartUseCaseAmulet.showOthers;
-                    lineChartListenerBloc.add(LineChartEventRefresh());
-                    _infoFilterButtonBloc.add(const UpdateEvent());
-                  },
-                  icon: const Icon(Icons.list_alt),
+                SizedBox(
+                  height: 200,
+                  width: 40,
+                  child: ListView(
+                    children: [
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.showAcc) ? AppTheme.bleConnectedColor : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.showAcc = !lineChartUseCaseAmulet.showAcc;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.directions_run),
+                      ),
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.showGyro) ? AppTheme.bleConnectedColor : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.showGyro = !lineChartUseCaseAmulet.showGyro;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.sports_gymnastics_rounded),
+                      ),
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.showMag) ? AppTheme.bleConnectedColor : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.showMag = !lineChartUseCaseAmulet.showMag;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.usb_outlined),
+                      ),
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.showOthers) ? AppTheme.bleConnectedColor : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.showOthers = !lineChartUseCaseAmulet.showOthers;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.list_alt),
+                      ),
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.temperature) ? Colors.green : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.temperature = !lineChartUseCaseAmulet.temperature;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.temple_buddhist),
+                      ),
+                      IconButton(
+                        color: (lineChartUseCaseAmulet.pressure) ? Colors.green : null,
+                        onPressed: () {
+                          lineChartUseCaseAmulet.pressure = !lineChartUseCaseAmulet.pressure;
+                          lineChartListenerBloc.add(LineChartEventRefresh());
+                          _infoFilterButtonBloc.add(const UpdateEvent());
+                        },
+                        icon: const Icon(Icons.pregnant_woman),
+                      ),
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 IconButton(
@@ -224,25 +276,25 @@ class _AmuletHomeScreenState extends HomeScreenState<AmuletHomeScreen> {
       body: SafeArea(
         child: Row(children: <Widget>[
           Expanded(
-              child: Column(
-                children: [
-                  _tabBar,
-                  Expanded(
-                    child: TabBarView(
-                        controller: _tabViewController,
-                        children: _tabsView.values
-                            .map((page) => page)
-                            .toList(),
-                    ),
-                  ),
-                ],
-              ),
+            child: _lineChartView,
           ),
           AppTheme.dividerVertical,
           _filterButtonView,
           AppTheme.dividerVertical,
           Expanded(
-            child: _lineChartView,
+            child: Column(
+              children: [
+                _tabBar,
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabViewController,
+                    children: _tabsView.values
+                        .map((page) => page)
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ]),
       ),

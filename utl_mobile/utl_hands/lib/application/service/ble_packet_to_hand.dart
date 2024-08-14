@@ -20,19 +20,19 @@ class BLEPacketToHand {
   @override
   addToRepository(BLECharacteristic bleCharacteristic, BLEPacket packet) {
     bool isRight = packet.raw[0] == 0x0B;
-    double time = (DateTime.now().microsecondsSinceEpoch - GlobalVariable.initTime.microsecondsSinceEpoch) / 1000000.0;
+    double time = (DateTime.now().microsecondsSinceEpoch - GlobalVariables.initTime.microsecondsSinceEpoch) / 1000000.0;
     // double x0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[1], packet.raw[2]]);
     // double y0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[3], packet.raw[4]]);
     // double z0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[5], packet.raw[6]]);
     // double x1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[7], packet.raw[8]]);
     // double y1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[9], packet.raw[10]]);
     // double z1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[11], packet.raw[12]]);
-    double x0 = BytesConverter.byteArrayToUnsignedInt([packet.raw[1], packet.raw[2]]).toDouble();
-    double y0 = BytesConverter.byteArrayToUnsignedInt([packet.raw[3], packet.raw[4]]).toDouble();
-    double z0 = BytesConverter.byteArrayToUnsignedInt([packet.raw[5], packet.raw[6]]).toDouble();
-    double x1 = BytesConverter.byteArrayToUnsignedInt([packet.raw[7], packet.raw[8]]).toDouble();
-    double y1 = BytesConverter.byteArrayToUnsignedInt([packet.raw[9], packet.raw[10]]).toDouble();
-    double z1 = BytesConverter.byteArrayToUnsignedInt([packet.raw[11], packet.raw[12]]).toDouble();
+    double x0 = BytesConverter.byteArrayToUint16([packet.raw[1], packet.raw[2]], little: false).toDouble();
+    double y0 = BytesConverter.byteArrayToUint16([packet.raw[3], packet.raw[4]], little: false).toDouble();
+    double z0 = BytesConverter.byteArrayToUint16([packet.raw[5], packet.raw[6]], little: false).toDouble();
+    double x1 = BytesConverter.byteArrayToUint16([packet.raw[7], packet.raw[8]], little: false).toDouble();
+    double y1 = BytesConverter.byteArrayToUint16([packet.raw[9], packet.raw[10]], little: false).toDouble();
+    double z1 = BytesConverter.byteArrayToUint16([packet.raw[11], packet.raw[12]], little: false).toDouble();
     repository.add(isRight, time, x0, y0, z0, x1, y1, z1);
   }
 }

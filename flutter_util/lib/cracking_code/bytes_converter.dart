@@ -4,31 +4,33 @@ import 'dart:typed_data';
 class BytesConverter {
   BytesConverter._();
 
-  static int byteArrayToSignedInt(List<int> bytes) {
-    int value = byteArrayToUnsignedInt(bytes);
-    // If the most significant bit of the final byte is set, the value is negative.
-    if ((bytes[0] & 0x80) != 0) {
-      // Extend the sign bit to fill the entire integer value.
-      value = -((pow(256, bytes.length)).toInt() - value);
-    }
-    return value;
+  static int byteArrayToInt16(List<int> bytes, {bool little = true}) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getInt16(0, (little) ? Endian.little : Endian.big);
+  }
+  
+  static int byteArrayToInt32(List<int> bytes, {bool little = true}) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getInt32(0, (little) ? Endian.little : Endian.big);
+  }
+  
+  static int byteArrayToUint8(List<int> bytes) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getInt8(0);
   }
 
-  static int byteArrayToUnsignedInt(List<int> bytes) {
-    int value = 0;
-    for (int i = 0; i < bytes.length; i++) {
-      value = (value << 8) | bytes[i];
-    }
-    return value;
+  static int byteArrayToUint16(List<int> bytes, {bool little = true}) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getInt16(0, (little) ? Endian.little : Endian.big);
   }
 
-  static double byteArrayToFloat(List<int> bytes) {
+  static double byteArrayToFloat(List<int> bytes, {bool little = true}) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-    return byteData.getFloat32(0, Endian.little); // Assuming little endian
+    return byteData.getFloat32(0, (little) ? Endian.little : Endian.big);
   }
-  static double byteArrayToDouble(List<int> bytes) {
+  static double byteArrayToDouble(List<int> bytes, {bool little = true}) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-    return byteData.getFloat64(0, Endian.little); // Assuming little endian
+    return byteData.getFloat64(0, (little) ? Endian.little : Endian.big);
   }
 
   static List<int> hexStringToByteArray(String s) {

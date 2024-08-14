@@ -33,6 +33,7 @@
 
   "voltage": "电压",
   "current": "电流",
+  "id": "id",
   "time": "时间",
   "accX": "加速度X",
   "accY": "加速度Y",
@@ -46,5 +47,8 @@
   "pitch": "俯仰角",
   "roll": "翻滚角",
   "yaw": "偏航角",
-  "gValue": "G值"
+  "gValue": "G值",
+  "temperature": "温度",
+  "pressure": "气压",
+  "posture": "姿势"
 }

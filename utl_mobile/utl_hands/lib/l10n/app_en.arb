@@ -3,5 +3,8 @@
   "appName": "UTL Hands",
 
   "connect": "Connect",
-  "disconnect": "Disconnect"
+  "disconnect": "Disconnect",
+
+  "id": "ID",
+  "time": "Time"
 }

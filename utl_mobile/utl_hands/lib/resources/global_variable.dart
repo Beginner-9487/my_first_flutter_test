@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utl_hands/application/domain/hand_repository.dart';
 import 'package:utl_hands/application/service/ble_packet_to_hand.dart';
 
-class GlobalVariable {
+class GlobalVariables {
   static init(
       DateTime initTime,
       BLERepository bleRepository,
@@ -13,12 +13,12 @@ class GlobalVariable {
       SharedPreferences sharedPreferences,
       FlutterRingtonePlayer flutterRingTonePlayer,
   ) {
-    GlobalVariable.initTime = initTime;
-    GlobalVariable.bleRepository = bleRepository;
-    GlobalVariable.blePacketToHand = blePacketToHand;
-    GlobalVariable.handRepository = handRepository;
-    GlobalVariable.sharedPreferences = sharedPreferences;
-    GlobalVariable.flutterRingTonePlayer = flutterRingTonePlayer;
+    GlobalVariables.initTime = initTime;
+    GlobalVariables.bleRepository = bleRepository;
+    GlobalVariables.blePacketToHand = blePacketToHand;
+    GlobalVariables.handRepository = handRepository;
+    GlobalVariables.sharedPreferences = sharedPreferences;
+    GlobalVariables.flutterRingTonePlayer = flutterRingTonePlayer;
   }
   static late DateTime initTime;
   static late BLERepository bleRepository;

@@ -19,6 +19,8 @@ class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
   bool showGyro = false;
   bool showMag = false;
   bool showOthers = true;
+  bool temperature = true;
+  bool pressure = true;
 
   int get _numberOfDataForEachDevice {
     if(showAcc || showGyro || showMag) {
@@ -26,6 +28,9 @@ class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
     }
     if(showOthers) {
       return 4;
+    }
+    if(temperature || pressure) {
+      return 1;
     }
     return 0;
   }
@@ -119,6 +124,32 @@ class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
         }),
       ));
     }
+    if(temperature) {
+      return devices.map((device) => (
+        device,
+        Iterable.generate(_numberOfDataForEachDevice, (int n) {
+          switch(n) {
+            case 0:
+              return "${device.name}-${R.str.temperature}";
+            default:
+              throw Exception();
+          }
+        }),
+      ));
+    }
+    if(pressure) {
+      return devices.map((device) => (
+        device,
+        Iterable.generate(_numberOfDataForEachDevice, (int n) {
+          switch(n) {
+            case 0:
+              return "${device.name}-${R.str.pressure}";
+            default:
+              throw Exception();
+          }
+        }),
+      ));
+    }
     return const Iterable.empty();
   }
 
@@ -189,6 +220,32 @@ class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
               return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gValue * _ROUND).round() / _ROUND));
             default:
               throw Exception();
+          }
+        }),
+      ));
+    }
+    if(temperature) {
+      return deviceWithRows.map((e) => (
+        e.$1,
+        Iterable.generate(_numberOfDataForEachDevice, (int n) {
+          switch(n) {
+            case 0:
+              return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, row.temperature));
+            default:
+              throw Exception();
+          }
+        }),
+      ));
+    }
+    if(pressure) {
+      return deviceWithRows.map((e) => (
+        e.$1,
+        Iterable.generate(_numberOfDataForEachDevice, (int n) {
+          switch(n) {
+            case 0:
+              return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, row.pressure));
+                  default:
+                  throw Exception();
           }
         }),
       ));

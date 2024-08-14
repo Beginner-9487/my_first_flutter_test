@@ -4,6 +4,7 @@ import 'package:flutter_ble/application/domain/ble_repository.dart';
 
 abstract class AmuletRepository {
   Iterable<AmuletRow> get idRows;
+  Iterable<BLEDevice> get devices;
   Iterable<(BLEDevice, Iterable<AmuletRow>)> get devicesRows;
   Iterable<AmuletRow> deviceRows(BLEDevice device);
   StreamSubscription<AmuletRow> onAdd(void Function(AmuletRow row) doSomething);
@@ -29,4 +30,7 @@ abstract class AmuletRow {
   double get roll;
   double get yaw;
   double get gValue;
+  double get temperature;
+  double get pressure;
+  bool get posture;
 }

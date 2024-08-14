@@ -176,29 +176,29 @@ class FootRowImpl extends FootRow {
   @override
   double time;
   @override
-  double get accX => BytesConverter.byteArrayToSignedInt([raw[2], raw[1]]).toDouble();
+  double get accX => BytesConverter.byteArrayToInt16([raw[1], raw[2]]).toDouble();
   @override
-  double get accY => BytesConverter.byteArrayToSignedInt([raw[4], raw[3]]).toDouble();
+  double get accY => BytesConverter.byteArrayToInt16([raw[3], raw[4]]).toDouble();
   @override
-  double get accZ => BytesConverter.byteArrayToSignedInt([raw[6], raw[5]]).toDouble();
+  double get accZ => BytesConverter.byteArrayToInt16([raw[5], raw[6]]).toDouble();
   @override
-  double get gyroX => BytesConverter.byteArrayToSignedInt([raw[8], raw[7]]).toDouble();
+  double get gyroX => BytesConverter.byteArrayToInt16([raw[7], raw[8]]).toDouble();
   @override
-  double get gyroY => BytesConverter.byteArrayToSignedInt([raw[10], raw[9]]).toDouble();
+  double get gyroY => BytesConverter.byteArrayToInt16([raw[9], raw[10]]).toDouble();
   @override
-  double get gyroZ => BytesConverter.byteArrayToSignedInt([raw[12], raw[11]]).toDouble();
+  double get gyroZ => BytesConverter.byteArrayToInt16([raw[11], raw[12]]).toDouble();
   @override
-  double get magX => BytesConverter.byteArrayToSignedInt([raw[14], raw[13]]).toDouble();
+  double get magX => BytesConverter.byteArrayToInt16([raw[13], raw[14]]).toDouble();
   @override
-  double get magY => BytesConverter.byteArrayToSignedInt([raw[16], raw[15]]).toDouble();
+  double get magY => BytesConverter.byteArrayToInt16([raw[15], raw[16]]).toDouble();
   @override
-  double get magZ => BytesConverter.byteArrayToSignedInt([raw[18], raw[17]]).toDouble();
+  double get magZ => BytesConverter.byteArrayToInt16([raw[17], raw[18]]).toDouble();
   @override
-  double get pitch => BytesConverter.byteArrayToSignedInt([raw[20], raw[19]]).toDouble();
+  double get pitch => BytesConverter.byteArrayToInt16([raw[19], raw[20]]).toDouble();
   @override
-  double get roll => BytesConverter.byteArrayToSignedInt([raw[22], raw[21]]).toDouble();
+  double get roll => BytesConverter.byteArrayToInt16([raw[21], raw[22]]).toDouble();
   @override
-  double get yaw => BytesConverter.byteArrayToSignedInt([raw[24], raw[23]]).toDouble();
+  double get yaw => BytesConverter.byteArrayToInt16([raw[23], raw[24]]).toDouble();
   @override
   late List<FootSensorData> sensorsData = List.generate(
       FootSensorPosition.numberOfFootSensor,
@@ -272,22 +272,22 @@ class FootSensorDataImpl extends FootSensorData {
   @override
   int sensorIndex;
   @override
-  double get magX => BytesConverter.byteArrayToUnsignedInt([
-    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 0) + (sensorIndex * 2) + 1],
+  double get magX => BytesConverter.byteArrayToUint16([
     raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 0) + (sensorIndex * 2) + 0],
+    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 0) + (sensorIndex * 2) + 1],
   ]).toDouble();
   @override
-  double get magY => BytesConverter.byteArrayToUnsignedInt([
-    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 2) + (sensorIndex * 2) + 1],
+  double get magY => BytesConverter.byteArrayToUint16([
     raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 2) + (sensorIndex * 2) + 0],
+    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 2) + (sensorIndex * 2) + 1],
   ]).toDouble();
   @override
-  double get magZ => BytesConverter.byteArrayToUnsignedInt([
-    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 4) + (sensorIndex * 2) + 1],
+  double get magZ => BytesConverter.byteArrayToUint16([
     raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 4) + (sensorIndex * 2) + 0],
+    raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 4) + (sensorIndex * 2) + 1],
   ]).toDouble();
   @override
-  double get temperature => BytesConverter.byteArrayToUnsignedInt([
+  double get temperature => BytesConverter.byteArrayToUint8([
     raw[_SENSOR_RAW_START_INDEX + (FootSensorPosition.numberOfFootSensor * 6) + sensorIndex],
   ]).toDouble();
   @override

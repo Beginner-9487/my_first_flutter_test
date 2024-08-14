@@ -37,6 +37,7 @@
 
   "voltage": "voltage",
   "current": "current",
+  "id": "id",
   "time": "time",
   "accX": "accX",
   "accY": "accY",
@@ -50,5 +51,8 @@
   "pitch": "pitch",
   "roll": "roll",
   "yaw": "yaw",
-  "gValue": "gValue"
+  "gValue": "gValue",
+  "temperature": "temperature",
+  "pressure": "pressure",
+  "posture": "posture"
 }

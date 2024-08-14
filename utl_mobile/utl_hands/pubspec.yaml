@@ -54,6 +54,9 @@ dependencies:
   flutter_ringtone_player: ^4.0.0+3
   shared_preferences: ^2.2.3
 
+  bloc: any
+  flutter_bloc: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

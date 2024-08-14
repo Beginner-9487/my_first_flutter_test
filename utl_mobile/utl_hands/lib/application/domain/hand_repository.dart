@@ -7,7 +7,8 @@ abstract class HandRepository {
 }
 
 abstract class HandRow {
-  int get index;
+  bool get isRight;
+  int get id;
   double get time;
   double get x0;
   double get y0;

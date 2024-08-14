@@ -5,7 +5,7 @@ import 'package:utl_hands/application/domain/hand_repository.dart';
 import 'package:utl_hands/resources/global_variable.dart';
 
 class HandToLineChart {
-  static HandRepository get _handRepository => GlobalVariable.handRepository;
+  static HandRepository get _handRepository => GlobalVariables.handRepository;
 
   static Iterable<Iterable<Point<double>>> _rowsToLineChartData(Iterable<HandRow> rows) {
     return Iterable.generate(6, (int index) {

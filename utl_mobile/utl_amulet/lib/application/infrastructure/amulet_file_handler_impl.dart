@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:flutter_file_handler/application/row_csv_file.dart';
 import 'package:flutter_file_handler/application/row_csv_file_impl.dart';
@@ -9,7 +10,16 @@ import 'package:utl_amulet/application/infrastructure/amulet_file_handler.dart';
 import 'package:flutter_util/path.dart';
 
 class AmuletFileHandlerImpl extends AmuletFileHandler {
-  AmuletFileHandlerImpl();
+  AmuletFileHandlerImpl() {
+    _setTimer();
+  }
+
+  _setTimer() {
+    Timer(const Duration(milliseconds: 1), () async {
+      await _saveFile();
+      _setTimer();
+    });
+  }
 
   static get _initTimeStampFormatString {
     DateTime dateTime = DateTime.now();
@@ -21,6 +31,7 @@ class AmuletFileHandlerImpl extends AmuletFileHandler {
 
   static List<String> get _HEADER {
     List<String> header = [
+      R.str.id,
       R.str.time,
       R.str.accX,
       R.str.accY,
@@ -35,6 +46,9 @@ class AmuletFileHandlerImpl extends AmuletFileHandler {
       R.str.roll,
       R.str.yaw,
       R.str.gValue,
+      R.str.temperature,
+      R.str.pressure,
+      R.str.posture,
     ];
     return header;
   }
@@ -94,7 +108,7 @@ class AmuletFileHandlerImpl extends AmuletFileHandler {
     String fileName = "amulet_${device.name}_$_initTimeStampFormatString";
     String filePath = '${await _savedFolder}/$fileName$_EXTENSION';
     RowCSVFile file = await _factory.createEmptyFile(filePath);
-    file.write(_HEADER);
+    await file.write(_HEADER);
     files.add((
       fileName,
       filePath,
@@ -103,26 +117,43 @@ class AmuletFileHandlerImpl extends AmuletFileHandler {
     ));
   }
 
+  List<AmuletRow> buffer = [];
   @override
   addDataToFile(AmuletRow row) async {
-    if(!isFileBeenCreated(row.device)) {
-      await _createFile(row.device);
+    // debugPrint("amulet_file_handler_impl.addDataToFile.raw: ${row.time}");
+    buffer.add(row);
+  }
+
+  _saveFile() async {
+    if(buffer.isEmpty) {
+      return;
     }
-    List<String> data = [];
-    data.add(((row.time * _ROUND).round() / _ROUND).toString());
-    data.add(((row.accX * _ROUND).round() / _ROUND).toString());
-    data.add(((row.accY * _ROUND).round() / _ROUND).toString());
-    data.add(((row.accZ * _ROUND).round() / _ROUND).toString());
-    data.add(((row.magX * _ROUND).round() / _ROUND).toString());
-    data.add(((row.magY * _ROUND).round() / _ROUND).toString());
-    data.add(((row.magZ * _ROUND).round() / _ROUND).toString());
-    data.add(((row.gyroX * _ROUND).round() / _ROUND).toString());
-    data.add(((row.gyroY * _ROUND).round() / _ROUND).toString());
-    data.add(((row.gyroZ * _ROUND).round() / _ROUND).toString());
-    data.add(((row.pitch * _ROUND).round() / _ROUND).toString());
-    data.add(((row.roll * _ROUND).round() / _ROUND).toString());
-    data.add(((row.yaw * _ROUND).round() / _ROUND).toString());
-    data.add(((row.gValue * _ROUND).round() / _ROUND).toString());
-    await findFileByDevice(row.device).write(data);
+    int length = buffer.length;
+    for(int i=0; i<length; i++) {
+      if(!isFileBeenCreated(buffer[i].device)) {
+        await _createFile(buffer[i].device);
+      }
+      List<String> data = [];
+      data.add(buffer[i].id.toString());
+      data.add(((buffer[i].time * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].accX * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].accY * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].accZ * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].magX * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].magY * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].magZ * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].gyroX * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].gyroY * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].gyroZ * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].pitch * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].roll * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].yaw * _ROUND).round() / _ROUND).toString());
+      data.add(((buffer[i].gValue * _ROUND).round() / _ROUND).toString());
+      data.add((buffer[i].temperature).toString());
+      data.add((buffer[i].pressure).toString());
+      data.add((buffer[i].posture).toString());
+      await findFileByDevice(buffer[i].device).write(data);
+    }
+    buffer.removeRange(0, length);
   }
 }

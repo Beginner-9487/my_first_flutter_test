@@ -15,7 +15,7 @@ void test() async {
   await mainInit();
 
   await Future.delayed(const Duration(seconds: 3));
-  GlobalVariable.bleRepository = BLERepositoryImplFake.getInstance();
+  GlobalVariables.bleRepository = BLERepositoryImplFake.getInstance();
 
   int i = 0;
   Timer timer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
@@ -26,18 +26,18 @@ void test() async {
 testAddHandRepository(int index) {
   // bool isRight = Random.secure().nextBool();
   bool isRight = true;
-  double time = (DateTime.now().microsecondsSinceEpoch - GlobalVariable.initTime.microsecondsSinceEpoch) / 1000000.0;
+  double time = (DateTime.now().microsecondsSinceEpoch - GlobalVariables.initTime.microsecondsSinceEpoch) / 1000000.0;
   double x0 = Random.secure().nextDouble() * 10.0;
   double y0 = Random.secure().nextDouble() * 10.0;
   double z0 = Random.secure().nextDouble() * 10.0;
   double x1 = Random.secure().nextDouble() * 10.0;
   double y1 = Random.secure().nextDouble() * 10.0;
   double z1 = Random.secure().nextDouble() * 10.0;
-  (GlobalVariable.handRepository as HandRepositoryImpl).add(isRight, time, x0, y0, z0, x1, y1, z1);
+  (GlobalVariables.handRepository as HandRepositoryImpl).add(isRight, time, x0, y0, z0, x1, y1, z1);
 }
 
 BLEDeviceImplFake deviceImplFake = BLEDeviceImplFake(
-    GlobalVariable.bleRepository as BLERepositoryImplFake,
+    GlobalVariables.bleRepository as BLERepositoryImplFake,
     "name",
     "address",
     "platformName",
@@ -46,15 +46,15 @@ BLEDeviceImplFake deviceImplFake = BLEDeviceImplFake(
     "manufacturerData"
 );
 BLEServiceImplFake serviceImplFake = BLEServiceImplFake(
-  GlobalVariable.bleRepository as BLERepositoryImplFake,
+  GlobalVariables.bleRepository as BLERepositoryImplFake,
   deviceImplFake,
 );
 testBLEPacketToHand(int index) {
   // bool isRight = Random.secure().nextBool();
-  GlobalVariable.blePacketToHand
+  GlobalVariables.blePacketToHand
       .addToRepository(
       BLECharacteristicImplFake(
-        GlobalVariable.bleRepository as BLERepositoryImplFake,
+        GlobalVariables.bleRepository as BLERepositoryImplFake,
         // GlobalVariable.bleRepository.allDevices.first as BLEDeviceImplFake,
         // GlobalVariable.bleRepository.allDevices.first.services.first as BLEServiceImplFake,
         deviceImplFake,

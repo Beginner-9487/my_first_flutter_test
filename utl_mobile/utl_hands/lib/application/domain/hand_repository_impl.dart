@@ -15,7 +15,7 @@ class HandRepositoryImpl implements HandRepository {
   List<HandRowImpl> leftHandRows = [];
   @override
   List<HandRowImpl> rightHandRows = [];
-  static int _indexCounter = 0;
+  static int _idCounter = 0;
   add(
       bool isRight,
       double time,
@@ -26,7 +26,13 @@ class HandRepositoryImpl implements HandRepository {
       double y1,
       double z1,
   ) {
-    HandRowImpl row = HandRowImpl(this, _indexCounter++, time, x0, y0, z0, x1, y1, z1);
+    HandRowImpl row = HandRowImpl(
+        this,
+        isRight,
+        _idCounter++,
+        time,
+        x0, y0, z0, x1, y1, z1,
+    );
     if(isRight) {
       rightHandRows.add(row);
     } else {
@@ -49,7 +55,8 @@ class HandRepositoryImpl implements HandRepository {
 class HandRowImpl implements HandRow {
   HandRowImpl(
       this.repository,
-      this.index,
+      this.isRight,
+      this.id,
       this.time,
       this.x0,
       this.y0,
@@ -60,7 +67,9 @@ class HandRowImpl implements HandRow {
   );
   HandRepository repository;
   @override
-  int index;
+  bool isRight;
+  @override
+  int id;
   @override
   double time;
   @override

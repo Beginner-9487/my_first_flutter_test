@@ -3,5 +3,8 @@
   "appName": "UTL 手",
 
   "connect": "連線",
-  "disconnect": "斷線"
+  "disconnect": "斷線",
+
+  "id": "ID",
+  "time": "Time"
 }
