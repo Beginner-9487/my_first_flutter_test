@@ -5,7 +5,6 @@ import 'package:flutter_background_processor/application/infrastructure/backgrou
 import 'package:flutter_background_processor/application/infrastructure/background_processor_impl_fft.dart';
 import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:flutter_ble/application/domain/ble_repository_impl_fbp.dart';
-import 'package:flutter_ble/application/services/ble_auto_read_rssi_service.dart';
 import 'package:flutter_ble/application/services/ble_selected_auto_read_rssi_service.dart';
 import 'package:flutter_ble/application/services/ble_selected_auto_reconnect_service.dart';
 import 'package:flutter_util/bloc/bloc_observer.dart';
@@ -15,7 +14,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository_impl.dart';
 import 'package:utl_mackay_irb/application/services/auto_save_file_service_mackay_irb.dart';
-import 'package:utl_mackay_irb/application/services/ble_mackay_irb_service.dart';
+import 'package:utl_mackay_irb/application/services/ble_mackay_irb_data_setter_impl.dart';
 import 'package:utl_mackay_irb/presentation/mackay_irb_home_screen.dart';
 import 'package:utl_mackay_irb/resources/app_theme.dart';
 import 'package:utl_mackay_irb/resources/global_variables.dart';
@@ -65,9 +64,8 @@ setGlobal() async {
   //     bleSelectedAutoReadRSSIService: bleSelectedAutoReadRSSIService,
   // );
 
-  BLEMackayIRBService bleMackayIRBService = BLEMackayIRBService.getInstance(
+  BLEMackayIRBDataSetterImpl bleMackayIRBDataSetter = BLEMackayIRBDataSetterImpl.getInstance(
     bleRepository: bleRepository,
-    mackayIRBRepository: mackayIRBRepository,
   );
 
   AutoSaveFileServiceMackayIRB autoSaveFileServiceMackayIRB = AutoSaveFileServiceMackayIRB.getInstance(
@@ -82,7 +80,7 @@ setGlobal() async {
     sharedPreferences: sharedPreferences!,
     bleRepository: bleRepository,
     mackayIRBRepository: mackayIRBRepository,
-    bleMackayIRBService: bleMackayIRBService,
+    bleMackayIRBDataSetter: bleMackayIRBDataSetter,
     autoSaveFileServiceMackayIRB: autoSaveFileServiceMackayIRB,
     bleSelectedAutoReconnectService: bleSelectedAutoReconnectService,
     bleSelectedAutoReadRSSIService: bleSelectedAutoReadRSSIService,

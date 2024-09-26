@@ -35,8 +35,17 @@
   "open": "Open",
   "sendCommand": "Send Command",
 
+  "name": "name",
+  "time": "time",
+  "device": "device",
+  "type": "type",
+  "index": "index",
+  "number": "number",
+
   "cortisol": "cortisol",
   "lactate": "lactate",
+  "h1n1": "H1N1",
+  "temperature": "temperature",
   "voltage": "voltage",
   "current": "current"
 }

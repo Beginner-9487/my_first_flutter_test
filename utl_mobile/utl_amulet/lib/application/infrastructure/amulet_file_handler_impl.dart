@@ -142,9 +142,12 @@ class AmuletFileHandlerImpl extends AmuletFileHandler {
       data.add(((buffer[i].magX * _ROUND).round() / _ROUND).toString());
       data.add(((buffer[i].magY * _ROUND).round() / _ROUND).toString());
       data.add(((buffer[i].magZ * _ROUND).round() / _ROUND).toString());
-      data.add(((buffer[i].gyroX * _ROUND).round() / _ROUND).toString());
-      data.add(((buffer[i].gyroY * _ROUND).round() / _ROUND).toString());
-      data.add(((buffer[i].gyroZ * _ROUND).round() / _ROUND).toString());
+      // data.add(((buffer[i].gyroX * _ROUND).round() / _ROUND).toString());
+      // data.add(((buffer[i].gyroY * _ROUND).round() / _ROUND).toString());
+      // data.add(((buffer[i].gyroZ * _ROUND).round() / _ROUND).toString());
+      data.add("0");
+      data.add("0");
+      data.add("0");
       data.add(((buffer[i].pitch * _ROUND).round() / _ROUND).toString());
       data.add(((buffer[i].roll * _ROUND).round() / _ROUND).toString());
       data.add(((buffer[i].yaw * _ROUND).round() / _ROUND).toString());

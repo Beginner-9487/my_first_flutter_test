@@ -20,12 +20,15 @@ abstract class AmuletRow {
   double get accX;
   double get accY;
   double get accZ;
-  double get gyroX;
-  double get gyroY;
-  double get gyroZ;
+  double get accTotal;
+  // double get gyroX;
+  // double get gyroY;
+  // double get gyroZ;
+  // double get gyroTotal;
   double get magX;
   double get magY;
   double get magZ;
+  double get magTotal;
   double get pitch;
   double get roll;
   double get yaw;

@@ -6,7 +6,8 @@ import 'package:flutter_ble/application/services/ble_selected_auto_reconnect_ser
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 import 'package:utl_mackay_irb/application/services/auto_save_file_service_mackay_irb.dart';
-import 'package:utl_mackay_irb/application/services/ble_mackay_irb_service.dart';
+import 'package:utl_mackay_irb/application/services/ble_mackay_irb_data_setter.dart';
+import 'package:utl_mackay_irb/application/services/ble_mackay_irb_data_setter_impl.dart';
 
 class GlobalVariables {
   late DateTime initTimeStamp;
@@ -22,7 +23,7 @@ class GlobalVariables {
   // late BLEAutoReadRSSIService bleAutoReadRSSIService;
 
   late MackayIRBRepository mackayIRBRepository;
-  late BLEMackayIRBService bleMackayIRBService;
+  late BLEMackayIRBDataSetter bleMackayIRBDataSetter;
   late AutoSaveFileServiceMackayIRB autoSaveFileServiceMackayIRB;
 
   static late GlobalVariables instance;
@@ -35,7 +36,7 @@ class GlobalVariables {
     required SharedPreferences sharedPreferences,
     required BLERepository bleRepository,
     required MackayIRBRepository mackayIRBRepository,
-    required BLEMackayIRBService bleMackayIRBService,
+    required BLEMackayIRBDataSetter bleMackayIRBDataSetter,
     required AutoSaveFileServiceMackayIRB autoSaveFileServiceMackayIRB,
     required BLESelectedAutoReconnectService bleSelectedAutoReconnectService,
     required BLESelectedAutoReadRSSIService bleSelectedAutoReadRSSIService,
@@ -47,7 +48,7 @@ class GlobalVariables {
     instance.sharedPreferences = sharedPreferences;
     instance.bleRepository = bleRepository;
     instance.mackayIRBRepository = mackayIRBRepository;
-    instance.bleMackayIRBService = bleMackayIRBService;
+    instance.bleMackayIRBDataSetter = bleMackayIRBDataSetter;
     instance.autoSaveFileServiceMackayIRB = autoSaveFileServiceMackayIRB;
     instance.bleSelectedAutoReconnectService = bleSelectedAutoReconnectService;
     instance.bleSelectedAutoReadRSSIService = bleSelectedAutoReadRSSIService;

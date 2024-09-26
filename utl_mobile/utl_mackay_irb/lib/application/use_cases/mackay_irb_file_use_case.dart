@@ -1,12 +1,16 @@
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 import 'package:utl_mackay_irb/application/infrastructure/mackay_irb_file_handler.dart';
+import 'package:utl_mackay_irb/application/infrastructure/mackay_irb_file_handler_impl.dart';
 
 class MackayIRBFileUseCase {
-  MackayIRBFileUseCase();
+  late final MackayIRBFileHandler mackayIRBFileHandler;
+  MackayIRBFileUseCase() {
+    mackayIRBFileHandler = MackayIRBFileHandlerImpl.getInstance();
+  }
   saveMeasurementFile(MackayIRBEntity entity) async {
-    MackayIRBFileHandler.saveMeasurementFile(entity);
+    mackayIRBFileHandler.saveMeasurementFile(entity);
   }
   save5sFile(MackayIRBEntity entity) async {
-    MackayIRBFileHandler.save5sFile(entity);
+    mackayIRBFileHandler.save5sFile(entity);
   }
 }

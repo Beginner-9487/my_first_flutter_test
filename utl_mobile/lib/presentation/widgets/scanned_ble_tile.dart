@@ -206,7 +206,7 @@ class _ScannedBLEExecuteTileState<Tile extends ScannedBLEExecuteTile> extends _S
   }
 }
 
-class ScannedBLEExecuteTextTile extends ScannedBLEExecuteTile {
+class ScannedBLEExecuteTextTile extends ScannedBLETile {
   ScannedBLEExecuteTextTile({
     super.key,
     required super.bleDeviceBloc,
@@ -214,25 +214,45 @@ class ScannedBLEExecuteTextTile extends ScannedBLEExecuteTile {
     super.onDisconnect,
     super.colorConnected,
     super.colorDisconnected,
-    super.textConnected = "",
-    super.textDisconnected = "",
-    super.onExecute,
+    super.textConnected,
+    super.textDisconnected,
+    this.onExecute,
     this.onTextChange,
+    this.textDefault = "",
   });
 
+  void Function(BLEDevice, String)? onExecute;
   void Function(BLEDevice, String)? onTextChange;
+  String textDefault;
 
   @override
   State<ScannedBLEExecuteTextTile> createState() => _ScannedBLEExecuteTextTileState();
 }
 
-class _ScannedBLEExecuteTextTileState<Tile extends ScannedBLEExecuteTextTile> extends _ScannedBLEExecuteTileState<Tile> {
+class _ScannedBLEExecuteTextTileState<Tile extends ScannedBLEExecuteTextTile> extends _ScannedBLETileState<Tile> {
   late TextEditingController _labelNameController;
+  void Function(BLEDevice, String) get onTextChange => (widget.onTextChange != null) ? widget.onTextChange! : (BLEDevice device, String text) {};
+  void Function(BLEDevice, String)? get onExecute => (connectable) ? widget.onExecute : null;
 
   @override
   void initState() {
     super.initState();
-    _labelNameController = TextEditingController(text: device.name);
+    _labelNameController = TextEditingController(text: widget.textDefault);
+  }
+
+  Widget _buildExecuteButton(BuildContext context) {
+    return IconButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      onPressed: (onExecute != null) ?
+      () {
+        onExecute!(bleDvBloc.device, _labelNameController.value.text);
+      } :
+      null,
+      icon: const Icon(Icons.send),
+    );
   }
 
   @override
@@ -244,10 +264,7 @@ class _ScannedBLEExecuteTextTileState<Tile extends ScannedBLEExecuteTextTile> ex
           title: TextField(
             controller: _labelNameController,
             onChanged: (String text) {
-              if(widget.onTextChange == null) {
-                return;
-              }
-              widget.onTextChange!(bleDvBloc.device, text);
+              onTextChange(bleDvBloc.device, text);
             },
           ),
           trailing: _buildExecuteButton(context),

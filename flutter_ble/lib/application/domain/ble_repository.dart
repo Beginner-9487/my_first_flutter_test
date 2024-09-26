@@ -128,7 +128,7 @@ abstract class BLECharacteristic extends Equatable {
   BLECharacteristicProperties get properties;
 
   Future<BLEPacket> readData();
-  writeData(BLEPacket packet, {int delay = 100});
+  writeData(BLEPacket packet);
 
   StreamSubscription<BLEPacket> onReadNotifiedData(void Function(BLEPacket packet) doSomething);
   StreamSubscription<BLEPacket> onReadAllData(void Function(BLEPacket packet) doSomething);
@@ -146,7 +146,7 @@ abstract class BLEDescriptor<Repository, Device, Service, Characteristic> extend
   String get uuid;
 
   Future<BLEPacket> readData();
-  writeData(BLEPacket packet, {int delay = 100});
+  writeData(BLEPacket packet);
 
   StreamSubscription<BLEPacket> onReadNotifiedData(void Function(BLEPacket packet) doSomething);
   StreamSubscription<BLEPacket> onReadAllData(void Function(BLEPacket packet) doSomething);

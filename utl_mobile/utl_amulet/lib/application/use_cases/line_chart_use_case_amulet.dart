@@ -175,16 +175,17 @@ class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
       return deviceWithRows.map((e) => (
         e.$1,
         Iterable.generate(_numberOfDataForEachDevice, (int n) {
-          switch(n) {
-            case 0:
-              return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroX * _ROUND).round() / _ROUND));
-            case 1:
-              return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroY * _ROUND).round() / _ROUND));
-            case 2:
-              return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroZ * _ROUND).round() / _ROUND));
-            default:
-              throw Exception();
-          }
+          // switch(n) {
+          //   case 0:
+          //     return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroX * _ROUND).round() / _ROUND));
+          //   case 1:
+          //     return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroY * _ROUND).round() / _ROUND));
+          //   case 2:
+          //     return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, (row.gyroZ * _ROUND).round() / _ROUND));
+          //   default:
+          //     throw Exception();
+          // }
+          return e.$2.map((row) => Point((row.time * _ROUND).round() / _ROUND, 0));
         }),
       ));
     }

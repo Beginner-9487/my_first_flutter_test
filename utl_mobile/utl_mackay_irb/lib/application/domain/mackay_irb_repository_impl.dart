@@ -1,71 +1,113 @@
 import 'dart:async';
 
+import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:flutter_util/cracking_code/bytes_converter.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
+import 'package:utl_mackay_irb/application/domain/mackay_irb_type_impl.dart';
 
-int _rawToType(List<int> raw) {
-  return BytesConverter.byteArrayToInt16(
+MackayIRBType _type_null = NullMackayIRBType();
+MackayIRBType _type_temperature = NullMackayIRBType();
+List<MackayIRBType> _types = [
+  CortisolMackayIRBType(),
+  LactateMackayIRBType(),
+  _type_temperature,
+  DPVMackayIRBType(),
+];
+
+MackayIRBType _rawToType(List<int> raw) {
+  int id = BytesConverter.byteArrayToInt8(
     [
       raw[0],
     ],
-    little: false,
+  );
+  for(var type in _types)
+  {
+    if(type.id == id)
+      {
+        return type;
+      }
+  }
+  return _type_null;
+}
+
+int _rawToIndex(List<int> raw) {
+  return BytesConverter.byteArrayToInt16(
+    [
+      raw[1],
+      raw[2],
+    ],
   );
 }
 
 int _rawToNumberOfData(List<int> raw) {
   return BytesConverter.byteArrayToInt16(
     [
-      raw[1],
-      raw[2],
-    ],
-    little: false,
-  );
-}
-
-int _rawToIndex(List<int> raw) {
-  return BytesConverter.byteArrayToInt16(
-    [
       raw[3],
       raw[4],
     ],
-    little: false,
   );
 }
 
-double get _xPrecision => 1000.0;
 double _rawToVoltage(List<int> raw) {
-  return BytesConverter.byteArrayToInt16(
+  return BytesConverter.byteArrayToFloat(
     [
       raw[5],
       raw[6],
-    ],
-    little: false,
-  ) + (BytesConverter.byteArrayToInt16(
-    [
       raw[7],
       raw[8],
     ],
-    little: false,
-  ).toDouble() / _xPrecision);
+  );
 }
 
-double get _yPrecision => 1000000.0;
 double _rawToCurrent(List<int> raw) {
-  return BytesConverter.byteArrayToInt16(
+  return BytesConverter.byteArrayToFloat(
     [
       raw[9],
       raw[10],
-    ],
-    little: false,
-  ) + (BytesConverter.byteArrayToInt32(
-    [
       raw[11],
       raw[12],
-      raw[13],
-      raw[14],
     ],
-    little: false,
-  ).toDouble() / _yPrecision);
+  );
+}
+
+double _rawToTemperature(List<int> raw) {
+  return BytesConverter.byteArrayToFloat(
+    [
+      raw[1],
+      raw[2],
+      raw[3],
+      raw[4],
+    ],
+  );
+}
+
+MackayIRBEntityImpl _nullEntity = MackayIRBEntityImpl(
+  id: 0,
+  data_name: "",
+  type: _type_null,
+  time: DateTime.now(),
+  number_of_data: 0,
+  device: null,
+  temperature: 0.0,
+);
+
+MackayIRBRowImpl _null_row = MackayIRBRowImpl(
+    entity_id: 0,
+    index: 0,
+    voltage: 0,
+    current: 0,
+    time: DateTime.now(),
+);
+
+class _BufferBLEPacket {
+  String name;
+  BLEDevice device;
+  List<int> raw;
+  _BufferBLEPacket({
+      required this.name,
+      required this.device,
+      required this.raw,
+  });
 }
 
 class MackayIRBRepositoryImpl extends MackayIRBRepository {
@@ -74,18 +116,83 @@ class MackayIRBRepositoryImpl extends MackayIRBRepository {
     _instance ??= MackayIRBRepositoryImpl._();
     return _instance!;
   }
-  MackayIRBRepositoryImpl._();
+
+  _add_new_data() async {
+    _BufferBLEPacket? buffer = _bufferBLEPacket.firstOrNull;
+    if(buffer == null) {
+      return;
+    }
+    _bufferBLEPacket.removeAt(0);
+
+    MackayIRBType type = _rawToType(buffer.raw);
+    if(type == _type_temperature) {
+      _temperature_buffer = _rawToTemperature(buffer.raw);
+    }
+    else if(type != _type_null)
+    {
+      DateTime time = DateTime.now();
+      int number_of_data = _rawToNumberOfData(buffer.raw);
+      Iterable<MackayIRBEntityImpl> type_entities = unfinishedEntities
+          .where((element) => element.device == buffer.device)
+          .where((entity) => entity.type == type);
+      late MackayIRBEntityImpl entity;
+      if(
+      type_entities.isEmpty
+      ) {
+        entity = MackayIRBEntityImpl(
+          id: _nextId,
+          data_name: buffer.name,
+          type: type,
+          time: time,
+          number_of_data: number_of_data,
+          device: buffer.device,
+          temperature: _temperature_buffer,
+        );
+        entities.add(entity);
+        _onCreateController.sink.add(entity);
+      } else {
+        entity = type_entities.last;
+      }
+      int index = _rawToIndex(buffer.raw);
+      MackayIRBRowImpl row = MackayIRBRowImpl(
+        entity_id: entities.last.id,
+        index: index,
+        voltage: _rawToVoltage(buffer.raw),
+        current: _rawToCurrent(buffer.raw),
+        // TODO: 目前預設 time interval 都是 0.1s
+        time: entity.time.add(
+            (entity.rows.isEmpty) ?
+            const Duration() :
+            Duration(milliseconds: 100 * index)
+        ),
+      );
+      entity.add(row);
+      _onAddController.sink.add(row);
+      if(index >= entity.number_of_data - 1) {
+        _finish_handler(entity);
+      }
+    }
+  }
+
+  _setTimer() {
+    Timer(const Duration(milliseconds: 10), () async {
+      await _add_new_data();
+      _setTimer();
+    });
+  }
+
+  MackayIRBRepositoryImpl._() {
+    _setTimer();
+  }
 
   @override
-  List<MackayIRBEntity> entities = [];
+  List<MackayIRBEntityImpl> entities = [];
   @override
-  Iterable<MackayIRBEntity> get finishedEntities => entities
-      .where((entity) => entity.finished)
-      .toList();
+  Iterable<MackayIRBEntityImpl> get finishedEntities => entities
+      .where((entity) => entity.finished);
   @override
-  Iterable<MackayIRBEntity> get unfinishedEntities => entities
-      .where((entity) => !entity.finished)
-      .toList();
+  Iterable<MackayIRBEntityImpl> get unfinishedEntities => entities
+      .where((entity) => !entity.finished);
 
   int _currentId = 0;
 
@@ -93,27 +200,35 @@ class MackayIRBRepositoryImpl extends MackayIRBRepository {
     return _currentId++;
   }
 
-  @override
-  MackayIRBEntity? findEntityById(int id) {
-    return entities
-        .where((entity) => entity.id == id)
-        .firstOrNull;
-  }
+  double _temperature_buffer = 0.0;
 
-  MackayIRBEntity createNextEntity({
+  final List<_BufferBLEPacket> _bufferBLEPacket = [];
+  add_new_data({
     required String name,
+    required BLEDevice device,
     required List<int> raw,
   }) {
-    MackayIRBEntity entity = MackayIRBEntityImpl(
-      repository: this,
-      id: _nextId,
+    _bufferBLEPacket.add(_BufferBLEPacket(
       name: name,
-      type: _rawToType(raw),
-      numberOfData: _rawToNumberOfData(raw),
-    );
-    entities.add(entity);
-    _onCreateController.sink.add(entity);
-    return entity;
+      device: device,
+      raw: raw,
+    ));
+  }
+
+  _delete_old_data() {
+    DateTime current_time = DateTime.now();
+    int current_length = entities.length;
+    for(int i=current_length-1; i>=0; i--) {
+      MackayIRBEntityImpl current_entity = entities[i];
+      if(current_entity.rows.isNotEmpty && current_time.difference(current_entity.rows.last.time).inHours >= 2) {
+        entities.removeAt(i);
+      }
+    }
+  }
+
+  _finish_handler(MackayIRBEntityImpl entity) {
+    entity.finish();
+    _delete_old_data();
   }
 
   final StreamController<MackayIRBRow> _onAddController = StreamController.broadcast();
@@ -136,13 +251,6 @@ class MackayIRBRepositoryImpl extends MackayIRBRepository {
   }
 
   @override
-  Iterable<MackayIRBEntity> getEntitiesByType(int type) {
-    return entities
-        .where((entity) => entity.type == type)
-        .toList();
-  }
-
-  @override
   StreamSubscription<MackayIRBEntity> onEntityCreated(void Function(MackayIRBEntity entity) doSomething) {
     return _onCreateController.stream.listen(doSomething);
   }
@@ -158,80 +266,219 @@ class MackayIRBRepositoryImpl extends MackayIRBRepository {
   }
 }
 
+String _get_datetime_format(DateTime time)
+{
+  return
+    "${time.year}"
+    "-${time.month.toString().padLeft(2, '0')}"
+    "-${time.day.toString().padLeft(2, '0')}"
+    " ${time.hour.toString().padLeft(2, '0')}"
+    ":${time.minute.toString().padLeft(2, '0')}"
+    ":${time.second.toString().padLeft(2, '0')}"
+    ".${time.millisecond.toString().padLeft(3, '0')}"
+    "${time.microsecond.toString().padLeft(3, '0')}"
+  ;
+}
+
+String _get_datetime_format_simple(DateTime time)
+{
+  return
+    "${time.year}"
+        "-${time.month.toString().padLeft(2, '0')}"
+        "-${time.day.toString().padLeft(2, '0')}"
+        " ${time.hour.toString().padLeft(2, '0')}"
+        ":${time.minute.toString().padLeft(2, '0')}"
+        ":${time.second.toString().padLeft(2, '0')}"
+  ;
+}
+
+String _get_datetime_format_for_filename(DateTime time)
+{
+  return
+    "${time.year}"
+        "-${time.month.toString().padLeft(2, '0')}"
+        "-${time.day.toString().padLeft(2, '0')}"
+        "-${time.hour.toString().padLeft(2, '0')}"
+        "-${time.minute.toString().padLeft(2, '0')}"
+        "-${time.second.toString().padLeft(2, '0')}"
+  ;
+}
+
+String _get_duration_format(Duration duration)
+{
+  return
+    "${(duration.inSeconds).toString().padLeft(2, '0')}"
+        ".${(duration.inMilliseconds % 1000).toString().padLeft(3, '0')}"
+        "${(duration.inMicroseconds % 1000).toString().padLeft(3, '0')}"
+  ;
+}
+
+String _get_duration_format_for_filename(Duration duration)
+{
+  return
+    "${(duration.inSeconds).toString().padLeft(2, '0')}"
+        "-${(duration.inMilliseconds % 1000).toString().padLeft(3, '0')}"
+        "${(duration.inMicroseconds % 1000).toString().padLeft(3, '0')}"
+  ;
+}
+
 class MackayIRBEntityImpl extends MackayIRBEntity {
-  final MackayIRBRepositoryImpl _repository;
+  final MackayIRBRepositoryImpl repository = MackayIRBRepositoryImpl
+      .getInstance();
   @override
   int id;
   @override
-  List<MackayIRBRow> rows = [];
-  @override
-  String name;
-  @override
-  int type;
-  @override
-  int numberOfData;
-  @override
-  bool finished;
+  List<MackayIRBRowImpl> rows = [];
 
-  MackayIRBEntityImpl(
-      {
-        required MackayIRBRepositoryImpl repository,
-        required this.id,
-        this.name = "",
-        this.type = MackayIRBType.NULL,
-        this.numberOfData = 0,
-        this.finished = false,
-      }
-  ) : _repository = repository;
+  @override
+  String data_name;
 
-  add(List<int> raw) {
-    if(finished) {return;}
-    MackayIRBRow row = MackayIRBRowImpl(
-        entity: this,
-        raw: raw,
-    );
-    rows.add(row);
-    _repository._onAddController.sink.add(row);
-    if(row.index >= numberOfData) {
-      finish();
+  @override
+  String get device_name => (device != null) ? device!.name : "";
+
+  @override
+  String get type_name => type.name;
+
+  @override
+  String get created_time_format => _get_datetime_format(time);
+
+  @override
+  String get created_time_format_simple => _get_datetime_format_simple(time);
+
+  @override
+  String get created_time_format_for_filename => _get_datetime_format_for_filename(time);
+
+  @override
+  String get finished_time_format =>
+      (rows.lastOrNull != null) ? rows.last.created_time_format : "";
+
+  @override
+  String get finished_time_format_for_filename =>
+      (rows.lastOrNull != null) ? rows.last.created_time_format_for_file : "";
+
+  @override
+  MackayIRBType type;
+  @override
+  int number_of_data;
+  @override
+  bool finished = false;
+
+  BLEDevice? device;
+
+  @override
+  double temperature;
+
+  DateTime time;
+
+  @override
+  int get created_time => time.microsecondsSinceEpoch;
+
+  @override
+  int get finished_time =>
+      (rows.lastOrNull != null) ? rows.last.created_time : 0;
+
+  MackayIRBEntityImpl({
+    required this.id,
+    required this.data_name,
+    required this.type,
+    required this.time,
+    required this.number_of_data,
+    required this.device,
+    required this.temperature,
+  });
+
+  add(MackayIRBRowImpl row) {
+    if (finished) {
+      return;
     }
+    rows.add(row);
+    repository._onAddController.sink.add(row);
   }
+
   finish() {
     finished = true;
-    _repository._onFinishController.sink.add(this);
+    repository._onFinishController.sink.add(this);
   }
 
   @override
-  List<int> get props => [id];
+  MackayIRBRow get_row_by_time(double time)
+  {
+    if(rows.isEmpty) {
+      return _null_row;
+    }
+    MackayIRBRowImpl first = rows.first;
+    for(var row in rows.skip(1)) {
+      if(row.time.difference(first.time).inMicroseconds >= time * 1000000.0) {
+        return row;
+      }
+    }
+    return rows.last;
+  }
 
   @override
   StreamSubscription<MackayIRBRow> onAdded(void Function(MackayIRBRow row) doSomething) {
-    return _repository._onAddController.stream.listen(doSomething);
+    return repository._onAddController.stream.listen(doSomething);
   }
 
   @override
   StreamSubscription<MackayIRBEntity> onCreated(void Function(MackayIRBEntity entity) doSomething) {
-    return _repository._onCreateController.stream.listen(doSomething);
+    return repository._onCreateController.stream.listen(doSomething);
   }
 
   @override
   StreamSubscription<MackayIRBEntity> onFinished(void Function(MackayIRBEntity entity) doSomething) {
-    return _repository._onFinishController.stream.listen(doSomething);
+    return repository._onFinishController.stream.listen(doSomething);
   }
 }
 
 class MackayIRBRowImpl extends MackayIRBRow {
-  List<int> raw;
+  final MackayIRBRepositoryImpl repository = MackayIRBRepositoryImpl.getInstance();
+
+  int entity_id;
+
   @override
-  MackayIRBEntity entity;
+  MackayIRBEntityImpl get entity
+  {
+    MackayIRBEntityImpl? entity = repository.entities.where((element) => element.id == entity_id).firstOrNull;
+    entity ??= _nullEntity;
+    return entity;
+  }
+
   @override
-  int get index => _rawToIndex(raw);
+  int index;
   @override
-  double get current => _rawToCurrent(raw);
+  double current;
   @override
-  double get voltage => _rawToVoltage(raw);
+  double voltage;
+
+  DateTime time;
+
   MackayIRBRowImpl({
-    required this.entity,
-    required this.raw,
+    required this.entity_id,
+    required this.index,
+    required this.voltage,
+    required this.current,
+    required this.time,
   });
+
+  @override
+  int get created_time => time.microsecondsSinceEpoch;
+
+  @override
+  int get created_time_related_to_entity => time.difference(entity.time).inMicroseconds;
+
+  @override
+  double get created_time_related_to_entity_seconds => created_time_related_to_entity / 1000000;
+
+  @override
+  String get created_time_format => _get_datetime_format(time);
+
+  @override
+  String get created_time_format_for_file => _get_datetime_format_for_filename(time);
+
+  @override
+  String get created_time_related_to_entity_format => _get_duration_format(time.difference(entity.time));
+
+  @override
+  String get created_time_related_to_entity_format_for_file => _get_duration_format_for_filename(time.difference(entity.time));
 }

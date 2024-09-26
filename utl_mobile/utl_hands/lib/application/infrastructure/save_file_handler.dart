@@ -14,7 +14,7 @@ abstract class SaveFileHandler<Data> {
     return "${currentTime.year.toString().padLeft(4, '0')}-${currentTime.month.toString().padLeft(2, '0')}-${currentTime.day.toString().padLeft(2, '0')}-${currentTime.hour.toString().padLeft(2, '0')}-${currentTime.minute.toString().padLeft(2, '0')}-${currentTime.second.toString().padLeft(2, '0')}";
   }
   String get timeStampFormatStringForContent {
-    return "${currentTime.hour.toString().padLeft(2, '0')}-${currentTime.minute.toString().padLeft(2, '0')}-${currentTime.second.toString().padLeft(2, '0')}-$timeStampFormatString-${currentTime.millisecond.toString().padLeft(3, '0')}${currentTime.microsecond.toString().padLeft(3, '0')}";
+    return "$timeStampFormatString-${currentTime.millisecond.toString().padLeft(3, '0')}${currentTime.microsecond.toString().padLeft(3, '0')}";
   }
   static final _factory = RowCSVFileFactoryImplWithBOM();
   Future<String> get _savedFolder async => await Path.systemDownloadPath;

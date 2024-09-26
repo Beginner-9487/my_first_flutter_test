@@ -1,7 +1,13 @@
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_ble/application/domain/ble_repository_impl_fbp.dart';
+import 'package:flutter_ble/application/domain/ble_repository_impl_fbp_true_with_fake.dart';
+import 'package:flutter_util/cracking_code/bytes_converter.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository_impl.dart';
+import 'package:utl_mackay_irb/application/domain/mackay_irb_type_impl.dart';
 import 'package:utl_mackay_irb/main.dart';
 import 'package:utl_mackay_irb/resources/global_variables.dart';
 
@@ -10,90 +16,110 @@ void main() async {
 
   await Future.delayed(const Duration(seconds: 3));
 
+  BLERepositoryImplFBPTrueWithFake bleRepositoryImplFBPTrueWithFake = BLERepositoryImplFBPTrueWithFake.getInstance(GlobalVariables.instance.bleRepository as BLERepositoryImplFBP);
+
+  String name = "AAA";
+  BLEDevice device = GlobalVariables.instance.bleRepository.allDevices.first;
+
   for(int index=0; index<1; index++) {
-    MackayIRBEntityImpl currentEntity = (GlobalVariables.instance.mackayIRBRepository as MackayIRBRepositoryImpl).createNextEntity(
-      name: "DPV-$index",
-      raw: [
-        MackayIRBType.DPV,
-        0x02,
-        0x58,
-      ],
-    ) as MackayIRBEntityImpl;
-    for(int i=0; i<610; i++) {
-      currentEntity.add([
-        MackayIRBType.DPV,
-        0x02,
-        0x58,
-        (i / 256).floor(),
-        i % 256,
-        ((i / 10).floor() / 256).floor(),
-        ((i / 10).floor() % 256),
-        i % 10,
-        0x00,
-        ...List.generate(6, (index) {
-          return Random.secure().nextInt(5);
-        }),
-      ]);
-    }
 
-    currentEntity = (GlobalVariables.instance.mackayIRBRepository as MackayIRBRepositoryImpl).createNextEntity(
-      name: "CORTISOL-$index",
-      raw: [
-        MackayIRBType.CORTISOL,
-        0x02,
-        0x58,
-      ],
-    ) as MackayIRBEntityImpl;
-    for(int i=0; i<610; i++) {
-      currentEntity.add([
-        MackayIRBType.CORTISOL,
-        0x02,
-        0x58,
-        (i / 256).floor(),
-        i % 256,
-        ((i / 10).floor() / 256).floor(),
-        ((i / 10).floor() % 256),
-        i % 10,
-        0x00,
-        ...List.generate(6, (index) {
-          return Random.secure().nextInt(5);
-        }),
-      ]);
-    }
+    double temperature = Random.secure().nextDouble() * 40;
+    var bytes_temperature =
+    (
+        ByteData(4)
+          ..setFloat32(
+              0,
+              temperature,
+              Endian.little
+          )
+    )
+        .buffer
+        .asUint8List()
+    ;
 
-    currentEntity = (GlobalVariables.instance.mackayIRBRepository as MackayIRBRepositoryImpl).createNextEntity(
-      name: "LACTIC_ACID-$index",
+    (GlobalVariables.instance.mackayIRBRepository as MackayIRBRepositoryImpl).add_new_data(
+      name: name,
+      device: device,
       raw: [
-        MackayIRBType.LACTIC_ACID,
-        0x02,
-        0x58,
+        TemperatureMackayIRBType().id,
+        ...bytes_temperature,
+        ...List.generate(15, (index) {
+          return Random.secure().nextInt(0x00);
+        }),
       ],
     ) as MackayIRBEntityImpl;
-    for(int i=0; i<610; i++) {
-      // currentEntity.add([
-      //   MackayIRBType.LACTIC_ACID,
-      //   0x02,
-      //   0x58,
-      //   (i / 256).floor(),
-      //   i % 256,
-      //   ...List.generate(10, (index) {
-      //     return Random.secure().nextInt(5);
-      //   }),
-      // ]);
-      currentEntity.add([
-        MackayIRBType.LACTIC_ACID,
-        0x02,
-        0x58,
-        (i / 256).floor(),
-        i % 256,
-        ((i / 10).floor() / 256).floor(),
-        ((i / 10).floor() % 256),
-        i % 10,
-        0x00,
-        ...List.generate(6, (index) {
-          return Random.secure().nextInt(5);
-        }),
-      ]);
+
+    int data_length = 100;
+    var bytes_data_length =
+    (
+        ByteData(2)
+          ..setInt16(
+              0,
+              data_length,
+              Endian.little
+          )
+    )
+        .buffer
+        .asUint8List()
+    ;
+
+    for(int i=0; i<data_length; i++) {
+
+      var bytes_index =
+      (
+          ByteData(2)
+            ..setInt16(
+                0,
+                i,
+                Endian.little
+            )
+      )
+          .buffer
+          .asUint8List()
+      ;
+
+      double voltage = Random.secure().nextDouble() * 40;
+      var bytes_voltage =
+      (
+          ByteData(4)
+            ..setFloat32(
+                0,
+                voltage,
+                Endian.little
+            )
+      )
+          .buffer
+          .asUint8List()
+      ;
+
+      double current = Random.secure().nextDouble() * 40;
+      var bytes_current =
+      (
+          ByteData(4)
+            ..setFloat32(
+                0,
+                current,
+                Endian.little
+            )
+      )
+          .buffer
+          .asUint8List()
+      ;
+
+      (GlobalVariables.instance.mackayIRBRepository as MackayIRBRepositoryImpl).add_new_data(
+        name: name,
+        device: device,
+        raw: [
+          (index == 0) ? CortisolMackayIRBType().id : LactateMackayIRBType().id,
+          ...bytes_index,
+          ...bytes_data_length,
+          ...bytes_voltage,
+          ...bytes_current,
+          ...List.generate(8, (index) {
+            return Random.secure().nextInt(0x00);
+          }),
+        ],
+      ) as MackayIRBEntityImpl;
     }
   }
 }

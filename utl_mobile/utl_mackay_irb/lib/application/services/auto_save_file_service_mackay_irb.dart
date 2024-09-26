@@ -4,9 +4,9 @@ import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:flutter_ble/application/infrastructure/ble_packet_listener.dart';
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
 import 'package:utl_mackay_irb/application/infrastructure/mackay_irb_file_handler.dart';
+import 'package:utl_mackay_irb/application/infrastructure/mackay_irb_file_handler_impl.dart';
 import 'package:utl_mackay_irb/application/infrastructure/raw_data_file_handler.dart';
 import 'package:utl_mackay_irb/resources/ble_uuid.dart';
-import 'package:utl_mackay_irb/resources/global_variables.dart';
 
 class AutoSaveFileServiceMackayIRB {
   static AutoSaveFileServiceMackayIRB? _instance;
@@ -18,12 +18,14 @@ class AutoSaveFileServiceMackayIRB {
     return _instance!;
   }
   late final BLEPacketListener blePacketListener;
+  late final MackayIRBFileHandler mackayIRBFileHandler;
 
   final MackayIRBRepository _repository;
   AutoSaveFileServiceMackayIRB._(bleRepository, this._repository) {
+    mackayIRBFileHandler = MackayIRBFileHandlerImpl.getInstance();
     onMeasurementFinished = _repository.onEntityFinished((entity) {
-      MackayIRBFileHandler.saveMeasurementFile(entity);
-      MackayIRBFileHandler.save5sFile(entity);
+      mackayIRBFileHandler.saveMeasurementFile(entity);
+      mackayIRBFileHandler.save5sFile(entity);
     });
     rawDataFileHandler = RawDataFileHandler();
     blePacketListener = BLEPacketListener(

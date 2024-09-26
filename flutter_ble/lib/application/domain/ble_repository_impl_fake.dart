@@ -378,7 +378,7 @@ class BLECharacteristicImplFake extends BLECharacteristic {
   }
 
   @override
-  writeData(BLEPacket packet, {int delay = 100}) async {}
+  writeData(BLEPacket packet) async {}
 
   @override
   onReadNotifiedData(void Function(BLEPacketImplFake packet) doSomething) {
@@ -418,7 +418,7 @@ class BLEDescriptorImplFake extends BLEDescriptor {
   }
 
   @override
-  writeData(BLEPacket packet, {int delay = 100}) async {}
+  writeData(BLEPacket packet) async {}
 
   @override
   onReadNotifiedData(void Function(BLEPacketImplFake packet) doSomething) {

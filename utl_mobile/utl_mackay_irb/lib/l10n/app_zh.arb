@@ -31,8 +31,17 @@
   "open": "打开",
   "sendCommand": "送出命令",
 
+  "name": "名字",
+  "time": "时间",
+  "device": "设备",
+  "type": "类别",
+  "index": "索引",
+  "number": "数量",
+
   "cortisol": "皮质醇",
   "lactate": "乳酸",
+  "h1n1": "H1N1",
+  "temperature": "温度",
   "voltage": "电压",
   "current": "电流"
 }

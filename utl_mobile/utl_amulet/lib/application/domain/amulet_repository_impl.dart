@@ -8,7 +8,7 @@ import 'package:utl_amulet/application/domain/amulet_repository.dart';
 import 'package:utl_amulet/application/services/posture_service.dart';
 
 class AmuletRepositoryImpl extends AmuletRepository {
-  static const int NORMAL_PACKET_LENGTH = 36;
+  static const int NORMAL_PACKET_LENGTH = 50;
   static const int _MAX_STORAGE_TIME_SECONDS = 5;
 
   static AmuletRepositoryImpl? _instance;
@@ -132,49 +132,66 @@ class AmuletRowImpl extends AmuletRow {
     raw[5],
   ]).toDouble();
   @override
-  double get gyroX => BytesConverter.byteArrayToInt16([
+  double get accTotal => BytesConverter.byteArrayToInt16([
     raw[6],
     raw[7],
   ]).toDouble();
-  @override
-  double get gyroY => BytesConverter.byteArrayToInt16([
-    raw[8],
-    raw[9],
-  ]).toDouble();
-  @override
-  double get gyroZ => BytesConverter.byteArrayToInt16([
-    raw[10],
-    raw[11],
-  ]).toDouble();
+
+  // @override
+  // double get gyroX => BytesConverter.byteArrayToInt16([
+  //   raw[0],
+  //   raw[1],
+  // ]).toDouble();
+  // @override
+  // double get gyroY => BytesConverter.byteArrayToInt16([
+  //   raw[2],
+  //   raw[3],
+  // ]).toDouble();
+  // @override
+  // double get gyroZ => BytesConverter.byteArrayToInt16([
+  //   raw[4],
+  //   raw[5],
+  // ]).toDouble();
+  // @override
+  // double get gyroTotal => BytesConverter.byteArrayToInt16([
+  //   raw[6],
+  //   raw[7],
+  // ]).toDouble();
+
   @override
   double get magX => BytesConverter.byteArrayToInt16([
-    raw[12],
-    raw[13],
-  ]).toDouble();
-  @override
-  double get magY => BytesConverter.byteArrayToInt16([
     raw[14],
     raw[15],
   ]).toDouble();
   @override
-  double get magZ => BytesConverter.byteArrayToInt16([
+  double get magY => BytesConverter.byteArrayToInt16([
     raw[16],
     raw[17],
   ]).toDouble();
   @override
-  double get pitch => BytesConverter.byteArrayToInt16([
+  double get magZ => BytesConverter.byteArrayToInt16([
     raw[18],
     raw[19],
   ]).toDouble();
   @override
-  double get roll => BytesConverter.byteArrayToInt16([
+  double get magTotal => BytesConverter.byteArrayToInt16([
     raw[20],
     raw[21],
   ]).toDouble();
   @override
+  double get pitch => BytesConverter.byteArrayToInt16([
+    raw[10],
+    raw[11],
+  ]).toDouble();
+  @override
+  double get roll => BytesConverter.byteArrayToInt16([
+    raw[8],
+    raw[9],
+  ]).toDouble();
+  @override
   double get yaw => BytesConverter.byteArrayToInt16([
-    raw[22],
-    raw[23],
+    raw[12],
+    raw[13],
   ]).toDouble();
   @override
   double get gValue => BytesConverter.byteArrayToFloat([

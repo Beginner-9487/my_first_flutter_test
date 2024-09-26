@@ -41,7 +41,7 @@ class HandRepositoryImpl implements HandRepository {
     _deleteOldData(time);
     _onAdd.sink.add((isRight, row));
   }
-  static const double _REMOVE_TIME_SECOND = 5;
+  static const double _REMOVE_TIME_SECOND = 1;
   _deleteOldData(double time) {
     leftHandRows.removeWhere((element) => time - element.time > _REMOVE_TIME_SECOND);
     rightHandRows.removeWhere((element) => time - element.time > _REMOVE_TIME_SECOND);

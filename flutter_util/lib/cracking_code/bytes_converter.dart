@@ -4,6 +4,11 @@ import 'dart:typed_data';
 class BytesConverter {
   BytesConverter._();
 
+  static int byteArrayToInt8(List<int> bytes) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getInt8(0);
+  }
+
   static int byteArrayToInt16(List<int> bytes, {bool little = true}) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
     return byteData.getInt16(0, (little) ? Endian.little : Endian.big);
@@ -16,12 +21,17 @@ class BytesConverter {
   
   static int byteArrayToUint8(List<int> bytes) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-    return byteData.getInt8(0);
+    return byteData.getUint8(0);
   }
 
   static int byteArrayToUint16(List<int> bytes, {bool little = true}) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
-    return byteData.getInt16(0, (little) ? Endian.little : Endian.big);
+    return byteData.getUint16(0, (little) ? Endian.little : Endian.big);
+  }
+
+  static int byteArrayToUint32(List<int> bytes, {bool little = true}) {
+    ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
+    return byteData.getUint32(0, (little) ? Endian.little : Endian.big);
   }
 
   static double byteArrayToFloat(List<int> bytes, {bool little = true}) {

@@ -550,17 +550,8 @@ class BLECharacteristicImplFBP extends BLECharacteristic {
   }
 
   @override
-  writeData(BLEPacket packet, {int delay = 100}) async {
-    // debugPrint("writeData: $delay");
-    if(delay == 0) {
-      _characteristic.write(packet.raw);
-      return;
-    }
-    // debugPrint("writeData: ${packet.raw}");
-    for(int v in packet.raw) {
-      _characteristic.write([v]);
-      await Future.delayed(Duration(milliseconds: delay));
-    }
+  writeData(BLEPacket packet) async {
+    _characteristic.write(packet.raw);
   }
 
   @override
@@ -600,15 +591,8 @@ class BLEDescriptorImplFBP extends BLEDescriptor {
   }
 
   @override
-  writeData(BLEPacket packet, {int delay = 100}) async {
-    if(delay == 0) {
-      descriptor.write(packet.raw);
-      return;
-    }
-    for(int v in packet.raw) {
-      descriptor.write([v]);
-      await Future.delayed(Duration(milliseconds: delay));
-    }
+  writeData(BLEPacket packet) async {
+    descriptor.write(packet.raw);
   }
 
   @override

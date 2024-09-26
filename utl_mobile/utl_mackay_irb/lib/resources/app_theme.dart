@@ -23,6 +23,7 @@ class AppTheme {
   static Color get _darkText => const Color(0xFF253840);
   static Color get _lightText => const Color(0xFF4A6572);
   static Color get _dividerColor => primaryColor;
+  static Color get _dividerColor2 => backgroundCursorColor;
 
   static Color get bleConnectedColor => (R.isLightMode) ? const Color(0xC01085F2) : const Color(0xC032A7F3);
   static Color get bleDisconnectedColor => (R.isLightMode) ? const Color(0xC0FB4747) : const Color(0xC0FB6969);
@@ -32,6 +33,11 @@ class AppTheme {
   static Divider get divider => Divider(
     height: 1,
     color: _dividerColor,
+  );
+
+  static Divider get divider2 => Divider(
+    height: 2,
+    color: _dividerColor2,
   );
 
   ///通用tosat。context必须是Scaffold的子树
