@@ -36,18 +36,22 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  flutter_background_processor:
-    path: ../../flutter_background_processor
-  flutter_ble:
-    path: ../../flutter_ble
-  flutter_file_handler:
-    path: ../../flutter_file_handler
-  flutter_r:
-    path: ../../flutter_r
-  flutter_util:
-    path: ../../flutter_util
   utl_mobile:
     path: ..
+  flutter_bt:
+    path: ../../flutter_utility/flutter_bt
+  flutter_file_handler:
+    path: ../../flutter_utility/flutter_file_handler
+  flutter_context_resource:
+    path: ../../flutter_utility/flutter_context_resource
+  flutter_utility:
+    path: ../../flutter_utility/flutter_utility
+  flutter_utility_ui:
+    path: ../../flutter_utility/flutter_utility_ui
+  flutter_customize_bloc:
+    path: ../../flutter_utility/flutter_customize_bloc
+  flutter_system_path:
+    path: ../../flutter_utility/flutter_system_path
 
   syncfusion_flutter_charts: 20.4.48
   syncfusion_flutter_xlsio: any

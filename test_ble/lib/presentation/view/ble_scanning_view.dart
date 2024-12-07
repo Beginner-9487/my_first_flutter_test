@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:test_ble/presentation/bloc/device/ble_device_bloc.dart';
 import 'package:test_ble/presentation/bloc/repository/ble_repository_bloc.dart';
 import 'package:test_ble/presentation/bloc/repository/ble_repository_event.dart';
@@ -25,7 +24,7 @@ class BLEScanningView extends StatefulWidget {
 
 class _BLEScanningViewState extends State<BLEScanningView> {
 
-  Iterable get _scanResults => bleRepositoryBloc.allDevices;
+  Iterable get _scanResults => bleRepositoryBloc.devices;
   bool get _isScanning => bleRepositoryBloc.isScanning;
 
   BLERepositoryBloc get bleRepositoryBloc => widget.bleRepositoryBloc;

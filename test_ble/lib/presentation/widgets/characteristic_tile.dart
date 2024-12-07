@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
-import 'package:flutter_ble/application/infrastructure/ble_packet_handler.dart';
+import 'package:flutter_bt/bt.dart';
+import 'package:flutter_bt/bt_impl.dart';
 import 'package:test_ble/presentation/utils/snack_bar.dart';
 import 'package:test_ble/presentation/widgets/descriptor_tile.dart';
 
 class CharacteristicTile extends StatefulWidget {
-  final BLECharacteristic characteristic;
+  final BT_Characteristic characteristic;
   final List<DescriptorTile> descriptorTiles;
 
   const CharacteristicTile({super.key, required this.characteristic, required this.descriptorTiles});
@@ -17,17 +18,19 @@ class CharacteristicTile extends StatefulWidget {
 }
 
 class _CharacteristicTileState extends State<CharacteristicTile> {
-  List<int> _value = [];
+  final List<_Value> _value = [];
 
-  late StreamSubscription<BLEPacket> _lastValueSubscription;
+  late StreamSubscription<BT_Packet> _lastValueSubscription;
 
   late TextEditingController writeValueTextEditingController;
 
   @override
   void initState() {
     super.initState();
-    _lastValueSubscription = c.onReadNotifiedData((packet) {
-      _value = packet.raw;
+    _lastValueSubscription = c.onReceiveNotifiedPacket((packet) {
+      _value.add(_Value(
+          value: packet.bytes
+      ));
       setState(() {});
     });
     writeValueTextEditingController = TextEditingController();
@@ -39,7 +42,7 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
     super.dispose();
   }
 
-  BLECharacteristic get c => widget.characteristic;
+  BT_Characteristic get c => widget.characteristic;
 
   String _getWriteBytes() {
     return writeValueTextEditingController.value.text;
@@ -47,7 +50,7 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
 
   Future onReadPressed() async {
     try {
-      await c.readData();
+      await c.read();
       MessageSnackBar.show(ABC.c, "Read: Success", success: true);
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Read Error:", e), success: false);
@@ -56,10 +59,10 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
 
   Future onWritePressed() async {
     try {
-      await BLECommandSentPacketHandlerImplFBP().sentCommandToCharacteristic(c, _getWriteBytes());
+      await c.write(BT_Packet_Impl.createByHexString(_getWriteBytes()));
       MessageSnackBar.show(ABC.c, "Write: Success", success: true);
       if (c.properties.read) {
-        await c.readData();
+        await c.read();
       }
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Write Error:", e), success: false);
@@ -72,7 +75,7 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
       await c.setNotify(c.isNotified == false);
       MessageSnackBar.show(ABC.c, "$op : Success", success: true);
       if (c.properties.read) {
-        await c.readData();
+        await c.read();
       }
       setState(() {});
     } catch (e) {
@@ -85,9 +88,52 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
     return Text(uuid, style: const TextStyle(fontSize: 13));
   }
 
-  Widget buildValue(BuildContext context) {
-    String data = _value.toString();
-    return Text(data, style: const TextStyle(fontSize: 13, color: Colors.grey));
+  Iterable<Widget> buildValue(BuildContext context) {
+    return _value.map((e) {
+      return Column(
+        children: [
+          const Divider(
+            height: 1,
+            color: Colors.grey,
+          ),
+          Row(
+            children: [
+              Text(
+                e.time.toString(),
+                style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey
+                ),
+              ),
+            ],
+          ),
+          ...List.generate(
+              (e.value.length / 10).ceil(),
+                (index) {
+                return Row(
+                  children: [
+                    Text(
+                      "${index.toString().padLeft(2, '0')}. ",
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey
+                      ),
+                    ),
+                    ...e.value.skip(index * 10).take(10).indexed.map((e) =>
+                        Text(
+                          e.$2.toRadixString(16).toUpperCase().padLeft(2, '0'),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: (e.$1 % 2 == 0) ? Colors.red : Colors.green),
+                        )
+                    ).toList(),
+                  ],
+                );
+              }
+          ),
+        ],
+      );
+    });
   }
 
   Widget buildReadButton(BuildContext context) {
@@ -151,7 +197,7 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
           children: <Widget>[
             const Text('Characteristic'),
             buildUuid(context),
-            buildValue(context),
+            ...buildValue(context),
             if (widget.characteristic.properties.write) buildWriteTextField(context),
           ],
         ),
@@ -161,4 +207,12 @@ class _CharacteristicTileState extends State<CharacteristicTile> {
       children: widget.descriptorTiles,
     );
   }
+}
+
+class _Value {
+  DateTime time;
+  Uint8List value;
+  _Value({
+    required this.value,
+  }) : time = DateTime.now();
 }

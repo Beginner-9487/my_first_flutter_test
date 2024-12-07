@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ble/application/infrastructure/ble_packet_handler.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
+import 'package:flutter_bt/bt_impl.dart';
 import 'package:test_ble/presentation/utils/snack_bar.dart';
 
 class DescriptorTile extends StatefulWidget {
-  final BLEDescriptor descriptor;
+  final BT_Descriptor descriptor;
 
   const DescriptorTile({super.key, required this.descriptor});
 
@@ -15,17 +16,19 @@ class DescriptorTile extends StatefulWidget {
 }
 
 class _DescriptorTileState extends State<DescriptorTile> {
-  List<int> _value = [];
+  final List<_Value> _value = [];
 
-  late StreamSubscription<BLEPacket> _lastValueSubscription;
+  late StreamSubscription<BT_Packet> _lastValueSubscription;
 
   late TextEditingController writeValueTextEditingController;
 
   @override
   void initState() {
     super.initState();
-    _lastValueSubscription = widget.descriptor.onReadNotifiedData((packet) {
-      _value = packet.raw;
+    _lastValueSubscription = widget.descriptor.onReceiveNotifiedPacket((packet) {
+      _value.add(_Value(
+          value: packet.bytes
+      ));
       setState(() {});
     });
     writeValueTextEditingController = TextEditingController();
@@ -37,7 +40,7 @@ class _DescriptorTileState extends State<DescriptorTile> {
     super.dispose();
   }
 
-  BLEDescriptor get d => widget.descriptor;
+  BT_Descriptor get d => widget.descriptor;
 
   String _getWriteBytes() {
     return writeValueTextEditingController.value.text;
@@ -45,7 +48,7 @@ class _DescriptorTileState extends State<DescriptorTile> {
 
   Future onReadPressed() async {
     try {
-      await d.readData();
+      await d.read();
       MessageSnackBar.show(ABC.c, "Descriptor Read : Success", success: true);
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Descriptor Read Error:", e), success: false);
@@ -54,7 +57,7 @@ class _DescriptorTileState extends State<DescriptorTile> {
 
   Future onWritePressed() async {
     try {
-      await BLECommandSentPacketHandlerImplFBP().sentCommandToDescriptor(d, _getWriteBytes());
+      await d.write(BT_Packet_Impl.createByHexString(_getWriteBytes()));
       MessageSnackBar.show(ABC.c, "Descriptor Write : Success", success: true);
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Descriptor Write Error:", e), success: false);
@@ -66,9 +69,52 @@ class _DescriptorTileState extends State<DescriptorTile> {
     return Text(uuid, style: const TextStyle(fontSize: 13));
   }
 
-  Widget buildValue(BuildContext context) {
-    String data = _value.toString();
-    return Text(data, style: const TextStyle(fontSize: 13, color: Colors.grey));
+  Iterable<Widget> buildValue(BuildContext context) {
+    return _value.map((e) {
+      return Column(
+        children: [
+          const Divider(
+            height: 1,
+            color: Colors.grey,
+          ),
+          Row(
+            children: [
+              Text(
+                e.time.toString(),
+                style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey
+                ),
+              ),
+            ],
+          ),
+          ...List.generate(
+              (e.value.length / 10).ceil(),
+                  (index) {
+                return Row(
+                  children: [
+                    Text(
+                      "${index.toString().padLeft(2, '0')}. ",
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey
+                      ),
+                    ),
+                    ...e.value.skip(index * 10).take(10).indexed.map((e) =>
+                        Text(
+                          e.$2.toRadixString(16).toUpperCase().padLeft(2, '0'),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: (e.$1 % 2 == 0) ? Colors.red : Colors.green),
+                        )
+                    ).toList(),
+                  ],
+                );
+              }
+          ),
+        ],
+      );
+    });
   }
 
   Widget buildReadButton(BuildContext context) {
@@ -110,11 +156,19 @@ class _DescriptorTileState extends State<DescriptorTile> {
         children: <Widget>[
           const Text('Descriptor'),
           buildUuid(context),
-          buildValue(context),
+          ...buildValue(context),
           buildWriteTextField(context),
         ],
       ),
       subtitle: buildButtonRow(context),
     );
   }
+}
+
+class _Value {
+  DateTime time;
+  Uint8List value;
+  _Value({
+    required this.value,
+  }) : time = DateTime.now();
 }

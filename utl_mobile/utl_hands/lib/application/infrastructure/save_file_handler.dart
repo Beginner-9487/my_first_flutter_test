@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter_file_handler/application/row_csv_file.dart';
-import 'package:flutter_file_handler/application/row_csv_file_impl.dart';
-import 'package:flutter_util/path.dart';
-import 'package:utl_hands/resources/global_variable.dart';
+import 'package:flutter_file_handler/row_csv_file.dart';
+import 'package:flutter_file_handler/row_csv_file_impl.dart';
+import 'package:flutter_system_path/system_path.dart';
 
 abstract class SaveFileHandler<Data> {
-
   DateTime get currentTime {
     return DateTime.now();
   }
@@ -16,8 +14,10 @@ abstract class SaveFileHandler<Data> {
   String get timeStampFormatStringForContent {
     return "$timeStampFormatString-${currentTime.millisecond.toString().padLeft(3, '0')}${currentTime.microsecond.toString().padLeft(3, '0')}";
   }
-  static final _factory = RowCSVFileFactoryImplWithBOM();
-  Future<String> get _savedFolder async => await Path.systemDownloadPath;
+  static final _factory = RowCSVFileHandlerImpl.getInstance();
+
+  SystemPath get systemPath;
+  String get _savedFolder => systemPath.system_download_path_absolute;
 
   static const String _extension = ".csv";
 
@@ -31,9 +31,9 @@ abstract class SaveFileHandler<Data> {
   bool isFileBeenCreated = false;
   initFile() async {
     _fileNameLeft = "hand_left_$timeStampFormatString";
-    _filePathLeft = '${await _savedFolder}/$_fileNameLeft$_extension';
+    _filePathLeft = '$_savedFolder/$_fileNameLeft$_extension';
     _fileNameRight = "hand_right_$timeStampFormatString";
-    _filePathRight = '${await _savedFolder}/$_fileNameRight$_extension';
+    _filePathRight = '$_savedFolder/$_fileNameRight$_extension';
     fileLeft = await _factory.createEmptyFile(_filePathLeft);
     fileRight = await _factory.createEmptyFile(_filePathRight);
   }

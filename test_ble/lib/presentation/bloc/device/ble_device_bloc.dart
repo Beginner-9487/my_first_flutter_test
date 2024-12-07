@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
 
 import 'ble_device_event.dart';
 import 'ble_device_state.dart';
@@ -9,10 +9,13 @@ import 'ble_device_state.dart';
 class BLEDeviceBloc extends Bloc<BLEDeviceEvent, BLEDeviceState> {
 
   BLEDeviceBloc(this.device) : super(initialState) {
-    _onReadMtu = device.onMtuChange((int mtu) {
+    _onRssiChange = device.onRssiChange((device) {
       _refreshUI();
     });
-    _onConnectStateChange = device.onConnectStateChange((bool state) {
+    _onReadMtu = device.onMtuChange((device) {
+      _refreshUI();
+    });
+    _onConnectStateChange = device.onConnectionStateChange((device) {
       _refreshUI();
     });
 
@@ -25,27 +28,26 @@ class BLEDeviceBloc extends Bloc<BLEDeviceEvent, BLEDeviceState> {
       _refreshUI();
     });
     on<BLEDeviceDiscoverServices>((event, emit) {
-      device.discoverServices();
+      device.discover();
       _refreshUI();
     });
     on<BLEDeviceEventDispose>((event, emit) {
+      _onRssiChange.cancel();
       _onReadMtu.cancel();
       _onConnectStateChange.cancel();
       emit(BLEDeviceStateDispose());
     });
   }
 
-  BLEDevice device;
-  int get mtuSize => device.mtuSize;
+  BT_Device device;
+  int get mtuSize => device.mtu;
   bool get isConnected => device.isConnected;
-  bool get isConnecting => device.isConnecting;
-  bool get isDisconnecting => device.isDisconnecting;
-  bool get connectable => device.connectable;
+  bool get isConnectable => device.isConnectable;
 
-  late StreamSubscription<int> _onReadMtu;
-  late StreamSubscription<bool> _onConnectStateChange;
+  late StreamSubscription<BT_Device> _onRssiChange;
+  late StreamSubscription<BT_Device> _onReadMtu;
+  late StreamSubscription<BT_Device> _onConnectStateChange;
 
-  @override
   static BLEDeviceState get initialState => BLEDeviceNormalState();
 
   _refreshUI() {

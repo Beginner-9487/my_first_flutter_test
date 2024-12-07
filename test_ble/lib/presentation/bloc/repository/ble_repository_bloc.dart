@@ -1,31 +1,31 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
 
 import 'ble_repository_event.dart';
 import 'ble_repository_state.dart';
 
 class BLERepositoryBloc extends Bloc<BLERepositoryEvent, BLERepositoryState> {
 
-  BLERepositoryBloc(this._bleRepository) : super(initialState) {
+  BLERepositoryBloc(this._provider) : super(initialState) {
     on<BLEInit>((event, emit) {
       _refreshUI();
     });
     on<BLETurnOn>((event, emit) {
-      _bleRepository.turnOn();
+      _provider.turnOn();
       _refreshUI();
     });
     on<BLETurnOff>((event, emit) {
-      _bleRepository.turnOff();
+      _provider.turnOff();
       _refreshUI();
     });
     on<BLEScanOn>((event, emit) {
-      _bleRepository.scanOn();
+      _provider.scanOn();
       _refreshUI();
     });
     on<BLEScanOff>((event, emit) {
-      _bleRepository.scanOff();
+      _provider.scanOff();
       _refreshUI();
     });
     on<BLEUpdate>((event, emit) {
@@ -41,29 +41,26 @@ class BLERepositoryBloc extends Bloc<BLERepositoryEvent, BLERepositoryState> {
       emit(BLEDisposeState());
     });
 
-    _onBLESwitchChange = _bleRepository.onSwitchChange((bool state) {
-      // debugPrint("BLERepositoryBloc._onBLESwitchChange: $state");
+    _onBLESwitchChange = _provider.onAdapterStateChange((bool state) {
       _refreshUI();
     });
-    _onBLEScanningChange = _bleRepository.onScanningStateChange((bool state) {
+    _onBLEScanningChange = _provider.onScanningStateChange((bool state) {
       _refreshUI();
     });
-    _onNewDeviceFounded = _bleRepository.onNewDeviceFounded((BLEDevice result) {
-      // debugPrint("BLERepositoryBloc._onNewDeviceFounded: $result");
+    _onNewDeviceFounded = _provider.onFoundNewDevice((BT_Device result) {
       _refreshUI();
     });
   }
 
-  final BLERepository _bleRepository;
+  final BT_Provider _provider;
 
-  bool get isBluetoothOn => _bleRepository.isBluetoothOn;
-  bool get isScanning => _bleRepository.isScanning;
-  Iterable<BLEDevice> get namedDevices => _bleRepository.namedDevices;
-  Iterable<BLEDevice> get allDevices => _bleRepository.allDevices;
+  bool get isBluetoothOn => _provider.isBluetoothOn;
+  bool get isScanning => _provider.isScanning;
+  Iterable<BT_Device> get devices => _provider.devices;
 
   late StreamSubscription<bool> _onBLESwitchChange;
   late StreamSubscription<bool> _onBLEScanningChange;
-  late StreamSubscription<BLEDevice> _onNewDeviceFounded;
+  late StreamSubscription<BT_Device> _onNewDeviceFounded;
 
   @override
   static BLERepositoryState get initialState => BLENormalState();

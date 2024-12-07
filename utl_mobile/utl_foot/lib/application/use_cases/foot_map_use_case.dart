@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:utl_foot/application/domain/foot_repository.dart';
 import 'package:utl_foot/resources/global_variables.dart';
 
-import 'package:utl_mobile/utils/data_color_generator.dart';
+import 'package:utl_mobile/utils/dataset_color_generator.dart';
 
 class FootMapUseCase {
   final GlobalVariables _globalVariables;

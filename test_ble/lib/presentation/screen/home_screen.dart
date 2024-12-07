@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:test_ble/main.dart';
 import 'package:test_ble/presentation/bloc/repository/ble_repository_bloc.dart';
 import 'package:test_ble/presentation/bloc/repository/ble_repository_event.dart';
 import 'package:test_ble/presentation/bloc/repository/ble_repository_state.dart';
 import 'package:test_ble/presentation/view/ble_scanning_view.dart';
 import 'package:test_ble/presentation/view/bluetooth_off_screen.dart';
-import 'package:test_ble/resources/ble_global.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState<Screen extends StatefulWidget> extends State<Screen> with TickerProviderStateMixin {
   BLERepositoryBloc bleRepositoryBloc = BLERepositoryBloc(
-    BLEGlobal.instance.bleRepository,
+    provider,
   );
 
   bool get isBluetoothOn => bleRepositoryBloc.isBluetoothOn;

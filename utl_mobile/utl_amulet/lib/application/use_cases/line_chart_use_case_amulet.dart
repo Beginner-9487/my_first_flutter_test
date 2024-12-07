@@ -6,7 +6,7 @@ import 'package:flutter_ble/application/domain/ble_repository.dart';
 import 'package:flutter_r/r.dart';
 import 'package:utl_amulet/application/domain/amulet_repository.dart';
 import 'package:utl_mobile/application/use_cases/line_chart_use_case.dart';
-import 'package:utl_mobile/utils/data_color_generator.dart';
+import 'package:utl_mobile/utils/dataset_color_generator.dart';
 
 class LineChartUseCaseAmulet extends LineChartUseCaseImpl {
   final AmuletRepository _repository;

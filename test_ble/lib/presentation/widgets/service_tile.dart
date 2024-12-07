@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
 import 'package:test_ble/presentation/widgets/characteristic_tile.dart';
 
 class ServiceTile extends StatelessWidget {
-  final BLEService service;
+  final BT_Service service;
   final List<CharacteristicTile> characteristicTiles;
 
   const ServiceTile({super.key, required this.service, required this.characteristicTiles});

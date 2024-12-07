@@ -1,38 +1,33 @@
-import 'package:flutter_ble/application/domain/ble_repository.dart';
-import 'package:flutter_ble/application/infrastructure/ble_packet_listener.dart';
-import 'package:flutter_util/cracking_code/bytes_converter.dart';
-import 'package:utl_hands/application/domain/hand_repository_impl.dart';
-import 'package:utl_hands/resources/global_variable.dart';
+import 'dart:async';
 
-class BLEPacketToHand {
-  BLEPacketToHand(
-      this.repository,
-      BLERepository bleRepository,
+import 'package:flutter_bt/bt.dart';
+import 'package:flutter_utility/bytes_converter.dart';
+import 'package:utl_hands/application/domain/hand_repository.dart';
+import 'package:utl_hands/application/domain/hand_repository_impl.dart';
+import 'package:utl_mobile/utl_bt_handler.dart';
+
+class BT_Packet_To_Hand {
+  static String get OUTPUT_UUID => "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+  BT_Packet_To_Hand(
+      this.utl_bt_controller,
+      this.initTime,
+      this.handRepository,
   ) {
-    blePacketListener = BLEPacketListener(
-        bleRepository: bleRepository,
-        outputCharacteristicUUID: "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
-        onReceivedPacket: addToRepository,
-    );
+    onReceived = utl_bt_controller.onReceived(addToRepository);
   }
-  HandRepositoryImpl repository;
-  late BLEPacketListener blePacketListener;
-  @override
-  addToRepository(BLECharacteristic bleCharacteristic, BLEPacket packet) {
-    bool isRight = packet.raw[0] == 0x0B;
-    double time = (DateTime.now().microsecondsSinceEpoch - GlobalVariables.initTime.microsecondsSinceEpoch) / 1000000.0;
-    // double x0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[1], packet.raw[2]]);
-    // double y0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[3], packet.raw[4]]);
-    // double z0 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[5], packet.raw[6]]);
-    // double x1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[7], packet.raw[8]]);
-    // double y1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[9], packet.raw[10]]);
-    // double z1 = BytesConverter.byteArrayToFloat([0x00, 0x00, packet.raw[11], packet.raw[12]]);
-    double x0 = BytesConverter.byteArrayToUint16([packet.raw[1], packet.raw[2]], little: false).toDouble();
-    double y0 = BytesConverter.byteArrayToUint16([packet.raw[3], packet.raw[4]], little: false).toDouble();
-    double z0 = BytesConverter.byteArrayToUint16([packet.raw[5], packet.raw[6]], little: false).toDouble();
-    double x1 = BytesConverter.byteArrayToUint16([packet.raw[7], packet.raw[8]], little: false).toDouble();
-    double y1 = BytesConverter.byteArrayToUint16([packet.raw[9], packet.raw[10]], little: false).toDouble();
-    double z1 = BytesConverter.byteArrayToUint16([packet.raw[11], packet.raw[12]], little: false).toDouble();
-    repository.add(isRight, time, x0, y0, z0, x1, y1, z1);
+  UTL_BT_Controller utl_bt_controller;
+  DateTime initTime;
+  HandRepositoryImpl handRepository;
+  late StreamSubscription<BT_Packet_Characteristic> onReceived;
+  addToRepository(BT_Packet_Characteristic packet) {
+    bool isRight = packet.raw.first == 0x0B;
+    double time = (DateTime.now().microsecondsSinceEpoch - initTime.microsecondsSinceEpoch) / 1000000.0;
+    double x0 = BytesConverter.byteArrayToUint16([packet.raw.skip(1).first, packet.raw.skip(2).first], little: false).toDouble();
+    double y0 = BytesConverter.byteArrayToUint16([packet.raw.skip(3).first, packet.raw.skip(4).first], little: false).toDouble();
+    double z0 = BytesConverter.byteArrayToUint16([packet.raw.skip(5).first, packet.raw.skip(6).first], little: false).toDouble();
+    double x1 = BytesConverter.byteArrayToUint16([packet.raw.skip(7).first, packet.raw.skip(8).first], little: false).toDouble();
+    double y1 = BytesConverter.byteArrayToUint16([packet.raw.skip(9).first, packet.raw.skip(10).first], little: false).toDouble();
+    double z1 = BytesConverter.byteArrayToUint16([packet.raw.skip(11).first, packet.raw.skip(12).first], little: false).toDouble();
+    handRepository.add(isRight, time, x0, y0, z0, x1, y1, z1);
   }
 }

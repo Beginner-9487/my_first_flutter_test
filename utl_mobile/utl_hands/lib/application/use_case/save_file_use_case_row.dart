@@ -1,23 +1,47 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter_bt/bt.dart';
+import 'package:flutter_system_path/system_path.dart';
 import 'package:utl_hands/application/domain/hand_repository.dart';
 import 'package:utl_hands/application/infrastructure/save_file_handler_row.dart';
 import 'package:utl_hands/application/use_case/save_file_use_case.dart';
-import 'package:utl_hands/resources/global_variable.dart';
 
 class SaveFileUseCaseRow extends SaveFileUseCase {
-  static final _saveFileHandler = SaveFileHandlerRow.getInstance();
-
-  HandRepository get _handRepository => GlobalVariables.handRepository;
-  late final StreamSubscription<(bool, HandRow)> onAddRow;
-
-  SaveFileUseCaseRow() {
-    onAddRow = _handRepository.onAdd((isRight, row) async {
+  SaveFileUseCaseRow._(
+      this.systemPath,
+      this.provider,
+      this.handRepository,
+  ) {
+    onAddRow = handRepository.onAdd((isRight, row) async {
       await _saveFileHandler.addDataToFile(row);
     });
     _isSavingFileStateChange = StreamController.broadcast();
+    _saveFileHandler = SaveFileHandlerRow.getInstance(
+      systemPath,
+      provider,
+    );
   }
+  SystemPath systemPath;
+  BT_Provider provider;
+  static SaveFileUseCaseRow? _instance;
+  static SaveFileUseCaseRow getInstance(
+      SystemPath systemPath,
+      BT_Provider provider,
+      HandRepository handRepository,
+  ) {
+    _instance ??= SaveFileUseCaseRow._(
+      systemPath,
+      provider,
+      handRepository,
+    );
+    return _instance!;
+  }
+
+
+  late final _saveFileHandler;
+
+  HandRepository handRepository;
+  late final StreamSubscription<(bool, HandRow)> onAddRow;
 
   late StreamController<bool> _isSavingFileStateChange;
   @override

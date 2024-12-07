@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:utl_hands/application/domain/hand_repository.dart';
-import 'package:utl_hands/resources/global_variable.dart';
 
 class HandToLineChart {
-  static HandRepository get _handRepository => GlobalVariables.handRepository;
+  HandToLineChart(this.handRepository);
+  HandRepository handRepository;
 
   static Iterable<Iterable<Point<double>>> _rowsToLineChartData(Iterable<HandRow> rows) {
     return Iterable.generate(6, (int index) {
@@ -37,8 +37,8 @@ class HandToLineChart {
     "z1",
   ];
 
-  static Iterable<LineSeries<Point, double>> get left {
-    return _rowsToLineChartData(_handRepository.leftHandRows)
+  Iterable<LineSeries<Point, double>> get left {
+    return _rowsToLineChartData(handRepository.leftHandRows)
       .indexed
       .map((e) => LineSeries<Point, double>(
         dataSource: e.$2.toList(),
@@ -50,8 +50,8 @@ class HandToLineChart {
       ));
   }
 
-  static Iterable<LineSeries<Point, double>> get right {
-    return _rowsToLineChartData(_handRepository.rightHandRows)
+  Iterable<LineSeries<Point, double>> get right {
+    return _rowsToLineChartData(handRepository.rightHandRows)
       .indexed
       .map((e) => LineSeries<Point, double>(
           dataSource: e.$2.toList(),

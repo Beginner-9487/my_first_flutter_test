@@ -7,7 +7,7 @@ import 'package:flutter_r/r.dart';
 import 'package:utl_foot/application/domain/foot_repository.dart';
 import 'package:utl_foot/resources/global_variables.dart';
 import 'package:utl_mobile/application/use_cases/line_chart_use_case.dart';
-import 'package:utl_mobile/utils/data_color_generator.dart';
+import 'package:utl_mobile/utils/dataset_color_generator.dart';
 
 class LineChartUseCaseFootIMU extends LineChartUseCaseImpl {
   final GlobalVariables _globalVariables;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
 import 'package:test_ble/presentation/bloc/device/ble_device_bloc.dart';
 import 'package:test_ble/presentation/bloc/device/ble_device_event.dart';
 import 'package:test_ble/presentation/bloc/device/ble_device_state.dart';
@@ -22,11 +22,11 @@ class ScannedBLETile extends StatefulWidget {
 class _ScannedBLETileState extends State<ScannedBLETile> {
 
   _ScannedBLETileState();
-  BLEDevice get device => bluetoothDvBloc.device;
+  BT_Device get device => bluetoothDvBloc.device;
   BLEDeviceBloc get bluetoothDvBloc => widget.bleDeviceBloc;
 
   bool get isConnected => bluetoothDvBloc.isConnected;
-  bool get connectable => bluetoothDvBloc.connectable;
+  bool get connectable => bluetoothDvBloc.isConnectable;
 
   late TextEditingController _labelNameController;
 

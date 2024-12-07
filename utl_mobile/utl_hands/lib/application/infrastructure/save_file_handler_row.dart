@@ -1,25 +1,35 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_file_handler/application/row_csv_file.dart';
-import 'package:flutter_r/r.dart';
+import 'package:flutter_bt/bt.dart';
+import 'package:flutter_file_handler/row_csv_file.dart';
+import 'package:flutter_system_path/system_path.dart';
 import 'package:utl_hands/application/domain/hand_repository.dart';
 import 'package:utl_hands/application/infrastructure/save_file_handler.dart';
-import 'package:utl_hands/resources/global_variable.dart';
 
 class SaveFileHandlerRow extends SaveFileHandler<HandRow> {
-  SaveFileHandlerRow._() {
+  SaveFileHandlerRow._(
+      this.systemPath,
+      this.provider,
+  ) {
     _setTimer();
   }
+  SystemPath systemPath;
   static SaveFileHandlerRow? _instance;
-  static SaveFileHandlerRow getInstance() {
-    _instance ??= SaveFileHandlerRow._();
+  static SaveFileHandlerRow getInstance(
+      SystemPath systemPath,
+      BT_Provider provider,
+  ) {
+    _instance ??= SaveFileHandlerRow._(
+        systemPath,
+        provider,
+    );
     return _instance!;
   }
+  BT_Provider provider;
 
   _setTimer() {
     Timer(const Duration(milliseconds: 1), () async {
-      await _saveFile();
+      await saveFile();
       _setTimer();
     });
   }
@@ -71,8 +81,7 @@ class SaveFileHandlerRow extends SaveFileHandler<HandRow> {
 
   List<(RowCSVFile, HandRow)> buffer = [];
   /// Make sure that both footLeft and footRight files have the same length.
-  @override
-  _saveFile() async {
+  saveFile() async {
     if(!isFileBeenCreated) {
       return;
     }
@@ -83,7 +92,7 @@ class SaveFileHandlerRow extends SaveFileHandler<HandRow> {
       // if(i>=buffer.length) {
       //   break;
       // }
-      if(GlobalVariables.bleRepository.connectedDevices.length == 1) {
+      if(provider.allDevices.where((element) => element.isConnected).length == 1) {
         await buffer[i].$1.write(_footRowToFileFormat(buffer[i].$2));
         continue;
       }

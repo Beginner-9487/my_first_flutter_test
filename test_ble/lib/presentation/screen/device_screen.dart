@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_ble/application/domain/ble_repository.dart';
+import 'package:flutter_bt/bt.dart';
 import 'package:test_ble/presentation/utils/snack_bar.dart';
 import 'package:test_ble/presentation/widgets/characteristic_tile.dart';
 import 'package:test_ble/presentation/widgets/descriptor_tile.dart';
 import 'package:test_ble/presentation/widgets/service_tile.dart';
 
 class DeviceScreen extends StatefulWidget {
-  final BLEDevice device;
+  final BT_Device device;
 
   const DeviceScreen({super.key, required this.device});
 
@@ -17,41 +17,28 @@ class DeviceScreen extends StatefulWidget {
 }
 
 class _DeviceScreenState extends State<DeviceScreen> {
-  BLEDevice get _device => widget.device;
-  Iterable<BLEService> get _services => _device.services;
+  BT_Device get _device => widget.device;
+  Iterable<BT_Service> get _services => _device.services;
   int get _rssi => _device.rssi;
-  int get _mtuSize => _device.mtuSize;
-  bool get _isDiscoveringServices => _device.isDiscoveringServices;
-  bool get _isConnecting => _device.isConnecting;
-  bool get _isDisconnecting => _device.isDisconnecting;
+  int get _mtuSize => _device.mtu;
 
-  late StreamSubscription<bool> _connectionStateSubscription;
-  late StreamSubscription<bool> _isConnectingSubscription;
-  late StreamSubscription<bool> _isDisconnectingSubscription;
-  late StreamSubscription<int> _mtuSubscription;
-  late StreamSubscription<Iterable<BLEService>> _onNewServicesDiscoveredSubscription;
+  late StreamSubscription<BT_Device> _connectionStateSubscription;
+  late StreamSubscription<BT_Device> _mtuSubscription;
+  late StreamSubscription<BT_Device> _onNewServicesDiscoveredSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    _connectionStateSubscription = _device.onConnectStateChange((isConnected) async {
+    _connectionStateSubscription = _device.onConnectionStateChange((device) async {
       setState(() {});
     });
 
-    _mtuSubscription = _device.onMtuChange((mtu) {
+    _mtuSubscription = _device.onMtuChange((device) {
       setState(() {});
     });
 
-    _isConnectingSubscription = _device.onConnecting((isConnecting) {
-      setState(() {});
-    });
-
-    _isDisconnectingSubscription = _device.onDisconnecting((isDisconnecting) {
-      setState(() {});
-    });
-
-    _onNewServicesDiscoveredSubscription = _device.onNewServicesDiscovered((services) {
+    _onNewServicesDiscoveredSubscription = _device.onDiscoveryStateChange((device) {
       setState(() {});
     });
   }
@@ -60,8 +47,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
   void dispose() {
     _connectionStateSubscription.cancel();
     _mtuSubscription.cancel();
-    _isConnectingSubscription.cancel();
-    _isDisconnectingSubscription.cancel();
+    _onNewServicesDiscoveredSubscription.cancel();
     super.dispose();
   }
 
@@ -95,9 +81,8 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   Future onDiscoverServicesPressed() async {
-    setState(() {});
     try {
-      _device.discoverServices();
+      await _device.discover();
       MessageSnackBar.show(ABC.c, "Discover Services: Success", success: true);
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Discover Services Error:", e), success: false);
@@ -107,14 +92,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
 
   Future onRequestMtuPressed() async {
     try {
-      await widget.device.readMtu();
+      await widget.device.requestMtu(20);
       MessageSnackBar.show(ABC.c, "Request Mtu: Success", success: true);
     } catch (e) {
       MessageSnackBar.show(ABC.c, prettyException("Change Mtu Error:", e), success: false);
     }
   }
 
-  List<Widget> _buildServiceTiles(BuildContext context, BLEDevice d) {
+  List<Widget> _buildServiceTiles(BuildContext context, BT_Device d) {
     return _services
         .map(
           (s) => ServiceTile(
@@ -125,7 +110,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
         .toList();
   }
 
-  CharacteristicTile _buildCharacteristicTile(BLECharacteristic c) {
+  CharacteristicTile _buildCharacteristicTile(BT_Characteristic c) {
     return CharacteristicTile(
       characteristic: c,
       descriptorTiles: c.descriptors.map((d) => DescriptorTile(descriptor: d)).toList(),
@@ -157,14 +142,14 @@ class _DeviceScreenState extends State<DeviceScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         isConnected ? const Icon(Icons.bluetooth_connected) : const Icon(Icons.bluetooth_disabled),
-        Text(((isConnected && _rssi != null) ? '${_rssi!} dBm' : ''), style: Theme.of(context).textTheme.bodySmall)
+        Text(((isConnected) ? '$_rssi dBm' : ''), style: Theme.of(context).textTheme.bodySmall)
       ],
     );
   }
 
   Widget buildGetServices(BuildContext context) {
     return IndexedStack(
-      index: (_isDiscoveringServices) ? 1 : 0,
+      // index: (_isDiscoveringServices) ? 1 : 0,
       children: <Widget>[
         TextButton(
           onPressed: onDiscoverServicesPressed,
@@ -195,15 +180,13 @@ class _DeviceScreenState extends State<DeviceScreen> {
   }
 
   Widget buildConnectButton(BuildContext context) {
-    return Row(children: [
-      if (_isConnecting || _isDisconnecting) buildSpinner(context),
-      TextButton(
-          onPressed: _isConnecting ? onCancelPressed : (isConnected ? onDisconnectPressed : onConnectPressed),
-          child: Text(
-            _isConnecting ? "CANCEL" : (isConnected ? "DISCONNECT" : "CONNECT"),
-            style: Theme.of(context).primaryTextTheme.labelLarge?.copyWith(color: Colors.white),
-          ))
-    ]);
+    return TextButton(
+      onPressed: isConnected ? onDisconnectPressed : onConnectPressed,
+      child: Text(
+        isConnected ? "DISCONNECT" : "CONNECT",
+        style: Theme.of(context).primaryTextTheme.labelLarge?.copyWith(color: Colors.white),
+      ),
+    );
   }
 
   @override
@@ -212,7 +195,7 @@ class _DeviceScreenState extends State<DeviceScreen> {
       key: MessageSnackBar.snackBarKeyC,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.device.platformName),
+          title: Text(widget.device.name),
           actions: [buildConnectButton(context)],
         ),
         body: SingleChildScrollView(

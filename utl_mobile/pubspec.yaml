@@ -57,16 +57,12 @@ dependencies:
   # excel
   excel: any
 
-  flutter_background_processor:
-    path: ../flutter_background_processor
-  flutter_ble:
-    path: ../flutter_ble
-  flutter_file_handler:
-    path: ../flutter_file_handler
-  flutter_r:
-    path: ../flutter_r
-  flutter_util:
-    path: ../flutter_util
+  flutter_bt:
+    path: ../flutter_utility/flutter_bt
+  flutter_utility:
+    path: ../flutter_utility/flutter_utility
+  flutter_customize_bloc:
+    path: ../flutter_utility/flutter_customize_bloc
 
 dev_dependencies:
   flutter_test:

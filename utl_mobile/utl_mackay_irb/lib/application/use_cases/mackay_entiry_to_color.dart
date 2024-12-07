@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:utl_mackay_irb/application/domain/mackay_irb_repository.dart';
-import 'package:utl_mobile/utils/data_color_generator.dart';
+import 'package:utl_mobile/utils/dataset_color_generator.dart';
 
 class MackayEntityToColor {
   MackayIRBRepository mackayIRBRepository;
