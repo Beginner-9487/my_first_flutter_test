@@ -37,8 +37,6 @@ dependencies:
 
   utl_mobile:
     path: ..
-  flutter_bt:
-    path: ../../flutter_utility/flutter_bt
   flutter_file_handler:
     path: ../../flutter_utility/flutter_file_handler
   flutter_context_resource:
@@ -47,23 +45,21 @@ dependencies:
     path: ../../flutter_utility/flutter_utility
   flutter_utility_ui:
     path: ../../flutter_utility/flutter_utility_ui
-  flutter_customize_bloc:
-    path: ../../flutter_utility/flutter_customize_bloc
   flutter_system_path:
     path: ../../flutter_utility/flutter_system_path
 
-  syncfusion_flutter_charts: 20.4.48
-  syncfusion_flutter_xlsio: any
-  flutter_ringtone_player: ^4.0.0+3
-  shared_preferences: ^2.2.3
-
-  bloc: any
-  flutter_bloc: any
-
   awesome_dialog: ^3.2.1
-
+  bloc: any
+  equatable: ^2.0.5
+  flutter_bloc: any
+  flutter_blue_plus: 1.32.1
   flutter_localizations:
     sdk: flutter
+  flutter_ringtone_player: ^4.0.0+3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.3
+  syncfusion_flutter_charts: 20.4.48
+  syncfusion_flutter_xlsio: any
 
 dev_dependencies:
   flutter_test:

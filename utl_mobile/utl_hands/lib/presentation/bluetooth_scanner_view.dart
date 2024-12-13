@@ -4,7 +4,7 @@ import 'package:flutter_bt/bt.dart';
 import 'package:flutter_context_resource/context_resource.dart';
 import 'package:flutter_utility_ui/bluetooth_widget/bluetooth_scanner_view.dart' as ui;
 import 'package:flutter_utility_ui/bluetooth_widget/bluetooth_tile.dart';
-import 'package:utl_mobile/utl_bt_handler.dart';
+import 'package:utl_mobile/utl_bluetooth_handler.dart';
 
 class BluetoothScannerView {
   BluetoothScannerView(

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_bt/bt.dart';
-import 'package:flutter_utility/other_utility.dart';
+import 'package:flutter_utility/general_utils.dart';
 
 class BT_Packet_Impl implements BT_Packet {
   @override

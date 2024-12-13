@@ -57,12 +57,8 @@ dependencies:
   # excel
   excel: any
 
-  flutter_bt:
-    path: ../flutter_utility/flutter_bt
   flutter_utility:
     path: ../flutter_utility/flutter_utility
-  flutter_customize_bloc:
-    path: ../flutter_utility/flutter_customize_bloc
 
 dev_dependencies:
   flutter_test:

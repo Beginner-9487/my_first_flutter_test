@@ -4,7 +4,7 @@ import 'package:flutter_bt/bt.dart';
 import 'package:flutter_utility/bytes_converter.dart';
 import 'package:utl_hands/application/domain/hand_repository.dart';
 import 'package:utl_hands/application/domain/hand_repository_impl.dart';
-import 'package:utl_mobile/utl_bt_handler.dart';
+import 'package:utl_mobile/utl_bluetooth_handler.dart';
 
 class BT_Packet_To_Hand {
   static String get OUTPUT_UUID => "6e400003-b5a3-f393-e0a9-e50e24dcca9e";

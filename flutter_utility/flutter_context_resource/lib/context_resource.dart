@@ -1,23 +1,24 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-abstract class ContextResourceProvider {
-  Iterable<ContextResource> get contexts;
-  ContextResource get(BuildContext context);
-  void add(BuildContext context);
-  void remove(BuildContext context);
-  void load(Locale locale);
-}
-
-abstract class ContextResource {
-  BuildContext get context;
-  void setContext(BuildContext context);
-  AppLocalizations get str;
-  bool get isLightMode;
-  double get screenHeight;
-  double get screenWidth;
-  double get screenAspectRatio;
-  double get screenDensity;
-  double get appBarHeight;
+extension BuildContextResource on BuildContext {
+  MediaQueryData get mediaQueryData => MediaQuery.of(this);
+  @override
+  AppLocalizations? get appLocalizations => AppLocalizations.of(this);
+  @override
+  bool get isLightMode => mediaQueryData.platformBrightness == Brightness.light;
+  @override
+  double get screenHeight => mediaQueryData.size.height;
+  @override
+  double get screenWidth => mediaQueryData.size.width;
+  @override
+  double get screenAspectRatio => mediaQueryData.size.aspectRatio;
+  @override
+  double get screenDensity => mediaQueryData.devicePixelRatio;
+  @override
+  double get appBarHeight => kToolbarHeight;
+  @override
+  Locale get locale => View.of(this).platformDispatcher.locale;
 }

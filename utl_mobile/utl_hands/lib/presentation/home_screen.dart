@@ -20,7 +20,7 @@ import 'package:utl_hands/presentation/bluetooth_scanner_view.dart';
 import 'package:utl_hands/presentation/hand_line_chart_set.dart';
 import 'package:utl_hands/presentation/threshold_controller_view.dart';
 import 'package:utl_hands/presentation/tool_bar.dart';
-import 'package:utl_mobile/utl_bt_handler.dart';
+import 'package:utl_mobile/utl_bluetooth_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
