@@ -1,6 +1,6 @@
-import 'package:utl_electrochemical_tester/application/domain/electrochemical_entity.dart';
+import 'package:utl_electrochemical_tester/application/dto/electrochemical_file_dto.dart';
 
 abstract class FileRepository {
   Future<bool> createFile();
-  Future<bool> writeFile(Iterable<ElectrochemicalDataEntity> entities);
+  Future<bool> writeFile(Iterable<ElectrochemicalFileDto> dto);
 }

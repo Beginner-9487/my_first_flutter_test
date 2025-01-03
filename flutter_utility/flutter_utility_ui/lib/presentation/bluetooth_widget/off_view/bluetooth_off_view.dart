@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothOffView extends StatefulWidget {
   const BluetoothOffView({
@@ -20,79 +20,57 @@ class BluetoothOffView extends StatefulWidget {
   State createState() => _BluetoothOffViewState();
 }
 
-class _BluetoothOffViewState<VIEW extends BluetoothOffView> extends State<VIEW> with WidgetsBindingObserver {
-  Locale? _currentLocale;
+class _BluetoothOffViewState<VIEW extends BluetoothOffView> extends State<VIEW> {
+  Widget get buildBluetoothOffIcon => const Icon(
+    Icons.bluetooth_disabled,
+    size: 200.0,
+    color: Colors.white54,
+  );
 
-  Widget buildBluetoothOffIcon(BuildContext context) {
-    return const Icon(
-      Icons.bluetooth_disabled,
-      size: 200.0,
-      color: Colors.white54,
-    );
-  }
+  Widget get buildTitle => Text(
+    widget.bluetoothAdapterIsNotAvailable,
+    style: Theme.of(context).primaryTextTheme.titleSmall?.copyWith(color: Colors.white),
+  );
 
-  Widget buildTitle(BuildContext context) {
-    return Text(
-      widget.bluetoothAdapterIsNotAvailable,
-      style: Theme.of(context).primaryTextTheme.titleSmall?.copyWith(color: Colors.white),
-    );
-  }
-
-  Widget buildTurnOnButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: ElevatedButton(
-        child: Text(widget.turnOn),
-        onPressed: () async {
-          widget.turnOnAdapter();
-          return;
-        },
-      ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _currentLocale = View.of(context).platformDispatcher.locale;
-  }
-
-  @override
-  void didChangeLocales(List<Locale>? locales) {
-    super.didChangeLocales(locales);
-    if (locales != null && locales.isNotEmpty) {
-      final newLocale = locales.first;
-      if (_currentLocale != newLocale) {
-        setState(() {
-          _currentLocale = newLocale;
+  Widget get buildTurnOnButton => Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: ElevatedButton(
+      child: Text(widget.turnOn),
+      onPressed: () async {
+        return Permission.bluetooth.isGranted.then((isGranted) {
+          if(isGranted) {
+            return widget.turnOnAdapter().then((value) => null);
+          } else {
+            return Permission.bluetooth.request().then((permission) {
+              if(permission.isGranted) {
+                return widget.turnOnAdapter().then((value) => null);
+              }
+              return null;
+            });
+          }
         });
-      }
-    }
-  }
+      },
+    ),
+  );
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
+  Widget get buildView => ScaffoldMessenger(
+    child: Scaffold(
+      backgroundColor: Colors.lightBlue,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            buildBluetoothOffIcon,
+            buildTitle,
+            if (Platform.isAndroid) buildTurnOnButton,
+          ],
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      child: Scaffold(
-        backgroundColor: Colors.lightBlue,
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              buildBluetoothOffIcon(context),
-              buildTitle(context),
-              if (Platform.isAndroid) buildTurnOnButton(context),
-            ],
-          ),
-        ),
-      ),
-    );
+    return buildView;
   }
 }

@@ -1,41 +1,70 @@
-import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
+import 'dart:typed_data';
 
-import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_device.dart';
-import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_sent_packet.dart';
+import 'package:utl_mobile/utl_bluetooth/utl_bluetooth_handler.dart';
 
-abstract class ReceivedPacket implements Packet {
-  BluetoothDevice get device;
+abstract class ElectrochemicalSensorReceivedPacket {
+  const ElectrochemicalSensorReceivedPacket({
+    required this.deviceName,
+    required this.deviceId,
+    required this.data,
+  });
+  final String deviceName;
+  final String deviceId;
+  final Uint8List data;
 }
 
-class HeaderReceivedPacket extends ReceivedPacket {
+class HeaderReceivedPacket extends ElectrochemicalSensorReceivedPacket {
   HeaderReceivedPacket({
-    required this.data,
-    required this.device,
-  });
+    required super.deviceName,
+    required super.deviceId,
+    required super.data,
+  }) {
+    ByteData byteData = ByteData.sublistView(data);
+    temperature = byteData.getInt32(2, Endian.little);
+  }
 
-  @override
-  Uint8List data;
+  static bool check(Uint8List data) {
+    return data.length == 6 && data[0] == 0x02 && data[1] == 0x01;
+  }
 
-  @override
-  BluetoothDevice device;
+  late final int temperature;
 
-  int get temperature => throw UnimplementedError();
+  factory HeaderReceivedPacket.getByUtlPacket(UtlReceivedBluetoothPacket packet) {
+    return HeaderReceivedPacket(
+      data: packet.data,
+      deviceName: packet.deviceName,
+      deviceId: packet.deviceId,
+    );
+  }
 }
 
-class DataReceivedPacket extends ReceivedPacket {
+class DataReceivedPacket extends ElectrochemicalSensorReceivedPacket {
   DataReceivedPacket({
-    required this.data,
-    required this.device,
-  });
+    required super.deviceName,
+    required super.deviceId,
+    required super.data,
+  }) {
+    ByteData byteData = ByteData.sublistView(data);
+    index = byteData.getInt16(2, Endian.little);
+    time = byteData.getInt32(4, Endian.little);
+    voltage = byteData.getInt32(8, Endian.little);
+    current = byteData.getInt32(12, Endian.little);
+  }
 
-  @override
-  Uint8List data;
+  factory DataReceivedPacket.getByUtlPacket(UtlReceivedBluetoothPacket packet) {
+    return DataReceivedPacket(
+      data: packet.data,
+      deviceName: packet.deviceName,
+      deviceId: packet.deviceId,
+    );
+  }
 
-  @override
-  BluetoothDevice device;
+  static bool check(Uint8List data) {
+    return data.length == 16 && data[0] == 0x02 && data[1] == 0x02;
+  }
 
-  int get current => throw UnimplementedError();
-  int get index => throw UnimplementedError();
-  int get time => throw UnimplementedError();
-  int get voltage => throw UnimplementedError();
+  late final int index;
+  late final int time;
+  late final int voltage;
+  late final int current;
 }

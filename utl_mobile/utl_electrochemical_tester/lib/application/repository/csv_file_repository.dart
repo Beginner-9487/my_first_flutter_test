@@ -2,8 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_context_resource/context_resource.dart';
 import 'package:flutter_file_handler/row_csv_file.dart';
 import 'package:flutter_system_path/system_path.dart';
-import 'package:utl_electrochemical_tester/application/data/electrochemical_parameters.dart';
-import 'package:utl_electrochemical_tester/application/domain/electrochemical_entity.dart';
+import 'package:utl_electrochemical_tester/application/dto/electrochemical_file_dto.dart';
 import 'package:utl_electrochemical_tester/application/repository/file_repository.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,91 +19,89 @@ class CsvFileRepository implements FileRepository {
         "_${t.millisecond.toString().padLeft(3, '0')}"
         "${t.microsecond.toString().padLeft(3, '0')}";
   }
-  static late final RowCSVFileHandler _rowCSVFileHandler;
-  static late final SystemPath _systemPath;
-  static void init({
-    required RowCSVFileHandler rowCSVFileHandler,
-    required SystemPath systemPath,
-  }) {
-    _rowCSVFileHandler = rowCSVFileHandler;
-    _systemPath = systemPath;
-  }
+  final BuildContext context;
+  final RowCSVFileHandler rowCSVFileHandler;
+  final SystemPath systemPath;
   CsvFileRepository({
-    required BuildContext context,
-  }) : _context = context;
+    required this.context,
+    required this.rowCSVFileHandler,
+    required this.systemPath,
+  });
 
-  final BuildContext _context;
-  AppLocalizations get _str => _context.appLocalizations!;
-  String get _savedFolder => _systemPath.system_download_path_absolute;
+  AppLocalizations get appLocalizations => context.appLocalizations!;
+  String get folder => systemPath.system_download_path_absolute;
 
-  RowCSVFile? _file;
+  RowCSVFile? file;
   @override
-  Future<bool> createFile() async {
+  Future<bool> createFile()  {
     String timeFileFormat = timeString;
     String electrochemicalFileName = "ElectrochemicalFile_$timeFileFormat";
-    String electrochemicalFilePath = '$_savedFolder/$electrochemicalFileName.csv';
-    _rowCSVFileHandler.createEmptyFile(
+    String electrochemicalFilePath = '$folder/$electrochemicalFileName.csv';
+    return rowCSVFileHandler.createEmptyFile(
       electrochemicalFilePath,
       bom: true,
     ).then((value) {
-      _file = value;
-      _file!.write([
+      file = value;
+      file!.write([
         "id",
-        _str.name,
+        appLocalizations.name,
         "address",
-        _str.time,
-        _str.type,
-        _str.temperature,
-        "${_str.ca}: ${_str.e_dc}",
-        "${_str.ca}: ${_str.t_interval}",
-        "${_str.ca}: ${_str.t_run}",
-        "${_str.cv}: ${_str.e_begin}",
-        "${_str.cv}: ${_str.e_vertex1}",
-        "${_str.cv}: ${_str.e_vertex2}",
-        "${_str.cv}: ${_str.e_step}",
-        "${_str.cv}: ${_str.scan_rate}",
-        "${_str.cv}: ${_str.number_of_scans}",
-        "${_str.dpv}: ${_str.e_begin}",
-        "${_str.dpv}: ${_str.e_end}",
-        "${_str.dpv}: ${_str.e_step}",
-        "${_str.dpv}: ${_str.e_pulse}",
-        "${_str.dpv}: ${_str.t_pulse}",
-        "${_str.dpv}: ${_str.scan_rate}",
-        _str.current,
+        appLocalizations.time,
+        appLocalizations.type,
+        appLocalizations.temperature,
+        "${appLocalizations.ca}: ${appLocalizations.eDc}",
+        "${appLocalizations.ca}: ${appLocalizations.tInterval}",
+        "${appLocalizations.ca}: ${appLocalizations.tRun}",
+        "${appLocalizations.cv}: ${appLocalizations.eBegin}",
+        "${appLocalizations.cv}: ${appLocalizations.eVertex1}",
+        "${appLocalizations.cv}: ${appLocalizations.eVertex2}",
+        "${appLocalizations.cv}: ${appLocalizations.eStep}",
+        "${appLocalizations.cv}: ${appLocalizations.scanRate}",
+        "${appLocalizations.cv}: ${appLocalizations.numberOfScans}",
+        "${appLocalizations.dpv}: ${appLocalizations.eBegin}",
+        "${appLocalizations.dpv}: ${appLocalizations.eEnd}",
+        "${appLocalizations.dpv}: ${appLocalizations.eStep}",
+        "${appLocalizations.dpv}: ${appLocalizations.ePulse}",
+        "${appLocalizations.dpv}: ${appLocalizations.tPulse}",
+        "${appLocalizations.dpv}: ${appLocalizations.scanRate}",
+        appLocalizations.current,
       ]);
+      return true;
     });
-    return true;
   }
 
   @override
-  Future<bool> writeFile(Iterable<ElectrochemicalDataEntity> entities) async {
-    if(_file == null) {
+  Future<bool> writeFile(Iterable<ElectrochemicalFileDto> dto) async {
+    debugPrint("writeFile: $file");
+    if(file == null) {
       return false;
     }
-    for(var entity in entities) {
-      await _file!.write([
-        entity.id.toString(),
-        entity.dataName,
-        entity.deviceId,
-        entity.createdTime.toString(),
-        entity.type.toString(),
-        entity.temperature.toString(),
-        entity.parameters is! CaElectrochemicalParameters ? "" : (entity.parameters as CaElectrochemicalParameters).eDc.toString(),
-        entity.parameters is! CaElectrochemicalParameters ? "" : (entity.parameters as CaElectrochemicalParameters).tInterval.toString(),
-        entity.parameters is! CaElectrochemicalParameters ? "" : (entity.parameters as CaElectrochemicalParameters).tRun.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).eBegin.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).eVertex1.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).eVertex2.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).eStep.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).scanRate.toString(),
-        entity.parameters is! CvElectrochemicalParameters ? "" : (entity.parameters as CvElectrochemicalParameters).numberOfScans.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).eBegin.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).eEnd.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).eStep.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).ePulse.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).tPulse.toString(),
-        entity.parameters is! DpvElectrochemicalParameters ? "" : (entity.parameters as DpvElectrochemicalParameters).scanRate.toString(),
-        ...entity.data.map((e) => e.current.toString()),
+    debugPrint("dto: ${dto.length}");
+    for(var d in dto) {
+      await file!.write([
+        d.id,
+        d.dataName,
+        d.deviceId,
+        d.createdTime,
+        d.type,
+        d.temperature,
+        d.caEDc,
+        d.caTInterval,
+        d.caTRun,
+        d.cvEBegin,
+        d.cvEVertex1,
+        d.cvEVertex2,
+        d.cvEStep,
+        d.cvScanRate,
+        d.cvNumberOfScans,
+        d.dpvEBegin,
+        d.dpvEEnd,
+        d.dpvEStep,
+        d.dpvEPulse,
+        d.dpvTPulse,
+        d.dpvScanRate,
+        d.dpvInversionOption,
+        ...d.data.map((e) => e.toString()),
       ]);
     }
     return true;

@@ -53,18 +53,21 @@
   "cv": "CV",
   "dpv": "DPV",
 
-  "e_dc": "E_dc",
-  "t_interval": "t_interval",
-  "t_run": "t_run",
+  "eDc": "E_dc",
+  "tInterval": "t_interval",
+  "tRun": "t_run",
 
-  "e_vertex1": "E_vertex1",
-  "e_vertex2": "E_vertex2",
-  "number_of_scans": "number of scans",
+  "eVertex1": "E_vertex1",
+  "eVertex2": "E_vertex2",
+  "numberOfScans": "number of scans",
 
-  "e_begin": "E_begin",
-  "e_end": "E_end",
-  "e_step": "E_step",
-  "e_pulse": "E_pulse",
-  "t_pulse": "t_pulse",
-  "scan_rate": "scan rate"
+  "eBegin": "E_begin",
+  "eEnd": "E_end",
+  "eStep": "E_step",
+  "ePulse": "E_pulse",
+  "tPulse": "t_pulse",
+  "scanRate": "scan rate",
+  "inversionOption": "inversion option",
+
+  "ad5940HsRTia": "AD5940 HsRTia"
 }

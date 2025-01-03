@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_utility_ui/presentation/bluetooth_widget/lock_view/bluetooth_lock_view.dart';
 import 'package:flutter_utility_ui/presentation/bluetooth_widget/off_view/bluetooth_off_view.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/bloc/bluetooth_scanner_bloc.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bloc/bluetooth_scanner_device_tile_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:utl_electrochemical_tester/application/controller/electrochemical_command_controller.dart';
-import 'package:utl_electrochemical_tester/application/service/electrochemical_data_service.dart';
-import 'package:utl_electrochemical_tester/presentation/subview/bluetooth_dashboard_view.dart';
+import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/controller/bluetooth_scanner_controller.dart';
+import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/controller/bluetooth_scanner_device_controller.dart';
+import 'package:utl_electrochemical_tester/presentation/subview/bluetooth_scanner_view.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/bluetooth_off_view.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/bluetooth_tile.dart';
-import 'package:utl_electrochemical_tester/presentation/subview/line_chart_view.dart';
-import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view.dart';
+import 'package:utl_electrochemical_tester/presentation/subview/dashboard_view.dart';
+import 'package:utl_electrochemical_tester/presentation/subview/line_chart/concrete_line_chart_view.dart';
+import 'package:utl_electrochemical_tester/presentation/subview/line_chart/line_chart_view.dart';
+import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view/electrochemical_command_view.dart';
 import 'package:utl_electrochemical_tester/resources/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,14 +24,14 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   late final BluetoothScannerController<BluetoothScannerDeviceTileController> bluetoothScannerController;
-  late final ElectrochemicalCommandController electrochemicalCommandController;
-  late final ElectrochemicalDataService electrochemicalDataService;
-  late final SharedPreferences sharedPreferences;
 
-  late final BluetoothDashboardView bluetoothDashboardView;
+  late final BluetoothScannerView bluetoothScannerView;
   late final BluetoothOffView disableScreen;
   late final ElectrochemicalCommandView electrochemicalCommandView;
-  late final LineChart lineChart;
+  late final LineChartView lineChartView;
+  late final LineChartModeController lineChartModeController;
+  late final LineChartTypesController lineChartTypesController;
+  late final DashboardView dashboardView;
 
   late final Map<Icon, Widget> tabViewMap;
   late final TabController tabController;
@@ -41,38 +40,47 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Tic
 
   late final Widget enableScreen;
 
+  late final Widget screen;
+
+  @mustCallSuper
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
     bluetoothScannerController = context.read<BluetoothScannerController<BluetoothScannerDeviceTileController>>();
-    electrochemicalCommandController = context.read<ElectrochemicalCommandController>();
-    electrochemicalDataService = context.read<ElectrochemicalDataService>();
-    sharedPreferences = context.read<SharedPreferences>();
 
-    electrochemicalCommandView = ElectrochemicalCommandView(
-      controller: electrochemicalCommandController,
-      sharedPreferences: sharedPreferences,
-    );
+    electrochemicalCommandView = ElectrochemicalCommandView();
 
-    bluetoothDashboardView = BluetoothDashboardView(
+    bluetoothScannerView = BluetoothScannerView(
       controller: bluetoothScannerController,
       deviceTileBuilder: (device) => BluetoothTile(
-          buildContext: context,
-          device: device,
+        controller: device,
       ),
     );
 
-    lineChart = ConcreteLineChart(
-        service: electrochemicalDataService,
+    lineChartModeController = LineChartModeController();
+    lineChartTypesController = LineChartTypesController();
+    lineChartView = ConcreteLineChartView(
+      lineChartModeController: lineChartModeController,
+      lineChartTypesController: lineChartTypesController,
+      onTouchStateChanged: (oldState, newState) {
+        dashboardView.x = newState.x;
+      },
+    );
+
+    dashboardView = DashboardView(
+      lineChartModeController: lineChartModeController,
+      lineChartTypesController: lineChartTypesController,
     );
 
     tabViewMap = {
       const Icon(Icons.bluetooth_searching_rounded):
-      bluetoothDashboardView,
+      bluetoothScannerView,
       const Icon(Icons.list_alt):
       electrochemicalCommandView,
+      const Icon(Icons.smart_button_sharp):
+      dashboardView,
     };
 
     tabController = TabController(
@@ -104,7 +112,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Tic
           body: SafeArea(
             child: Column(children: <Widget>[
               Expanded(
-                child: lineChart,
+                child: lineChartView,
               ),
               AppTheme.divider,
               tabBar,
@@ -119,8 +127,20 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Tic
       },
     );
 
-    disableScreen = ConcreteBluetoothOffView(
-      context: context,
+    disableScreen = ConcreteBluetoothOffView();
+
+    screen = Builder(
+      builder: (context) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          body: BluetoothEnableView(
+            enableScreen: enableScreen,
+            disableScreen: disableScreen,
+            isEnable: bluetoothScannerController.isEnable,
+            onEnable: bluetoothScannerController.onEnableStateChange,
+          ),
+        );
+      },
     );
 
   }
@@ -129,34 +149,13 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Tic
   double height = 0;
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return Scaffold(
-          extendBodyBehindAppBar: true,
-          body: BluetoothEnableView(
-              enableScreen: enableScreen,
-              disableScreen: disableScreen,
-              isEnable: () => bluetoothScannerController.isEnable,
-              onEnable: bluetoothScannerController.onEnableStateChange,
-          ),
-        );
-      },
-    );
+    return screen;
   }
 
+  @mustCallSuper
   @override
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    lineChart.cancel();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // App is in background
-    } else if (state == AppLifecycleState.resumed) {
-      // App is in foreground
-    }
   }
 }

@@ -9,7 +9,7 @@ import 'package:flutter_bt/flutter_blue_plus/bt_device_impl_fbp.dart';
 import 'package:flutter_bt/flutter_blue_plus/bt_provider_impl_fbp.dart';
 import 'package:flutter_bt/flutter_blue_plus/bt_service_impl_fbp.dart';
 import 'package:flutter_utility/general_utils.dart';
-
+on
 class BT_Characteristic_Impl_FBP extends BT_Characteristic {
   final BluetoothCharacteristic characteristic;
   BT_Characteristic_Impl_FBP(this.provider, this.device, this.service, this.characteristic);

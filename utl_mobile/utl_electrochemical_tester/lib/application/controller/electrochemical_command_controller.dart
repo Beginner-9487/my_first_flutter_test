@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_device.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_sent_packet.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_service.dart';
 
-abstract class ElectrochemicalCommandController<CommandDevice> {
+abstract class ElectrochemicalCommandController<CommandDevice extends ElectrochemicalSensor> {
   Iterable<CommandDevice> get devices;
   Future<void> startCa(CaSentPacket packet);
   Future<void> startCv(CvSentPacket packet);
@@ -12,47 +13,35 @@ abstract class ElectrochemicalCommandController<CommandDevice> {
   Future<String> getName(CommandDevice device);
 }
 
-class ConcreteElectrochemicalCommandController<CommandDevice> implements ElectrochemicalCommandController<CommandDevice> {
-  static late final BluetoothDevicesService<BluetoothDevice> _service;
-  static void init(BluetoothDevicesService<BluetoothDevice> service) {
-    _service = service;
-  }
-  CommandDevice Function(BluetoothDevice serviceDevice) convertor;
-  bool Function(BluetoothDevice serviceDevice, CommandDevice commandDevice) filter;
+class ConcreteElectrochemicalCommandController implements ElectrochemicalCommandController<ConcreteElectrochemicalSensor> {
+  final ElectrochemicalSensorService service;
   ConcreteElectrochemicalCommandController({
-    required this.convertor,
-    required this.filter,
+    required this.service,
   });
   @override
-  Iterable<CommandDevice> get devices => _service.devices.map(convertor);
+  Iterable<ConcreteElectrochemicalSensor> get devices => service.devices;
   @override
   Future<void> startCa(CaSentPacket packet) async {
-    for (var device in _service.devices) {
-      device.startCa(packet);
-    }
+    service.startCa(packet);
     return;
   }
   @override
   Future<void> startCv(CvSentPacket packet) async {
-    for (var device in _service.devices) {
-      device.startCv(packet);
-    }
+    service.startCv(packet);
     return;
   }
   @override
   Future<void> startDpv(DpvSentPacket packet) async {
-    for (var device in _service.devices) {
-      device.startDpv(packet);
-    }
+    service.startDpv(packet);
     return;
   }
   @override
-  Future<void> setName(CommandDevice device, String name) async {
-    _service.devices.where((m) => filter(m, device)).firstOrNull?.dataName = name;
+  Future<void> setName(ElectrochemicalSensor device, String name) async {
+    service.devices.where((d) => d == device).firstOrNull?.dataName = name;
     return;
   }
   @override
-  Future<String> getName(CommandDevice device) async {
-    return _service.devices.where((m) => filter(m, device)).firstOrNull?.dataName ?? "";
+  Future<String> getName(ElectrochemicalSensor device) async {
+    return service.devices.where((d) => d == device).firstOrNull?.dataName ?? "";
   }
 }

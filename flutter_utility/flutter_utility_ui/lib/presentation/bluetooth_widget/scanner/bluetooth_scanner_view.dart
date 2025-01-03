@@ -1,128 +1,155 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/bloc/bluetooth_scanner_bloc.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/bloc/bluetooth_scanner_event.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/bloc/bluetooth_scanner_state.dart';
+import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/controller/bluetooth_scanner_controller.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothScannerView<Device> extends StatefulWidget {
-  BluetoothScannerView({
+  const BluetoothScannerView({
     super.key,
     required this.controller,
     required this.deviceTileBuilder,
-    required this.filter,
-    required this.lockViewBuilder,
-    required this.scanDelay,
+    this.filter,
+    this.disableView,
     required this.scanButtonOnScanningColor,
     required this.scanButtonOnNotScanningColor,
   });
-  BluetoothScannerController<Device> controller;
-  Widget Function(Device device) deviceTileBuilder;
-  bool Function(Device device)? filter;
+  final BluetoothScannerController<Device> controller;
+  final Widget Function(Device device) deviceTileBuilder;
+  final bool Function(Device device)? filter;
 
-  Widget Function() lockViewBuilder;
+  final Widget? disableView;
 
-  Duration scanDelay;
-
-  Color? scanButtonOnScanningColor;
-  Color? scanButtonOnNotScanningColor;
+  final Color? scanButtonOnScanningColor;
+  final Color? scanButtonOnNotScanningColor;
 
   @override
   State<BluetoothScannerView<Device>> createState() => _BluetoothScannerViewState<Device>();
 }
 
 class _BluetoothScannerViewState<Device> extends State<BluetoothScannerView<Device>> {
-  late final BluetoothScannerBloc<Device> bloc;
-  Iterable<Device> get devices => bloc.devices;
-
-  Duration get scanDelay => widget.scanDelay;
-
+  BluetoothScannerController<Device> get controller => widget.controller;
+  Widget Function(Device device) get deviceTileBuilder => widget.deviceTileBuilder;
   bool Function(Device device) get filter => (widget.filter != null)
       ? widget.filter!
       : (Device device) => true;
 
-  bool get isScanning => bloc.isScanning;
+  Widget get disableView => widget.disableView ?? buildEnableScreen;
   Color? get scanButtonOnScanningColor => widget.scanButtonOnScanningColor;
   Color? get scanButtonOnNotScanningColor => widget.scanButtonOnNotScanningColor;
 
-  Widget Function(Device device) get deviceTileBuilder => widget.deviceTileBuilder;
-  Widget Function() get lockViewBuilder => widget.lockViewBuilder;
+  late final StreamSubscription<bool> _onEnableStateChange;
+  late final ValueNotifier<bool> onEnableValueNotifier;
+  late final StreamSubscription<bool> _onScanningStateChange;
+  late final ValueNotifier<bool> onScanningValueNotifier;
+  late final StreamSubscription<Device> _onFoundNewDevice;
+  late final ValueNotifier<List<Device>> devicesValueNotifier;
 
+  Future<bool> requestPermission() async {
+    if(!(await Permission.bluetooth.isGranted)) {
+      if(!(await Permission.bluetooth.request().isGranted)) {
+        return false;
+      }
+    }
+    if(!(await Permission.location.isGranted)) {
+      if(!(await Permission.location.request().isGranted)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  Future onRefresh() async {
+    if(await requestPermission()) {
+      return controller.scanOff().then((value) => controller.scanOn());
+    }
+  }
+  Future toggleBluetoothScanning() async {
+    if(await requestPermission()) {
+      return controller.isScanning
+        ? controller.scanOff()
+        : controller.scanOn();
+    }
+  }
+  Widget get buildScanButton => ValueListenableBuilder(
+      valueListenable: onScanningValueNotifier,
+      builder: (context, isScanning, child) {
+        return FloatingActionButton(
+          onPressed: toggleBluetoothScanning,
+          backgroundColor: (isScanning)
+              ? scanButtonOnScanningColor
+              : scanButtonOnNotScanningColor,
+          child: (controller.isScanning)
+              ? const Icon(Icons.stop)
+              : const Icon(Icons.bluetooth_searching),
+        );
+      }
+  );
+  final Key tilesKey = UniqueKey();
+  Widget get buildTiles => ValueListenableBuilder(
+      valueListenable: devicesValueNotifier,
+      builder: (context, devices, child) {
+        return ListView.builder(
+          key: tilesKey,
+          itemCount: controller.devices.where(filter).length,
+          itemBuilder: (context, index) {
+            return deviceTileBuilder(
+                controller
+                    .devices
+                    .where(filter)
+                    .skip(index)
+                    .first
+            );
+          },
+        );
+      }
+  );
+  Widget get buildEnableScreen => Scaffold(
+    body: RefreshIndicator(
+      onRefresh: onRefresh,
+      child: buildTiles,
+    ),
+    floatingActionButton: buildScanButton,
+  );
+  Widget get buildMainScreen => ValueListenableBuilder(
+    valueListenable: onEnableValueNotifier,
+    builder: (context, isEnable, child) {
+      return (isEnable)
+        ? child!
+        : disableView;
+    },
+    child: buildEnableScreen,
+  );
+
+  @mustCallSuper
   @override
   void initState() {
     super.initState();
-    bloc = BluetoothScannerBloc(
-      controller: widget.controller,
-      scanDelay: scanDelay,
-    );
-  }
-
-  Future _toggleScanning() async {
-    return bloc.add(BluetoothScannerEventToggleScanning());
-  }
-
-  Future _onRefresh() async {
-    return bloc.add(BluetoothScannerEventRefreshScanning());
-  }
-
-  Widget buildScanButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: _toggleScanning,
-      backgroundColor: (isScanning)
-          ? scanButtonOnScanningColor
-          : scanButtonOnNotScanningColor,
-      child: (isScanning)
-          ? const Icon(Icons.stop)
-          : const Icon(Icons.bluetooth_searching),
-    );
-  }
-
-  Iterable<Widget> _buildScanResultTiles(BuildContext context) {
-    return devices
-        .where((e) => filter(e))
-        .map((e) => deviceTileBuilder(e));
+    onEnableValueNotifier = ValueNotifier(controller.isEnable);
+    _onEnableStateChange = controller.onEnableStateChange.listen((enable) {
+      onEnableValueNotifier.value = enable;
+    });
+    onScanningValueNotifier = ValueNotifier(controller.isScanning);
+    _onScanningStateChange = controller.onScanningStateChange.listen((isScanning) {
+      onScanningValueNotifier.value = isScanning;
+    });
+    devicesValueNotifier = ValueNotifier(controller.devices.toList());
+    _onFoundNewDevice = controller.onFoundNewDevice.listen((device) {
+      devicesValueNotifier.value = controller.devices.toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => bloc,
-      child: BlocBuilder<BluetoothScannerBloc, BluetoothScannerState>(
-        builder: (context, state) {
-          if(state is BluetoothScannerStateEnable) {
-            return Scaffold(
-              body: RefreshIndicator(
-                onRefresh: _onRefresh,
-                child: BlocBuilder<BluetoothScannerBloc, BluetoothScannerState>(
-                  buildWhen: (previous, current) {
-                    return current is BluetoothScannerStateEnable;
-                  },
-                  builder: (context, state) {
-                    return ListView(
-                      children: <Widget>[
-                        ..._buildScanResultTiles(context),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              floatingActionButton: BlocBuilder<BluetoothScannerBloc, BluetoothScannerState>(
-                buildWhen: (previous, current) {
-                  return current is BluetoothScannerStateEnable;
-                },
-                builder: (context, state) {
-                  return buildScanButton(context);
-                },
-              ),
-            );
-          }
-          if(state is BluetoothScannerStateDisable) {
-            return lockViewBuilder();
-          }
-          return const Scaffold();
-        },
-      ),
-    );
+    return buildMainScreen;
   }
+
+  @mustCallSuper
+  @override
+  void dispose() {
+    _onEnableStateChange.cancel();
+    _onScanningStateChange.cancel();
+    _onFoundNewDevice.cancel();
+    return super.dispose();
+  }
+
 }

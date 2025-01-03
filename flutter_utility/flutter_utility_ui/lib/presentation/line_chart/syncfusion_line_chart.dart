@@ -5,113 +5,112 @@ import 'package:flutter/material.dart';
 import 'package:flutter_utility_ui/presentation/line_chart/line_chart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class SyncfusionLineChart extends LineChart<List<LineSeries<Point, double>>> {
+class SyncfusionLineChartDatasetController extends LineChartDatasetController<List<LineSeries<Point, double>>> {
+  SyncfusionLineChartDatasetController({
+    required List<LineSeries<Point, double>> dataset,
+  }) : datasetNotifier = ValueNotifier(dataset);
+  @override
+  final ValueNotifier<List<LineSeries<Point, double>>> datasetNotifier;
+  @override
+  set dataset(List<LineSeries<Point, double>> dataset) {
+    datasetNotifier.value = dataset;
+  }
+  @override
+  List<LineSeries<Point, double>> get dataset => datasetNotifier.value;
+}
+
+class SyncfusionLineChartTouchState extends LineChartTouchState {
+  @override
+  final double? x;
+  @override
+  final LineChartTouchStateType type;
+  @override
+  bool get isTouched => type == LineChartTouchStateType.down || type == LineChartTouchStateType.move;
+  SyncfusionLineChartTouchState({
+    this.x,
+    required this.type,
+  });
+}
+
+class SyncfusionLineChart extends StatelessWidget implements LineChart<List<LineSeries<Point, double>>> {
   SyncfusionLineChart({
     super.key,
+    this.datasetController,
+    this.onTouchStateChanged,
     this.primaryYAxis,
     this.trackballBehavior,
     this.zoomPanBehavior,
-    List<LineSeries<Point, double>> dataset = const [],
-  }) {
-    _dataset = dataset;
-    _controller = StreamController.broadcast();
-    return;
-  }
-
-  late List<LineSeries<Point, double>> _dataset;
-  late final StreamController<List<LineSeries<Point, double>>> _controller;
-  late final StreamSubscription<void> _subscription;
-
-  @override
-  Stream<List<LineSeries<Point, double>>> get onUpdate => _controller.stream;
-
-  @override
-  void update(List<LineSeries<Point, double>> dataset) {
-    _dataset = dataset;
-    _controller.add(dataset);
-  }
-
-  @override
-  int? index;
-
-  final StreamController<LineChartTouchEvent> _onTouchEvent = StreamController.broadcast();
-  @override
-  Stream<LineChartTouchEvent> get onTouchEvent => _onTouchEvent.stream;
-  @override
-  bool isTouched = false;
-
-  @override
-  State<SyncfusionLineChart> createState() => _LineChartImplSyncfusionState();
-
+  });
   final ChartAxis? primaryYAxis;
   final TrackballBehavior? trackballBehavior;
   final ZoomPanBehavior? zoomPanBehavior;
-}
-
-class _LineChartImplSyncfusionState<View extends SyncfusionLineChart> extends State<View> {
-  TrackballBehavior? get trackballBehavior => widget.trackballBehavior;
-  ZoomPanBehavior? get zoomPanBehavior => widget.zoomPanBehavior;
-
-  List<LineSeries<Point, double>> get dataset => widget._dataset;
-
-  ChartAxis? get primaryYAxis => widget.primaryYAxis;
-
-  bool get isTouched => widget.isTouched;
-  setIsTouched(bool isTouched) {
-    widget.isTouched = isTouched;
-  }
-
-  int? get index => widget.index;
-  setIndex(int? index) {
-    widget.index = index;
-  }
-
-  late final Widget view;
-
-  void _update() {
-    view = SfCartesianChart(
-      series: dataset,
-      trackballBehavior: trackballBehavior,
-      zoomPanBehavior: zoomPanBehavior,
-      onChartTouchInteractionDown: (ChartTouchInteractionArgs tapArgs) {
-        setIsTouched(true);
-        widget._onTouchEvent.add(LineChartTouchEvent(type: LineChartTouchEventType.down, index: index));
-      },
-      onChartTouchInteractionUp: (ChartTouchInteractionArgs tapArgs) {
-        setIsTouched(false);
-        widget._onTouchEvent.add(LineChartTouchEvent(type: LineChartTouchEventType.up, index: index));
-      },
-      onTrackballPositionChanging: (TrackballArgs trackballArgs) {
-        int? index = trackballArgs
-            .chartPointInfo
-            .dataPointIndex;
-        setIndex(index);
-        widget._onTouchEvent.add(LineChartTouchEvent(type: LineChartTouchEventType.move, index: index));
-      },
-      primaryYAxis: primaryYAxis,
-    );
-    return;
-  }
-
+  late final ValueListenableBuilder<List<LineSeries<Point, double>>> view;
+  double? _latestX;
   @override
-  void initState() {
-    super.initState();
-    widget._subscription = widget._controller.stream.listen((data) => setState(() {
-      _update();
-    }));
-    _update();
-  }
-
+  double? get latestX => _latestX;
+  @override
+  final SyncfusionLineChartDatasetController? datasetController;
+  @override
+  void Function(LineChartTouchState oldTouchState, LineChartTouchState newTouchState)? onTouchStateChanged;
+  LineChartTouchState _oldTouchState = SyncfusionLineChartTouchState(
+      type: LineChartTouchStateType.up,
+  );
+  @override
+  LineChartTouchState get oldTouchState => _oldTouchState;
+  LineChartTouchState _newTouchState = SyncfusionLineChartTouchState(
+    type: LineChartTouchStateType.up,
+  );
+  List<LineSeries<Point<num>, double>> get series => datasetController?.dataset ?? [];
+  @override
+  LineChartTouchState get newTouchState => _newTouchState;
   @override
   Widget build(BuildContext context) {
-    return view;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    widget._subscription.cancel();
-    widget._controller.close();
-    return;
+    return ValueListenableBuilder<List<LineSeries<Point, double>>>(
+      valueListenable: datasetController?.datasetNotifier ?? ValueNotifier([]),
+      builder: (context, rssi, child) {
+        return SfCartesianChart(
+          series: series,
+          trackballBehavior: trackballBehavior,
+          zoomPanBehavior: zoomPanBehavior,
+          onChartTouchInteractionDown: (ChartTouchInteractionArgs tapArgs) {
+            _oldTouchState = newTouchState;
+            _newTouchState = SyncfusionLineChartTouchState(
+              type: LineChartTouchStateType.down,
+            );
+            if(onTouchStateChanged != null) onTouchStateChanged!(oldTouchState, newTouchState);
+          },
+          onChartTouchInteractionUp: (ChartTouchInteractionArgs tapArgs) {
+            _oldTouchState = newTouchState;
+            _newTouchState = SyncfusionLineChartTouchState(
+              type: LineChartTouchStateType.up,
+            );
+            if(onTouchStateChanged != null) onTouchStateChanged!(oldTouchState, newTouchState);
+          },
+          onTrackballPositionChanging: (TrackballArgs trackballArgs) {
+            int? seriesIndex = trackballArgs.chartPointInfo.seriesIndex;
+            int? dataPointIndex = trackballArgs.chartPointInfo.dataPointIndex;
+            double? x;
+            if(seriesIndex != null && dataPointIndex != null) {
+              x = series
+                  .skip(trackballArgs.chartPointInfo.seriesIndex!)
+                  .firstOrNull
+                  ?.dataSource
+                  ?.skip(trackballArgs.chartPointInfo.dataPointIndex!)
+                  .firstOrNull
+                  ?.x
+                  .toDouble();
+            }
+            _latestX = (x != null) ? x : _latestX;
+            _oldTouchState = newTouchState;
+            _newTouchState = SyncfusionLineChartTouchState(
+              type: LineChartTouchStateType.move,
+              x: x,
+            );
+            if(onTouchStateChanged != null) onTouchStateChanged!(oldTouchState, newTouchState);
+          },
+          primaryYAxis: primaryYAxis ?? const NumericAxis(),
+        );
+      },
+    );
   }
 }

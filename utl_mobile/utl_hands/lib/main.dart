@@ -12,7 +12,7 @@ import 'package:utl_hands/application/use_case/save_file_use_case.dart';
 import 'package:utl_hands/application/use_case/save_file_use_case_row.dart';
 import 'package:utl_hands/presentation/home_screen.dart';
 import 'package:utl_mobile/utl_bluetooth_handler.dart';
-import 'package:utl_mobile/utl_bluetooth_handler_impl_fbp.dart';
+import 'package:utl_mobile/fbp_utl_bluetooth_handler.dart';
 
 void main() {
   mainInit();

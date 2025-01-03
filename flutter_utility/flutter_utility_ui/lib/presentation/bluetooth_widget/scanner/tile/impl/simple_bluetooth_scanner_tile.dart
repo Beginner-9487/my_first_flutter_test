@@ -1,36 +1,30 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bloc/bluetooth_scanner_device_tile_bloc.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bloc/bluetooth_scanner_device_tile_event.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bloc/bluetooth_scanner_device_tile_state.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bluetooth_scanner_tile.dart';
+import 'dart:async';
 
-class SimpleBluetoothScannerTile<Device> extends BluetoothScannerTile<Device> {
-  SimpleBluetoothScannerTile({
+import 'package:flutter/material.dart';
+import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/bluetooth_scanner_tile.dart';
+import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/controller/bluetooth_scanner_device_controller.dart';
+
+class SimpleBluetoothScannerTile extends BluetoothScannerTile {
+  const SimpleBluetoothScannerTile({
     super.key,
-    required super.device,
+    required super.controller,
     this.connectedTileBackgroundColor,
     this.disconnectedTileBackgroundColor,
     this.textConnected = "Disconnect",
     this.textDisconnected = "Connect",
-    void Function(BluetoothScannerDeviceTileBloc bloc)? onPressConnected,
-    void Function(BluetoothScannerDeviceTileBloc bloc)? onPressDisconnected,
+    this.onPressConnected,
+    this.onPressDisconnected,
     this.connectedButtonStyle,
     this.disconnectedButtonStyle,
     this.contentPadding,
-  }) {
-    _onPressConnected = onPressConnected ??
-            (bloc) => bloc.add(BluetoothScannerDeviceTileEventToggleConnection());
-    _onPressDisconnected = onPressDisconnected ??
-            (bloc) => bloc.add(BluetoothScannerDeviceTileEventToggleConnection());
-  }
+  });
 
   final Color? connectedTileBackgroundColor;
   final Color? disconnectedTileBackgroundColor;
   final String textConnected;
   final String textDisconnected;
-  late final void Function(BluetoothScannerDeviceTileBloc bloc) _onPressConnected;
-  late final void Function(BluetoothScannerDeviceTileBloc bloc) _onPressDisconnected;
+  final void Function(BluetoothScannerDeviceTileController controller)? onPressConnected;
+  final void Function(BluetoothScannerDeviceTileController controller)? onPressDisconnected;
   final ButtonStyle? connectedButtonStyle;
   final ButtonStyle? disconnectedButtonStyle;
   final EdgeInsetsGeometry? contentPadding;
@@ -40,136 +34,120 @@ class SimpleBluetoothScannerTile<Device> extends BluetoothScannerTile<Device> {
 }
 
 class BluetoothScannerSimpleTileState<Tile extends SimpleBluetoothScannerTile> extends BluetoothScannerTileState<Tile> {
-
   Color? get connectedTileBackgroundColor => widget.connectedTileBackgroundColor;
   Color? get disconnectedTileBackgroundColor => widget.disconnectedTileBackgroundColor;
   String get textConnected => widget.textConnected;
   String get textDisconnected => widget.textDisconnected;
-  void Function(BluetoothScannerDeviceTileBloc bloc) get _onPressConnected => widget._onPressConnected;
-  void Function(BluetoothScannerDeviceTileBloc bloc) get _onPressDisconnected => widget._onPressDisconnected;
+
   ButtonStyle? get connectedButtonStyle => widget.connectedButtonStyle;
   ButtonStyle? get disconnectedButtonStyle => widget.disconnectedButtonStyle;
   EdgeInsetsGeometry? get contentPadding => widget.contentPadding;
 
-  VoidCallback? onPressConnectedVoidCallback(BluetoothScannerDeviceTileBloc bloc) {
-    if(bloc.state is BluetoothScannerDeviceTileStateNormal && (bloc.state as BluetoothScannerDeviceTileStateNormal).isConnectable) {
-      return () => _onPressConnected(bloc);
-    }
-    return null;
+  void toggleConnection(BluetoothScannerDeviceTileController controller) {
+    (controller.isConnected) ? controller.disconnect() : controller.connect();
   }
-  VoidCallback? onPressDisconnectedVoidCallback(BluetoothScannerDeviceTileBloc bloc) {
-    if(bloc.state is BluetoothScannerDeviceTileStateNormal && (bloc.state as BluetoothScannerDeviceTileStateNormal).isConnectable) {
-      return () => _onPressDisconnected(bloc);
-    }
-    return null;
-  }
+  void Function(BluetoothScannerDeviceTileController controller) get onPressConnected => widget.onPressConnected ?? toggleConnection;
+  void Function(BluetoothScannerDeviceTileController controller) get onPressDisconnected => widget.onPressDisconnected ?? toggleConnection;
+  VoidCallback? get onPressConnectedVoidCallback => (controller.isConnectable) ? () => onPressConnected(controller) : null;
+  VoidCallback? get onPressDisconnectedVoidCallback => (controller.isConnectable) ? () => onPressDisconnected(controller) : null;
 
-  Widget buildTitle(BuildContext context, BluetoothScannerDeviceTileBloc bloc) {
-    BluetoothScannerDeviceTileStateNormal state = bloc.state as BluetoothScannerDeviceTileStateNormal;
-    if (state.name.isNotEmpty) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            state.name,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            state.id,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
+  late final StreamSubscription<void> _onConnectableStateChange;
+  late final StreamSubscription<void> _onConnectionStateChange;
+  late final StreamSubscription<void> _onRssiChange;
+
+  late final ValueNotifier<bool> connectableNotifier;
+  late final ValueNotifier<bool> connectionNotifier;
+  late final ValueNotifier<int> rssiNotifier;
+  Widget get buildConnectionButton => ValueListenableBuilder<bool>(
+    valueListenable: connectableNotifier,
+    builder: (context, isConnectable, child) {
+      return ValueListenableBuilder<bool>(
+        valueListenable: connectionNotifier,
+        builder: (context, isConnected, child) {
+          return ElevatedButton(
+            style: isConnected
+                ? connectedButtonStyle
+                : disconnectedButtonStyle,
+            onPressed: isConnected
+                ? onPressConnectedVoidCallback
+                : onPressDisconnectedVoidCallback,
+            child: isConnected
+                ? Text(textConnected)
+                : Text(textDisconnected),
+          );
+        },
       );
-    } else {
-      return Text(state.id);
-    }
-  }
-
-  Widget buildConnectionButton(BuildContext context, BluetoothScannerDeviceTileBloc bloc) {
-    return BlocBuilder<BluetoothScannerDeviceTileBloc, BluetoothScannerDeviceTileState>(
-      buildWhen: (previous, current) {
-        return (
-            current is BluetoothScannerDeviceTileStateNormal
-                && previous is! BluetoothScannerDeviceTileStateNormal
-        )
-            || (
-                current is BluetoothScannerDeviceTileStateNormal
-                    && previous is BluetoothScannerDeviceTileStateNormal
-                    && (
-                    current.isConnected != previous.isConnected
-                        || current.isConnectable != previous.isConnectable
-                )
-            );
-      },
-      builder: (context, state) {
-        BluetoothScannerDeviceTileStateNormal state = bloc.state as BluetoothScannerDeviceTileStateNormal;
-        return ElevatedButton(
-          style: state.isConnected
-              ? connectedButtonStyle
-              : disconnectedButtonStyle,
-          onPressed: state.isConnected
-              ? onPressConnectedVoidCallback(bloc)
-              : onPressDisconnectedVoidCallback(bloc),
-          child: state.isConnected
-              ? Text(textConnected)
-              : Text(textDisconnected),
-        );
-      },
-    );
-  }
-
-  Widget rssiText(BluetoothScannerDeviceTileBloc bloc) {
-    return BlocBuilder(
-      buildWhen: (previous, current) {
-        return (
-            current is BluetoothScannerDeviceTileStateNormal
-                && previous is! BluetoothScannerDeviceTileStateNormal
-        )
-            || (
-                current is BluetoothScannerDeviceTileStateNormal
-                    && previous is BluetoothScannerDeviceTileStateNormal
-                    && current.rssi != previous.rssi
-            );
-      },
-      builder: (context, state) {
-        BluetoothScannerDeviceTileStateNormal state = bloc.state as BluetoothScannerDeviceTileStateNormal;
-        return Text(state.rssi.toString());
-      },
-    );
-  }
-
-  Widget buildTile(BuildContext context, BluetoothScannerDeviceTileBloc bloc) {
-    BluetoothScannerDeviceTileStateNormal state = bloc.state as BluetoothScannerDeviceTileStateNormal;
-    return ListTile(
-      tileColor: (state.isConnected)
+    },
+  );
+  Widget get buildRssiText => ValueListenableBuilder<int>(
+    valueListenable: rssiNotifier,
+    builder: (context, rssi, child) {
+      return Text(rssi.toString());
+    },
+  );
+  Widget get buildTitle => (controller.name.isNotEmpty)
+    ? Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          controller.name,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          controller.id,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    )
+    : Text(controller.id);
+  Widget get buildTile => ValueListenableBuilder<bool>(
+    valueListenable: connectionNotifier,
+    builder: (context, isConnected, child) {
+      return ListTile(
+        tileColor: isConnected
           ? connectedTileBackgroundColor
           : disconnectedTileBackgroundColor,
-      title: buildTitle(context, bloc),
-      leading: rssiText(bloc),
-      trailing: buildConnectionButton(context, bloc),
-      contentPadding: contentPadding,
-    );
+        title: buildTitle,
+        leading: buildRssiText,
+        trailing: buildConnectionButton,
+        contentPadding: contentPadding,
+      );
+    },
+  );
+
+  @mustCallSuper
+  @override
+  void initState() {
+    connectableNotifier = ValueNotifier<bool>(controller.isConnectable);
+    connectionNotifier = ValueNotifier<bool>(controller.isConnected);
+    rssiNotifier = ValueNotifier<int>(controller.rssi);
+
+    _onConnectableStateChange = controller.onConnectableStateChange.listen((isConnectable) {
+      connectableNotifier.value = isConnectable;
+    });
+    _onConnectionStateChange = controller.onConnectionStateChange.listen((isConnected) {
+      connectionNotifier.value = isConnected;
+    });
+    _onRssiChange = controller.onRssiChange.listen((rssi) {
+      rssiNotifier.value = rssi;
+    });
+
+    return super.initState();
   }
 
   @override
-  BlocBuilder<BluetoothScannerDeviceTileBloc, BluetoothScannerDeviceTileState> builder(BuildContext context, BluetoothScannerDeviceTileBloc bloc) {
-    return BlocBuilder<BluetoothScannerDeviceTileBloc, BluetoothScannerDeviceTileState>(
-      buildWhen: (previous, current) {
-        return (
-            current is BluetoothScannerDeviceTileStateNormal
-                && previous is! BluetoothScannerDeviceTileStateNormal
-        )
-            || (
-                current is BluetoothScannerDeviceTileStateNormal
-                    && previous is BluetoothScannerDeviceTileStateNormal
-                    && current.isConnected != previous.isConnected
-            );
-      },
-      builder: (BuildContext context, BluetoothScannerDeviceTileState state) {
-        return buildTile(context, bloc);
-      },
-    );
+  Widget build(BuildContext context) {
+    return buildTile;
+  }
+
+  @mustCallSuper
+  @override
+  void dispose() {
+    _onConnectableStateChange.cancel();
+    _onConnectionStateChange.cancel();
+    _onRssiChange.cancel();
+    return super.dispose();
   }
 
 }

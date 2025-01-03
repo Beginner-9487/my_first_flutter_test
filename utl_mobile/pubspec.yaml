@@ -11,51 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  intl: any
-  cupertino_icons: ^1.0.2
-  dio: any
-  dio_cookie_manager: any
-  cookie_jar: any
-  http: ^0.13.3
-  http_mock_adapter: any
-  path_provider: any
-  device_info: any
-  shared_preferences: any
-  json_annotation: any
-  bloc: any
-  flutter_bloc: any
-  equatable: any
-  cached_network_image: any
-  #  flutter_swiper: any
-#  flutter_webview_plugin: any
-  url_launcher: any
-  flare_flutter: any
-  package_info: any
-  provider: any
-  #  data_plugin:
-  #    git:
-  #      url: https://github.com/CCY0122/bmob-flutter-sdk.git
-  #      path: data_plugin/
 
   flutter_blue_plus: any
-  fl_chart: any
-
-  flutter_background_service: ^5.0.5
-  flutter_background_service_ios: ^5.0.0
-  flutter_background_service_android: ^6.2.2
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  device_info_plus: ^9.0.2
-  # optional if you wish to use a custom foreground service notification
-  flutter_local_notifications: ^14.1.1
-
-  syncfusion_flutter_charts: 20.4.48
-  syncfusion_flutter_xlsio: any
-
-  # excel
-  excel: any
 
   flutter_utility:
     path: ../flutter_utility/flutter_utility

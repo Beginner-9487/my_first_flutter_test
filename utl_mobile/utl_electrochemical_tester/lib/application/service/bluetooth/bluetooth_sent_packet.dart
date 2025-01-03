@@ -1,43 +1,72 @@
-import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
+import 'dart:typed_data';
 
-import 'package:utl_electrochemical_tester/application/data/electrochemical_parameters.dart';
+import 'package:utl_electrochemical_tester/application/domain/value/ad5940_parameters.dart';
+import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_parameters.dart';
+import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_type.dart';
 
-abstract class Packet {
+abstract class SentPacket {
   Uint8List get data;
 }
 
-class CaSentPacket extends Packet {
+abstract class ElectrochemicalSensorSentPacket implements SentPacket {
+  ElectrochemicalParameters get electrochemicalParameters;
+  AD5940Parameters get ad5940Parameters;
+  @override
+  Uint8List get data {
+    final electrochemicalParametersData = electrochemicalParameters.data;
+    final ad5940ParametersData = ad5940Parameters.data;
+    final newData = Uint8List(2 + ad5940ParametersData.length + electrochemicalParameters.data.length);
+    newData[0] = 0x01;
+    newData[1] = electrochemicalParameters.type.index;
+    newData.setRange(
+      2,
+      2 + ad5940ParametersData.length,
+      ad5940ParametersData,
+    );
+    newData.setRange(
+      2 + ad5940ParametersData.length,
+      2 + ad5940ParametersData.length + electrochemicalParametersData.length,
+      electrochemicalParametersData,
+    );
+    return newData;
+  }
+}
+
+class CaSentPacket extends ElectrochemicalSensorSentPacket {
   CaSentPacket({
-    required this.parameters
+    required this.electrochemicalParameters,
+    required this.ad5940Parameters,
   });
 
-  CaElectrochemicalParameters parameters;
+  @override
+  CaElectrochemicalParameters electrochemicalParameters;
 
   @override
-  // TODO: implement data
-  Uint8List get data => throw UnimplementedError();
+  AD5940Parameters ad5940Parameters;
 }
 
-class CvSentPacket extends Packet {
+class CvSentPacket extends ElectrochemicalSensorSentPacket {
   CvSentPacket({
-    required this.parameters
+    required this.electrochemicalParameters,
+    required this.ad5940Parameters,
   });
 
-  CvElectrochemicalParameters parameters;
+  @override
+  CvElectrochemicalParameters electrochemicalParameters;
 
   @override
-  // TODO: implement data
-  Uint8List get data => throw UnimplementedError();
+  AD5940Parameters ad5940Parameters;
 }
 
-class DpvSentPacket extends Packet {
+class DpvSentPacket extends ElectrochemicalSensorSentPacket {
   DpvSentPacket({
-    required this.parameters
+    required this.electrochemicalParameters,
+    required this.ad5940Parameters,
   });
 
-  DpvElectrochemicalParameters parameters;
+  @override
+  DpvElectrochemicalParameters electrochemicalParameters;
 
   @override
-  // TODO: implement data
-  Uint8List get data => throw UnimplementedError();
+  AD5940Parameters ad5940Parameters;
 }
