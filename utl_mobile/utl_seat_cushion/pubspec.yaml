@@ -35,24 +35,28 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  flutter_localizations:
-    sdk: flutter
-
   utl_mobile:
     path: ..
-  flutter_file_handler:
-    path: ../../flutter_utility/flutter_file_handler
-  flutter_context_resource:
-    path: ../../flutter_utility/flutter_context_resource
-  flutter_utility:
-    path: ../../flutter_utility/flutter_utility
-  flutter_utility_ui:
-    path: ../../flutter_utility/flutter_utility_ui
-  flutter_system_path:
-    path: ../../flutter_utility/flutter_system_path
-  flutter_blue_plus: 1.32.1
+  flutter_basic_utils:
+    path: ../../flutter_utils/flutter_basic_utils
+  flutter_bluetooth_utils:
+    path: ../../flutter_utils/flutter_bluetooth_utils
+  flutter_file_utils:
+    path: ../../flutter_utils/flutter_file_utils
+  flutter_path_utils:
+    path: ../../flutter_utils/flutter_path_utils
 
-  flutter_bloc: ^8.1.6
+  async_locks: ^4.0.2
+  equatable: ^2.0.5
+  flutter_blue_plus: ^1.34.5
+  flutter_localizations:
+    sdk: flutter
+  fluttertoast: ^8.2.10
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.5
+  provider: ^6.1.2
+  shared_preferences: ^2.3.5
 
 dev_dependencies:
   flutter_test:

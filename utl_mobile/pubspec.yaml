@@ -12,10 +12,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_blue_plus: any
+  flutter_basic_utils:
+    path: ../flutter_utils/flutter_basic_utils
+  flutter_bluetooth_utils:
+    path: ../flutter_utils/flutter_bluetooth_utils
 
-  flutter_utility:
-    path: ../flutter_utility/flutter_utility
+  flutter_blue_plus: ^1.34.5
 
 dev_dependencies:
   flutter_test:

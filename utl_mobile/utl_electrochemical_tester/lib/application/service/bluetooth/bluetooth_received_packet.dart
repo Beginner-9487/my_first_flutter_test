@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:utl_mobile/utl_bluetooth/utl_bluetooth_handler.dart';
-
-abstract class ElectrochemicalSensorReceivedPacket {
+class ElectrochemicalSensorReceivedPacket {
   const ElectrochemicalSensorReceivedPacket({
     required this.deviceName,
     required this.deviceId,
@@ -29,7 +27,7 @@ class HeaderReceivedPacket extends ElectrochemicalSensorReceivedPacket {
 
   late final int temperature;
 
-  factory HeaderReceivedPacket.getByUtlPacket(UtlReceivedBluetoothPacket packet) {
+  factory HeaderReceivedPacket.getByUtlPacket(ElectrochemicalSensorReceivedPacket packet) {
     return HeaderReceivedPacket(
       data: packet.data,
       deviceName: packet.deviceName,
@@ -51,7 +49,7 @@ class DataReceivedPacket extends ElectrochemicalSensorReceivedPacket {
     current = byteData.getInt32(12, Endian.little);
   }
 
-  factory DataReceivedPacket.getByUtlPacket(UtlReceivedBluetoothPacket packet) {
+  factory DataReceivedPacket.getByUtlPacket(ElectrochemicalSensorReceivedPacket packet) {
     return DataReceivedPacket(
       data: packet.data,
       deviceName: packet.deviceName,

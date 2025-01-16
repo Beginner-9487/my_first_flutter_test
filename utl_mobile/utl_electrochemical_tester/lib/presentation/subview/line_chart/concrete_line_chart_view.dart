@@ -2,40 +2,31 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_utility_ui/presentation/line_chart/line_chart.dart' as line_chart;
-import 'package:flutter_utility_ui/presentation/line_chart/syncfusion_line_chart.dart';
+import 'package:flutter_basic_utils/presentation/line_chart/line_chart.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:utl_electrochemical_tester/application/service/electrochemical_data_service.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/line_chart/line_chart_data_getter.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/line_chart/line_chart_view.dart';
 
-class ConcreteLineChartView extends StatefulWidget implements LineChartView {
-  ChartAxis? primaryYAxis;
-  @override
-  final void Function(line_chart.LineChartTouchState, line_chart.LineChartTouchState)? onTouchStateChanged;
-  final LineChartModeController? lineChartModeController;
-  final LineChartTypesController? lineChartTypesController;
-  ConcreteLineChartView({
+class ConcreteLineChartView extends StatefulWidget implements LineChartView<List<LineSeries<Point, double>>> {
+  const ConcreteLineChartView({
     super.key,
-    this.primaryYAxis,
     this.onTouchStateChanged,
     this.lineChartModeController,
     this.lineChartTypesController,
   });
+  final void Function(LineChartTouchState touchState)? onTouchStateChanged;
+  final LineChartModeController? lineChartModeController;
+  final LineChartTypesController? lineChartTypesController;
   @override
-  State<ConcreteLineChartView> createState() => _ConcreteLineChartViewState();
+  State createState() => _ConcreteLineChartViewState();
 }
 
 class _ConcreteLineChartViewState extends State<ConcreteLineChartView> {
   late final ElectrochemicalDataService electrochemicalDataService;
-  late final Widget view;
-  late final SyncfusionLineChartDatasetController syncfusionLineChartDatasetController;
-  late final StreamSubscription _onUpdate;
-  late final StreamSubscription _onClear;
-  LineChartMode get mode => widget.lineChartModeController?.mode ?? LineChartMode.values[0];
-  Iterable<bool> get shows => widget.lineChartTypesController?.shows ?? LineChartTypesController.defaultShows;
-  List<LineSeries<Point<num>, double>> get dataset => LineChartDataGetter
+  late final LineChartDatasetController<List<LineSeries<Point, double>>> lineChartDatasetController;
+  List<LineSeries<Point<num>, double>> get createSeries => LineChartDataGetter
     .data(
       entities: electrochemicalDataService.latestEntities,
       shows: shows,
@@ -67,67 +58,89 @@ class _ConcreteLineChartViewState extends State<ConcreteLineChartView> {
       color: dto.color,
       width: 1.5,
     )).toList();
+  LineChartMode get mode => widget.lineChartModeController?.mode ?? LineChartMode.values[0];
+  Iterable<bool> get shows => widget.lineChartTypesController?.shows ?? LineChartTypesController.defaultTypes.map((type) => type.show);
+  late final StreamSubscription _onUpdate;
+  late final StreamSubscription _onClear;
   void update() {
-    syncfusionLineChartDatasetController.dataset = dataset;
+    lineChartDatasetController.dataset = createSeries;
   }
   @override
   void initState() {
     super.initState();
     electrochemicalDataService = context.read<ElectrochemicalDataService>();
-    syncfusionLineChartDatasetController = SyncfusionLineChartDatasetController(
-        dataset: dataset,
-    );
+    lineChartDatasetController = LineChartDatasetController(dataset: createSeries);
+    widget.lineChartModeController?.addListener(update);
+    widget.lineChartTypesController?.addListener(update);
     _onUpdate = electrochemicalDataService.onUpdate.listen((data) {
       update();
     });
     _onClear = electrochemicalDataService.onClear.listen((data) {
       update();
     });
-    view = SyncfusionLineChart(
-      datasetController: syncfusionLineChartDatasetController,
-      primaryYAxis: widget.primaryYAxis,
-      onTouchStateChanged: widget.onTouchStateChanged,
-      trackballBehavior: TrackballBehavior(
-        enable: true,
-        shouldAlwaysShow: true,
-        activationMode: ActivationMode.singleTap,
-        tooltipAlignment: ChartAlignment.near,
-        tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
-        // tooltipSettings: InteractiveTooltip(
-        //   enable: true,
-        // ),
-      ),
-      zoomPanBehavior: ZoomPanBehavior(
-        enablePinching: true,
-        // enableDoubleTapZooming: true,
-        enablePanning: true,
-        // zoomMode: ZoomMode.x,
-        enableMouseWheelZooming: true,
-      ),
-    );
-    widget.lineChartModeController?.modeValueNotifier.addListener(update);
-    if(widget.lineChartTypesController != null) {
-      for(var v in widget.lineChartTypesController!.typeValueNotifier) {
-        v.addListener(update);
-      }
-    }
   }
-
   @override
   Widget build(BuildContext context) {
-    return view;
+    return LineChart(
+      builder: (
+        BuildContext context,
+        void Function(double? x) touchDown,
+        void Function(double? x) touchMove,
+        void Function(double? x) touchUp,
+      ) {
+        return SfCartesianChart(
+          series: lineChartDatasetController.dataset,
+          onChartTouchInteractionDown: (ChartTouchInteractionArgs tapArgs) {
+            touchDown(null);
+          },
+          onChartTouchInteractionUp: (ChartTouchInteractionArgs tapArgs) {
+            touchUp(null);
+          },
+          onTrackballPositionChanging: (TrackballArgs trackballArgs) {
+            int? seriesIndex = trackballArgs.chartPointInfo.seriesIndex;
+            if(seriesIndex == null) return;
+            int? dataPointIndex = trackballArgs.chartPointInfo.dataPointIndex;
+            if(dataPointIndex == null) return;
+            double? x = lineChartDatasetController.dataset
+              .skip(trackballArgs.chartPointInfo.seriesIndex!)
+              .firstOrNull
+              ?.dataSource
+              ?.skip(trackballArgs.chartPointInfo.dataPointIndex!)
+              .firstOrNull
+              ?.x
+              .toDouble();
+            touchMove(x);
+          },
+          trackballBehavior: TrackballBehavior(
+            enable: true,
+            shouldAlwaysShow: true,
+            activationMode: ActivationMode.singleTap,
+            tooltipAlignment: ChartAlignment.near,
+            tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+            // tooltipSettings: InteractiveTooltip(
+            //   enable: true,
+            // ),
+          ),
+          zoomPanBehavior: ZoomPanBehavior(
+            enablePinching: true,
+            // enableDoubleTapZooming: true,
+            enablePanning: true,
+            // zoomMode: ZoomMode.x,
+            enableMouseWheelZooming: true,
+          ),
+        );
+      },
+      lineChartDatasetController: lineChartDatasetController,
+      onTouchStateChanged: widget.onTouchStateChanged,
+    );
   }
-
   @override
   void dispose() {
-    super.dispose();
+    lineChartDatasetController.dispose();
+    widget.lineChartModeController?.removeListener(update);
+    widget.lineChartTypesController?.removeListener(update);
     _onUpdate.cancel();
     _onClear.cancel();
-    widget.lineChartModeController?.modeValueNotifier.removeListener(update);
-    if(widget.lineChartTypesController != null) {
-      for(var v in widget.lineChartTypesController!.typeValueNotifier) {
-        v.removeListener(update);
-      }
-    }
+    super.dispose();
   }
 }

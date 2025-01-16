@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_context_resource/context_resource.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_parameters.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_sent_packet.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view/tab_view.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DpvElectrochemicalCommandTabView extends ElectrochemicalCommandTabView {
   const DpvElectrochemicalCommandTabView({
@@ -14,7 +15,7 @@ class DpvElectrochemicalCommandTabView extends ElectrochemicalCommandTabView {
 
 class _State extends ElectrochemicalCommandTabViewState<DpvElectrochemicalCommandTabView> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   @override
-  String get title => context.appLocalizations!.dpv;
+  String get title => AppLocalizations.of(context)!.dpv;
   static const String eBeginKey = "DPV_E_begin_key";
   static const String eEndKey = "DPV_E_end_key";
   static const String eStepKey = "DPV_E_step_key";
@@ -54,37 +55,37 @@ class _State extends ElectrochemicalCommandTabViewState<DpvElectrochemicalComman
               ad5940HsRTiaRow,
               Divider(),
               buildNumberInputField(
-                label: context.appLocalizations!.eBegin,
+                label: AppLocalizations.of(context)!.eBegin,
                 controller: eBeginController,
                 onChanged: (value) => sharedPreferences.setString(eBeginKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.eEnd,
+                label: AppLocalizations.of(context)!.eEnd,
                 controller: eEndController,
                 onChanged: (value) => sharedPreferences.setString(eEndKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.eStep,
+                label: AppLocalizations.of(context)!.eStep,
                 controller: eStepController,
                 onChanged: (value) => sharedPreferences.setString(eStepKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.ePulse,
+                label: AppLocalizations.of(context)!.ePulse,
                 controller: ePulseController,
                 onChanged: (value) => sharedPreferences.setString(ePulseKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.tPulse,
+                label: AppLocalizations.of(context)!.tPulse,
                 controller: tPulseController,
                 onChanged: (value) => sharedPreferences.setString(tPulseKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.scanRate,
+                label: AppLocalizations.of(context)!.scanRate,
                 controller: scanRateController,
                 onChanged: (value) => sharedPreferences.setString(scanRateKey, value),
               ),
               buildDropdownMenu(
-                label: context.appLocalizations!.inversionOption,
+                label: AppLocalizations.of(context)!.inversionOption,
                 initialSelection: inversionOptionValue,
                 onSelected: (int? value) {
                   inversionOptionValue = value ?? inversionOptionValue;

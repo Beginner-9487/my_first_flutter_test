@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_utility/general_utils.dart';
-import 'package:flutter_utility_ui/dataset_color_generator.dart';
+import 'package:flutter_basic_utils/basic/general_utils.dart';
+import 'package:flutter_basic_utils/presentation/dataset_color_generator.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_data.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_header.dart';

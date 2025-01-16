@@ -1,47 +1,42 @@
 {
   "@@locale": "zh_TW",
 
-  "appName": "UTL App",
+  "appName": "UTL Seat Cushion App",
 
-  "hello_world": "你好，世界",
-  "login": "登入",
-  "loginAsGuest": "以遊客方式登入",
-  "logout": "登出",
-  "account": "帳號",
+  "connectBluetoothButtonText": "連接",
+  "disconnectBluetoothButtonText": "斷開連接",
+  "sendSeatCushionCommandButtonText": "發送指令",
+  "startSavingSeatCushionEntityButtonText": "開始保存數據",
+  "endSavingSeatCushionEntityButtonText": "結束保存數據",
+  "clearOldDataButtonText": "刪除舊數據",
+  "clearOldDataNotification": "刪除舊數據完成。",
 
-  "register": "註冊",
-  "password": "密碼",
-  "retypePassword": "請再次輸入密碼",
-
-  "home": "首頁",
-  "help": "幫助",
-  "feedBack": "回饋",
-  "inviteFriend": "邀請朋友",
-  "rateTheApp": "評分",
-  "aboutUs": "關於我們",
-  "settings": "設定",
-
-  "service": "服務",
-  "characteristic": "特徵",
-  "descriptor": "描述",
-  "ble_scanning_page": "藍牙低功耗掃描頁面",
-  "line_chart_page": "折線圖頁面",
-  "connect": "連線",
-  "disconnect": "斷線",
-  "open": "打開",
-  "sendCommand": "送出命令",
+  "downloadFileButtonText": "下載 {format} 文件",
+  "@downloadFileButtonText": {
+    "description": "下載指定格式的文件。",
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadFileFinishedNotification": "下載 {format} 完成。",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
 
   "name": "名字",
   "time": "時間",
   "device": "設備",
+  "deviceId": "ID",
   "type": "類別",
   "index": "索引",
   "number": "數量",
 
-  "cortisol": "皮質醇",
-  "lactate": "乳酸",
-  "h1n1": "H1N1",
-  "temperature": "溫度",
-  "voltage": "電壓",
-  "current": "電流"
+  "seatCushion": "坐墊",
+  "force": "力量"
 }

@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:utl_electrochemical_tester/application/domain/value/ad5940_parameters.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_parameters.dart';
-import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_type.dart';
 
 abstract class SentPacket {
   Uint8List get data;

@@ -1,6 +1,5 @@
-import 'package:flutter_system_path/system_path.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:utl_electrochemical_tester/application/domain/electrochemical_entity.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_data.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_header.dart';
@@ -14,11 +13,10 @@ class HiveDatabaseRepository implements DatabaseRepository {
   // final Box<ElectrochemicalDataEntity> entityBox = Hive.box(HiveDatabaseRepository.entityBoxName);
   static late final Box<ElectrochemicalEntity> entityBox;
 
-  static Future<void> init({
-    required SystemPath systemPath,
-  }) async {
+  static Future<void> init() async {
     await Hive.initFlutter();
-    Hive.init(systemPath.app_document_path_absolute);
+
+    Hive.init((await getApplicationDocumentsDirectory()).absolute.path);
 
     Hive.registerAdapter(ElectrochemicalEntityAdapter());
     Hive.registerAdapter(ElectrochemicalDataAdapter());
@@ -63,7 +61,6 @@ class HiveDatabaseRepository implements DatabaseRepository {
 
   @override
   Future<ElectrochemicalEntity> update(ElectrochemicalEntity entity, Iterable<ElectrochemicalData> data) async {
-
     final updatedEntity = ElectrochemicalEntity(
       id: entity.id,
       dataName: entity.dataName,

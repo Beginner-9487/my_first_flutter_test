@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view/ca.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view/cv.dart';

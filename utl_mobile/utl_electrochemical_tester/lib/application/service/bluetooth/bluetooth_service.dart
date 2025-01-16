@@ -24,7 +24,7 @@ ElectrochemicalParameters? electrochemicalParametersBuffer;
 
 class ConcreteElectrochemicalSensorService implements ElectrochemicalSensorService {
   ElectrochemicalDataService electrochemicalDataService;
-  UtlBluetoothHandler<ConcreteElectrochemicalSensor> handler;
+  UtlBluetoothHandler<ConcreteElectrochemicalSensor, ElectrochemicalSensorReceivedPacket> handler;
   @override
   Iterable<ConcreteElectrochemicalSensor> get devices => handler.devices;
   ConcreteElectrochemicalSensorService({
@@ -69,7 +69,7 @@ class ConcreteElectrochemicalSensorService implements ElectrochemicalSensorServi
   sendHexString(String string) {
     handler.sendHexString(string);
   }
-  late final StreamSubscription<UtlReceivedBluetoothPacket> _onReceivePacket;
+  late final StreamSubscription<ElectrochemicalSensorReceivedPacket> _onReceivePacket;
 
   @override
   Future startCa(CaSentPacket packet) async {

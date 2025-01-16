@@ -14,7 +14,7 @@ abstract class ElectrochemicalSensor {
 class ConcreteElectrochemicalSensor extends UtlBluetoothDevice implements ElectrochemicalSensor {
   ConcreteElectrochemicalSensor({
     required super.bluetoothDevice,
-    required super.handler,
+    required super.resource,
     required this.dataName,
   });
 

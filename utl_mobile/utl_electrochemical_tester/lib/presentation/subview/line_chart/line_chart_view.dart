@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_utility_ui/presentation/line_chart/line_chart.dart';
+import 'package:flutter_basic_utils/presentation/line_chart/line_chart.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_type.dart';
 
 enum LineChartMode {
@@ -8,12 +8,12 @@ enum LineChartMode {
   ampereVolt,
 }
 
-class LineChartModeController {
-  ValueNotifier<LineChartMode> modeValueNotifier = ValueNotifier(LineChartMode.values[0]);
-  set mode(LineChartMode mode) {
-    modeValueNotifier.value = mode;
-  }
-  LineChartMode get mode => modeValueNotifier.value;
+class LineChartModeController extends ValueNotifier<LineChartMode> {
+  LineChartModeController({
+    LineChartMode mode = LineChartMode.ampereVolt,
+  }) : super(mode);
+  set mode(LineChartMode mode) => super.value = mode;
+  LineChartMode get mode => super.value;
 }
 
 class LineChartTypes{
@@ -25,33 +25,30 @@ class LineChartTypes{
   bool show;
 }
 
-class LineChartTypesController {
-  static List<bool> get defaultShows => List.generate(
-    ElectrochemicalType.values.length,
-    (index) {
-      return true;
-    },
-  );
-  final List<ValueNotifier<bool>> _typeValueNotifier = List.generate(
-    ElectrochemicalType.values.length,
-    (index) {
-      return ValueNotifier(true);
-    },
-  );
-  Iterable<ValueNotifier<bool>> get typeValueNotifier => _typeValueNotifier;
-
-  set shows(Iterable<bool> shows) {
-    for(int i=0; i<shows.length; i++) {
-      _typeValueNotifier[i].value = shows.skip(i).first;
-    }
+class LineChartTypesController extends ValueNotifier<List<LineChartTypes>> {
+  static List<LineChartTypes> get defaultTypes => showsToTypes(Iterable.empty());
+  static List<LineChartTypes> showsToTypes(Iterable<bool> shows) {
+    return ElectrochemicalType
+      .values
+      .indexed
+      .map((element) => LineChartTypes(
+        type: element.$2,
+        show: shows.skip(element.$1).firstOrNull ?? true,
+      ))
+      .toList();
   }
-  Iterable<bool> get shows =>  _typeValueNotifier.map((v) => v.value);
+  LineChartTypesController({
+    Iterable<bool> shows = const Iterable.empty(),
+  }) : super(showsToTypes(shows));
+  set shows(Iterable<bool> shows) => super.value = showsToTypes(shows);
+  Iterable<bool> get shows => super.value.map((type) => type.show);
 }
 
-abstract class LineChartView extends Widget {
+abstract class LineChartView<Dataset> extends Widget {
   const LineChartView({
     super.key,
-    this.onTouchStateChanged,
+    void Function(LineChartTouchState touchState)? onTouchStateChanged,
+    LineChartModeController? lineChartModeController,
+    LineChartTypesController? lineChartTypesController,
   });
-  final void Function(LineChartTouchState oldState, LineChartTouchState newState)? onTouchStateChanged;
 }

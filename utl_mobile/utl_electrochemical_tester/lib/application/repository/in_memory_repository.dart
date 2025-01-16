@@ -7,12 +7,13 @@ abstract class InMemoryRepository {
   Iterable<ElectrochemicalEntity> get entities;
   void add(ElectrochemicalEntity entity);
   void update(ElectrochemicalEntity entity, ElectrochemicalData data);
-  Stream<ElectrochemicalEntity> get onUpdate;
   void clear();
+  Stream<ElectrochemicalEntity> get onUpdate;
   Stream<void> get onClear;
 }
 
 class ConcreteInMemoryRepository extends InMemoryRepository {
+  final StreamController<ElectrochemicalEntity?> _streamController = StreamController.broadcast();
   final List<ElectrochemicalEntity> _entities = [];
   final int maxLength;
   @override
@@ -27,22 +28,25 @@ class ConcreteInMemoryRepository extends InMemoryRepository {
     if(_entities.length > maxLength) {
       _entities.removeAt(0);
     }
-    _onUpdate.add(entity);
+    _streamController.add(entity);
   }
   @override
   void update(ElectrochemicalEntity entity, ElectrochemicalData data) {
     _entities.where((e) => e == entity).firstOrNull?.data.add(data);
-    _onUpdate.add(entity);
+    _streamController.add(entity);
   }
-  final StreamController<ElectrochemicalEntity> _onUpdate = StreamController.broadcast();
-  @override
-  Stream<ElectrochemicalEntity> get onUpdate => _onUpdate.stream;
-  final StreamController<void> _onClear = StreamController.broadcast();
   @override
   void clear() {
     _entities.clear();
-    _onClear.add(null);
+    _streamController.add(null);
   }
   @override
-  Stream<void> get onClear => _onClear.stream;
+  Stream<ElectrochemicalEntity> get onUpdate => _streamController
+      .stream
+      .where((event) => event != null)
+      .map((event) => event!);
+  @override
+  Stream<void> get onClear => _streamController
+      .stream
+      .where((event) => event == null);
 }

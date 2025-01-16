@@ -1,41 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_context_resource/context_resource.dart';
-import 'package:flutter_utility_ui/presentation/bluetooth_widget/scanner/tile/impl/simple_bluetooth_scanner_tile.dart';
+import 'package:flutter_basic_utils/presentation/language_observer_view.dart';
+import 'package:flutter_bluetooth_utils/bluetooth_widget_util.dart';
+import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_device_widget_util.dart';
 
-class BluetoothTile extends SimpleBluetoothScannerTile {
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+class BluetoothTile extends StatelessWidget {
   const BluetoothTile({
     super.key,
-    required super.controller,
-    super.connectedTileBackgroundColor = Colors.blue,
-    super.disconnectedTileBackgroundColor = Colors.red,
-    super.textConnected = "",
-    super.textDisconnected = "",
+    required this.device,
   });
+  final FlutterBluePlusDeviceWidgetUtil device;
   @override
-  State<BluetoothTile> createState() => _State();
-}
-
-class _State extends BluetoothScannerSimpleTileState<BluetoothTile> with WidgetsBindingObserver {
-  @override
-  String get textConnected => context.appLocalizations!.disconnect;
-  @override
-  String get textDisconnected => context.appLocalizations!.connect;
-  @mustCallSuper
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-  @mustCallSuper
-  @override
-  void didChangeLocales(List<Locale>? locales) {
-    super.didChangeLocales(locales);
-    setState(() {});
-  }
-  @mustCallSuper
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  Widget build(BuildContext context) {
+    return device.buildConnectionWidget(
+      builder: (context, isConnectable, isConnected) {
+        var rssi = device.buildRssiText();
+        var title = BluetoothWidgetUtil.buildTitle(
+          context: context,
+          deviceName: device.deviceName,
+          deviceId: device.deviceId,
+        );
+        var connectionButton = ElevatedButton(
+          onPressed: (isConnectable)
+              ? device.toggleConnection
+              : null,
+          child: LanguageObserverView(
+              builder: (context, locales) {
+                return Text(device.bluetoothDevice.isConnected
+                    ? AppLocalizations.of(context)?.disconnect ?? ""
+                    : AppLocalizations.of(context)?.connect ?? ""
+                );
+              }
+          ),
+        );
+        var backgroundColor = (isConnected)
+            ? Colors.blue
+            : Colors.red;
+        return ListTile(
+          leading: rssi,
+          title: title,
+          trailing: connectionButton,
+          tileColor: backgroundColor,
+        );
+      },
+    );
   }
 }

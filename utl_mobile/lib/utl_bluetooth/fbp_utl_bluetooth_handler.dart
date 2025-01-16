@@ -1,30 +1,43 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter_basic_utils/basic/general_utils.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_utility/general_utils.dart';
+import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_persist_devices_util.dart';
 import 'package:utl_mobile/utl_bluetooth/utl_bluetooth_handler.dart';
 
+class FbpUtlBluetoothSharedResources<Device extends UtlBluetoothDevice, Packet> extends UtlBluetoothSharedResources<Device, Packet> {
+  final StreamController<Packet> _onReceivedController = StreamController();
+  FbpUtlBluetoothSharedResources({
+    required super.toPacket,
+    required super.sentUuid,
+    required super.receivedUuid,
+  });
+}
+
 class UtlBluetoothDevice {
-  FbpUtlBluetoothHandler handler;
-  Iterable<String> get sentUuid => handler.sentUuid;
-  Iterable<String> get receivedUuid => handler.receivedUuid;
+  FbpUtlBluetoothSharedResources resource;
+  Iterable<String> get sentUuid => resource.sentUuid;
+  Iterable<String> get receivedUuid => resource.receivedUuid;
   UtlBluetoothDevice({
+    required this.resource,
     required this.bluetoothDevice,
-    required this.handler,
   }) {
-    _onConnection = bluetoothDevice.connectionState.listen((state) {
-      if(state == BluetoothConnectionState.connected) {
-        bluetoothDevice.discoverServices().then(_addServices);
-      } else {
-        _clearServices();
-      }
-    });
+    _onConnection = bluetoothDevice.connectionState.listen(_handleConnectionState);
   }
   final BluetoothDevice bluetoothDevice;
-  late final StreamSubscription<BluetoothConnectionState> _onConnection;
   List<BluetoothService> services = [];
+  late final StreamSubscription<BluetoothConnectionState> _onConnection;
   final List<StreamSubscription<Uint8List>> _onReceivePackets = [];
+  void _handleConnectionState(BluetoothConnectionState state) async {
+    if (state == BluetoothConnectionState.connected) {
+      try {
+        _addServices(await bluetoothDevice.discoverServices());
+      } catch(e) {}
+    } else {
+      _clearServices();
+    }
+  }
   void write(Uint8List bytes) {
     for (var service in services) {
       for (var characteristic in service.characteristics) {
@@ -39,33 +52,33 @@ class UtlBluetoothDevice {
       }
     }
   }
-  void _addServices(List<BluetoothService> services) {
+  void _addServices(List<BluetoothService> services) async {
     this.services = services;
-    for (var service in this.services) {
-      for (var characteristic in service.characteristics) {
-        if (receivedUuid.contains(characteristic.uuid.str)) {
-          characteristic.setNotifyValue(true);
-          _onReceivePackets.add(characteristic.onValueReceived.map((data) => data.asUint8List()).listen((data) {
-            handler._onReceivedController.add(UtlReceivedBluetoothPacket(
-                deviceName: bluetoothDevice.platformName,
-                deviceId: bluetoothDevice.remoteId.str,
-                data: data,
-            ));
-          }));
-        }
-        for (var descriptor in characteristic.descriptors) {
-          if (receivedUuid.contains(descriptor.uuid.str)) {
+    try {
+      for (var service in this.services) {
+        for (var characteristic in service.characteristics) {
+          if (receivedUuid.contains(characteristic.uuid.str)) {
+            await characteristic.setNotifyValue(true);
             _onReceivePackets.add(characteristic.onValueReceived.map((data) => data.asUint8List()).listen((data) {
-              handler._onReceivedController.add(UtlReceivedBluetoothPacket(
-                deviceName: bluetoothDevice.platformName,
-                deviceId: bluetoothDevice.remoteId.str,
-                data: data,
+              resource._onReceivedController.add(resource.toPacket(
+                this,
+                data,
               ));
             }));
           }
+          for (var descriptor in characteristic.descriptors) {
+            if (receivedUuid.contains(descriptor.uuid.str)) {
+              _onReceivePackets.add(characteristic.onValueReceived.map((data) => data.asUint8List()).listen((data) {
+                resource._onReceivedController.add(resource.toPacket(
+                  this,
+                  data,
+                ));
+              }));
+            }
+          }
         }
       }
-    }
+    } catch(e) {}
   }
   void _clearServices() {
     for(var r in _onReceivePackets) {
@@ -76,35 +89,25 @@ class UtlBluetoothDevice {
   }
 }
 
-class FbpUtlBluetoothHandler<Device extends UtlBluetoothDevice> implements UtlBluetoothHandler<Device> {
-  @override
-  late final List<Device> devices;
-  final Iterable<String> sentUuid;
-  final Iterable<String> receivedUuid;
-  final Device Function(BluetoothDevice device, FbpUtlBluetoothHandler handler) bluetoothDeviceToDevice;
-  final Device Function(ScanResult device, FbpUtlBluetoothHandler handler) scanResultToDevice;
+class FbpUtlBluetoothHandler<
+        Device extends UtlBluetoothDevice,
+        Packet,
+        Resources extends FbpUtlBluetoothSharedResources<Device, Packet>
+    >
+    extends FlutterBluePlusPersistDevicesUtil<Device>
+    implements UtlBluetoothHandler<Device, Packet>
+{
+  final Resources resources;
   FbpUtlBluetoothHandler({
-    required this.bluetoothDeviceToDevice,
-    required this.scanResultToDevice,
     required List<BluetoothDevice> devices,
-    this.sentUuid = const [],
-    this.receivedUuid = const [],
-  }) {
-    this.devices = devices.map((d) => bluetoothDeviceToDevice(d, this)).toList();
-    _onScanResult = FlutterBluePlus.scanResults.listen(_scanResultOnData);
-  }
-  late final StreamSubscription<List<ScanResult>> _onScanResult;
-  void _scanResultOnData(List<ScanResult> results) async {
-    for (var result in results) {
-      UtlBluetoothDevice? device = devices
-          .where((element) => element.bluetoothDevice == result.device)
-          .firstOrNull;
-      if(device == null) {
-        devices.add(scanResultToDevice(result, this));
-      }
-    }
-  }
-  final StreamController<UtlReceivedBluetoothPacket> _onReceivedController = StreamController();
+    required this.resources,
+    required Device Function(Resources, BluetoothDevice) bluetoothDeviceToDevice,
+    required Device Function(Resources, ScanResult) resultToDevice,
+  }) : super(
+    checkDeviceExisted: (result, device) => result.device == device.bluetoothDevice,
+    devices: devices.map((d) => bluetoothDeviceToDevice(resources, d)).toList(),
+    resultToDevice: (r) => resultToDevice(resources, r),
+  );
   @override
   sendBytes(Uint8List bytes) {
     for(var d in devices.where((device) => device.bluetoothDevice.isConnected)) {
@@ -118,5 +121,5 @@ class FbpUtlBluetoothHandler<Device extends UtlBluetoothDevice> implements UtlBl
     }
   }
   @override
-  Stream<UtlReceivedBluetoothPacket> get onReceivePacket => _onReceivedController.stream;
+  Stream<Packet> get onReceivePacket => resources._onReceivedController.stream;
 }

@@ -37,28 +37,28 @@ dependencies:
 
   utl_mobile:
     path: ..
-  flutter_file_handler:
-    path: ../../flutter_utility/flutter_file_handler
-  flutter_context_resource:
-    path: ../../flutter_utility/flutter_context_resource
-  flutter_utility:
-    path: ../../flutter_utility/flutter_utility
-  flutter_utility_ui:
-    path: ../../flutter_utility/flutter_utility_ui
-  flutter_system_path:
-    path: ../../flutter_utility/flutter_system_path
+  flutter_basic_utils:
+    path: ../../flutter_utils/flutter_basic_utils
+  flutter_bluetooth_utils:
+    path: ../../flutter_utils/flutter_bluetooth_utils
+  flutter_file_utils:
+    path: ../../flutter_utils/flutter_file_utils
+  flutter_path_utils:
+    path: ../../flutter_utils/flutter_path_utils
 
   awesome_dialog: ^3.1.0
-  bloc: any
   equatable: ^2.0.5
-  flutter_bloc: ^8.1.6
-  flutter_blue_plus: 1.32.1
+  flutter_blue_plus: ^1.34.5
   flutter_localizations:
     sdk: flutter
   flutter_ringtone_player: ^4.0.0+3
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  shared_preferences: ^2.2.3
+  path_provider: ^2.1.5
+  provider: ^6.1.2
+  shared_preferences: ^2.3.5
+  syncfusion_flutter_charts: ^28.1.33
+  syncfusion_flutter_xlsio: ^28.1.33
 
 dev_dependencies:
   flutter_test:

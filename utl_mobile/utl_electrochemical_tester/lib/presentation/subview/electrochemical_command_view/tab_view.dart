@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_context_resource/context_resource.dart';
+import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utl_electrochemical_tester/application/controller/electrochemical_command_controller.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/ad5940_parameters.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 abstract class ElectrochemicalCommandTabView extends StatefulWidget {
   const ElectrochemicalCommandTabView({
@@ -20,7 +21,7 @@ abstract class ElectrochemicalCommandTabViewState<View extends ElectrochemicalCo
   final TextEditingController dataNameController = TextEditingController();
   Widget get dataNameInputField => Expanded(
     child: buildTextInputField(
-      label: "$title: ${context.appLocalizations!.name}",
+      label: "$title: ${AppLocalizations.of(context)!.name}",
       controller: dataNameController,
       onChanged: (value) => sharedPreferences.setString(dataNameKey, value),
     ),
@@ -29,7 +30,7 @@ abstract class ElectrochemicalCommandTabViewState<View extends ElectrochemicalCo
   static const String ad5940HsRTiaKey = "AD5940_HsRTia_key";
   int ad5940HsRTiaValue = 0;
   Widget get ad5940HsRTiaRow => buildDropdownMenu(
-    label: context.appLocalizations!.ad5940HsRTia,
+    label: AppLocalizations.of(context)!.ad5940HsRTia,
     initialSelection: ad5940HsRTiaValue,
     onSelected: (int? value) {
       ad5940HsRTiaValue = value ?? ad5940HsRTiaValue;

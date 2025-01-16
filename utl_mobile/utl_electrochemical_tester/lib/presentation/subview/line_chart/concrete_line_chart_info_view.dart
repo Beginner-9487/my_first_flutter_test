@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_context_resource/context_resource.dart';
+import 'package:provider/provider.dart';
 import 'package:utl_electrochemical_tester/application/dto/electrochemical_ui_dto.dart';
 import 'package:utl_electrochemical_tester/application/service/electrochemical_data_service.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/line_chart/line_chart_data_getter.dart';
@@ -12,21 +10,15 @@ import 'package:utl_electrochemical_tester/presentation/subview/line_chart/line_
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ConcreteLineChartInfoView extends StatefulWidget implements LineChartInfoView {
-  @override
-  final LineChartModeController? lineChartModeController;
-  final LineChartTypesController? lineChartTypesController;
-  ConcreteLineChartInfoView({
+class ConcreteLineChartInfoView extends LineChartInfoView {
+  const ConcreteLineChartInfoView({
     super.key,
+    super.lineChartInfoController,
     this.lineChartModeController,
     this.lineChartTypesController,
   });
-  final ValueNotifier<double?> _xValueNotifier = ValueNotifier(null);
-  @override
-  set x(double? x) {
-    if(x == null) return;
-    _xValueNotifier.value = x;
-  }
+  final LineChartModeController? lineChartModeController;
+  final LineChartTypesController? lineChartTypesController;
   @override
   State<ConcreteLineChartInfoView> createState() => _ConcreteLineChartInfoViewState();
 }
@@ -45,7 +37,7 @@ class _ConcreteLineChartInfoViewState extends State<ConcreteLineChartInfoView> {
   late final StreamSubscription _onUpdate;
   late final StreamSubscription _onClear;
   LineChartMode get mode => widget.lineChartModeController?.mode ?? LineChartMode.values[0];
-  Iterable<bool> get shows => widget.lineChartTypesController?.shows ?? LineChartTypesController.defaultShows;
+  Iterable<bool> get shows => widget.lineChartTypesController?.shows ?? LineChartTypesController.defaultTypes.map((type) => type.show);
   Iterable<ElectrochemicalUiDto> dataset = [];
   Widget buildText({
     required List<_Item> items,
@@ -104,48 +96,44 @@ class _ConcreteLineChartInfoViewState extends State<ConcreteLineChartInfoView> {
   void initState() {
     super.initState();
     electrochemicalDataService = context.read<ElectrochemicalDataService>();
+    widget.lineChartInfoController?.addListener(update);
+    widget.lineChartModeController?.addListener(update);
+    widget.lineChartTypesController?.addListener(update);
     _onUpdate = electrochemicalDataService.onUpdate.listen((data) {
       update();
     });
     _onClear = electrochemicalDataService.onClear.listen((data) {
       update();
     });
-    widget._xValueNotifier.addListener(update);
-    widget.lineChartModeController?.modeValueNotifier.addListener(update);
-    if(widget.lineChartTypesController != null) {
-      for(var v in widget.lineChartTypesController!.typeValueNotifier) {
-        v.addListener(update);
-      }
-    }
   }
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: dataset.length,
       itemBuilder: (context, index) {
-        AppLocalizations appLocalizations = context.appLocalizations!;
+        AppLocalizations appLocalizations = AppLocalizations.of(context)!;
         _Item xItem;
         switch(mode) {
           case LineChartMode.ampereIndex:
-            xItem = _Item(label: appLocalizations.index, data: widget._xValueNotifier.value.toString());
+            xItem = _Item(label: appLocalizations.index, data: widget.lineChartInfoController?.x.toString() ?? "");
             break;
           case LineChartMode.ampereTime:
-            xItem = _Item(label: appLocalizations.time, data: widget._xValueNotifier.value.toString());
+            xItem = _Item(label: appLocalizations.time, data: widget.lineChartInfoController?.x.toString() ?? "");
             break;
           case LineChartMode.ampereVolt:
-            xItem = _Item(label: appLocalizations.voltage, data: widget._xValueNotifier.value.toString());
+            xItem = _Item(label: appLocalizations.voltage, data: widget.lineChartInfoController?.x.toString() ?? "");
             break;
         }
         Widget yItem;
         switch(mode) {
           case LineChartMode.ampereIndex:
-            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.index == widget._xValueNotifier.value).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
+            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.index == widget.lineChartInfoController?.x).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
             break;
           case LineChartMode.ampereTime:
-            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.time == widget._xValueNotifier.value).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
+            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.time == widget.lineChartInfoController?.x).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
             break;
           case LineChartMode.ampereVolt:
-            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.voltage == widget._xValueNotifier.value).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
+            yItem = buildText2(label: appLocalizations.current, data: dataset.skip(index).first.data.where((e) => e.voltage == widget.lineChartInfoController?.x).map((e) => e.current.toString()), color: dataset.skip(index).first.color);
             break;
         }
         return Column(
@@ -191,15 +179,11 @@ class _ConcreteLineChartInfoViewState extends State<ConcreteLineChartInfoView> {
   }
   @override
   void dispose() {
-    super.dispose();
+    widget.lineChartInfoController?.removeListener(update);
+    widget.lineChartModeController?.removeListener(update);
+    widget.lineChartTypesController?.removeListener(update);
     _onUpdate.cancel();
     _onClear.cancel();
-    widget._xValueNotifier.removeListener(update);
-    widget.lineChartModeController?.modeValueNotifier.removeListener(update);
-    if(widget.lineChartTypesController != null) {
-      for(var v in widget.lineChartTypesController!.typeValueNotifier) {
-        v.removeListener(update);
-      }
-    }
+    super.dispose();
   }
 }

@@ -1,70 +1,41 @@
 {
   "@@locale": "en",
-  "appName": "UTL App",
-  "hello_world": "Hello World!",
-  "login": "Login",
 
-  "loginAsGuest": "Login as guest",
+  "appName": "UTL Seat Cushion App",
 
-  "logout": "Logout",
+  "connectBluetoothButtonText": "Connect",
+  "disconnectBluetoothButtonText": "Disconnect",
+  "sendSeatCushionCommandButtonText": "Send Command",
+  "startSavingSeatCushionEntityButtonText": "Start Saving Data",
+  "endSavingSeatCushionEntityButtonText": "End Saving Data",
+  "clearOldDataButtonText": "Clear Old Data",
+  "clearOldDataNotification": "Clear old data finished.",
 
-  "register": "Register",
-  "password": "Password",
-  "retypePassword": "Retype Password",
+  "downloadFileButtonText": "Download {format} file",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadFileFinishedNotification": "Download {format} file finished.",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
 
-  "account": "Account",
+  "name": "Name",
+  "time": "Time",
+  "device": "Device",
+  "deviceId": "ID",
+  "type": "Type",
+  "index": "Index",
+  "number": "Number",
 
-  "home": "Home",
-  "help": "Help",
-  "feedBack": "FeedBack",
-  "inviteFriend": "Invite Friend",
-  "rateTheApp": "Rate the app",
-  "aboutUs": "About Us",
-
-  "settings": "settings",
-
-  "service": "Service",
-  "characteristic": "Characteristic",
-  "descriptor": "Descriptor",
-
-  "ble_scanning_page": "BLE scanning page",
-  "line_chart_page": "Line Chart page",
-
-  "connect": "Connect",
-  "disconnect": "Disconnect",
-  "open": "Open",
-  "sendCommand": "Send Command",
-
-  "name": "name",
-  "time": "time",
-  "device": "device",
-  "type": "type",
-  "index": "index",
-  "number": "number",
-
-  "cortisol": "cortisol",
-  "lactate": "lactate",
-  "h1n1": "H1N1",
-  "temperature": "temperature",
-  "voltage": "voltage",
-  "current": "current",
-
-  "ca": "CA",
-  "cv": "CV",
-  "dpv": "DPV",
-
-  "e_dc": "E_dc",
-  "t_interval": "t_interval",
-  "t_run": "t_run",
-
-  "e_vertex1": "E_vertex1",
-  "e_vertex2": "E_vertex2",
-  "number_of_scans": "number of scans",
-
-  "e_begin": "E_begin",
-  "e_end": "E_end",
-  "e_step": "E_step",
-  "e_pulse": "E_pulse",
-  "t_pulse": "t_pulse",
-  "scan_rate": "scan rate"
+  "seatCushion": "Seat Cushion",
+  "force": "Force"
 }

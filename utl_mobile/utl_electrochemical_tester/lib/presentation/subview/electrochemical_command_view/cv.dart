@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_context_resource/context_resource.dart';
 import 'package:utl_electrochemical_tester/application/domain/value/electrochemical_parameters.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_sent_packet.dart';
 import 'package:utl_electrochemical_tester/presentation/subview/electrochemical_command_view/tab_view.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CvElectrochemicalCommandTabView extends ElectrochemicalCommandTabView {
   const CvElectrochemicalCommandTabView({
@@ -14,7 +15,7 @@ class CvElectrochemicalCommandTabView extends ElectrochemicalCommandTabView {
 
 class _State extends ElectrochemicalCommandTabViewState<CvElectrochemicalCommandTabView> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   @override
-  String get title => context.appLocalizations!.cv;
+  String get title => AppLocalizations.of(context)!.cv;
   static const String eBeginKey = "CV_E_begin_key";
   static const String eVertex1Key = "CV_E_vertex1_key";
   static const String eVertex2Key = "CV_E_vertex2_key";
@@ -51,32 +52,32 @@ class _State extends ElectrochemicalCommandTabViewState<CvElectrochemicalCommand
               ad5940HsRTiaRow,
               Divider(),
               buildNumberInputField(
-                label: context.appLocalizations!.eBegin,
+                label: AppLocalizations.of(context)!.eBegin,
                 controller: eBeginController,
                 onChanged: (value) => sharedPreferences.setString(eBeginKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.eVertex1,
+                label: AppLocalizations.of(context)!.eVertex1,
                 controller: eVertex1Controller,
                 onChanged: (value) => sharedPreferences.setString(eVertex1Key, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.eVertex2,
+                label: AppLocalizations.of(context)!.eVertex2,
                 controller: eVertex2Controller,
                 onChanged: (value) => sharedPreferences.setString(eVertex2Key, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.eStep,
+                label: AppLocalizations.of(context)!.eStep,
                 controller: eStepController,
                 onChanged: (value) => sharedPreferences.setString(eStepKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.scanRate,
+                label: AppLocalizations.of(context)!.scanRate,
                 controller: scanRateController,
                 onChanged: (value) => sharedPreferences.setString(scanRateKey, value),
               ),
               buildNumberInputField(
-                label: context.appLocalizations!.numberOfScans,
+                label: AppLocalizations.of(context)!.numberOfScans,
                 controller: numberOfScansController,
                 onChanged: (value) => sharedPreferences.setString(numberOfScansKey, value),
               ),
