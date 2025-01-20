@@ -1,4 +1,7 @@
-import 'package:utl_seat_cushion/domain/data/seat_cushion_data.dart';
+import 'dart:async';
+
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/repository/seat_cushion_device.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_data_module.dart';
 
 class SeatCushionBluetoothDevicesProvider implements SeatCushionDevicesProvider {
@@ -11,4 +14,7 @@ class SeatCushionBluetoothDevicesProvider implements SeatCushionDevicesProvider 
     bluetoothDataModule.sendHexString(command);
     return true;
   }
+
+  @override
+  Stream<SeatCushionEntity> get receiveSeatCushionEntityStream => bluetoothDataModule.bluetoothDtoHandler.seatCushionEntityStream;
 }

@@ -1,8 +1,8 @@
 import 'package:async_locks/async_locks.dart';
 import 'package:flutter_basic_utils/basic/time_utils.dart';
 import 'package:flutter_file_utils/csv/simple_csv_file.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
-import 'package:utl_seat_cushion/domain/use_case/seat_cushion_use_case.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/usecase/seat_cushion_usecase.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -14,7 +14,8 @@ abstract class FileHandler {
 }
 
 class ConcreteFileHandler implements FileHandler {
-  final FetchSeatCushionUseCase fetchSeatCushionUseCase;
+  final HandleSeatCushionEntitiesUseCase handleSeatCushionEntitiesUseCase;
+  final FetchSeatCushionEntitiesLengthUseCase fetchSeatCushionEntitiesLengthUseCase;
   String generateTimeFileFormat() {
     var time =  DateTime.now();
     return time.toFileFormat();
@@ -31,7 +32,8 @@ class ConcreteFileHandler implements FileHandler {
     return SimpleCsvFile(path: "$folder/$fileName.csv");
   }
   ConcreteFileHandler({
-    required this.fetchSeatCushionUseCase,
+    required this.fetchSeatCushionEntitiesLengthUseCase,
+    required this.handleSeatCushionEntitiesUseCase,
   });
   Lock fileWriterLock = Lock();
   @override
@@ -56,9 +58,9 @@ class ConcreteFileHandler implements FileHandler {
         ],
       );
       bool flag = true;
-      await fetchSeatCushionUseCase.handleEntities(
+      await handleSeatCushionEntitiesUseCase(
         start: 0,
-        end: await fetchSeatCushionUseCase.fetchEntitiesLength(),
+        end: await fetchSeatCushionEntitiesLengthUseCase(),
         handler: (entity) async {
           if(!flag) return;
           fileWriterLock.run(() async {

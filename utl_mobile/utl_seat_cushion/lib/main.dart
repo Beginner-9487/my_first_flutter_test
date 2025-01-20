@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_device_widget_util.dart';
 import 'package:provider/provider.dart';
+import 'package:utl_mobile/theme/theme.dart';
+import 'package:utl_seat_cushion/application/seat_cushion_devices_data_handler.dart';
+import 'package:utl_seat_cushion/resources/application_resources.dart';
 import 'package:utl_seat_cushion/resources/bluetooth_resources.dart';
 import 'package:utl_seat_cushion/resources/initializer.dart';
 import 'package:utl_seat_cushion/presentation/screen/home_screen.dart';
@@ -14,7 +17,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  await ConcreteInitializer().init();
+  Initializer initializer = ConcreteInitializer();
+  await initializer();
+  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationResources.seatCushionDevicesDataHandler;
   runApp(const MyApp());
 }
 
@@ -22,21 +27,24 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    // var appLocalizations = AppLocalizations.of(context)!;
+    var themeData = Theme.of(context);
     return MaterialApp(
+      // title: appLocalizations.appName,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      // theme: ThemeData(
+      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      //   useMaterial3: true,
+      // ),
+      theme: ThemeData.light(
         useMaterial3: true,
       ),
-      // home: const HomeScreen(),
-      home: MultiProvider(
-        providers: [
-          Provider<FlutterBluePlusPersistDeviceWidgetsUtil<FlutterBluePlusDeviceWidgetUtil>>(
-            create: (context) => BluetoothResources.bluetoothWidgetProvider,
-          ),
-        ],
-        child: const HomeScreen(),
+      darkTheme: ThemeData.dark(
+        useMaterial3: true,
       ),
+      themeMode: ThemeMode.system,
+      color: themeData.screenBackgroundColor,
+      home: const HomeScreen(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
     );

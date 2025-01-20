@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:utl_seat_cushion/main.dart';
+import 'package:utl_seat_cushion/resources/initializer.dart';
 
 import 'fake_initializer.dart';
 
@@ -21,7 +22,8 @@ void main() {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    await FakeInitializer().init();
+    Initializer initializer = ConcreteInitializer();
+    await initializer();
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());

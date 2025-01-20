@@ -1,6 +1,7 @@
 import 'package:utl_seat_cushion/application/user_file_handler.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
-import 'package:utl_seat_cushion/domain/use_case/seat_cushion_use_case.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
+import 'package:utl_seat_cushion/domain/usecase/seat_cushion_usecase.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,34 +25,44 @@ abstract class SeatCushionDataViewController {
 /// Controller for managing and exposing seat cushion data to the view
 class ConcreteSeatCushionDataViewController extends SeatCushionDataViewController {
   ConcreteSeatCushionDataViewController({
-    required this.deleteSeatCushionUseCase,
-    required this.fetchSeatCushionUseCase,
+    required this.fetchLastSeatCushionEntityUseCase,
+    required this.fetchLastSeatCushionEntityStreamUseCase,
+    required this.clearAllSeatCushionEntitiesUseCase,
+    required this.getSeatCushionOptionsStreamUseCase,
+    required this.getSeatCushionOptionsUseCase,
+    required this.setSeatCushionOptionsUseCase,
+    required this.sendCommandToAllSeatCushionDeviceUseCase,
     required this.fileHandler,
-    required this.saveSeatCushionUseCase,
-    required this.seatCushionDeviceUseCase,
   });
+
   /// Buffer containing the latest seat cushion data
-  final DeleteSeatCushionUseCase deleteSeatCushionUseCase;
-  final FetchSeatCushionUseCase fetchSeatCushionUseCase;
-  final SaveSeatCushionUseCase saveSeatCushionUseCase;
-  final SeatCushionDeviceUseCase seatCushionDeviceUseCase;
+  final FetchLastSeatCushionEntityUseCase fetchLastSeatCushionEntityUseCase;
+  final FetchLastSeatCushionEntityStreamUseCase fetchLastSeatCushionEntityStreamUseCase;
+  final ClearAllSeatCushionEntitiesUseCase clearAllSeatCushionEntitiesUseCase;
+  final GetSeatCushionOptionsStreamUseCase getSeatCushionOptionsStreamUseCase;
+  final GetSeatCushionOptionsUseCase getSeatCushionOptionsUseCase;
+  final SetSeatCushionOptionsUseCase setSeatCushionOptionsUseCase;
+  final SendCommandToAllSeatCushionDeviceUseCase sendCommandToAllSeatCushionDeviceUseCase;
   final FileHandler fileHandler;
+
   @override
   void toggleSavingState() {
-    saveSeatCushionUseCase.options = SeatCushionSaveOptions(
-      saveToBufferOption: true,
-      saveToDatabaseOption: !saveSeatCushionUseCase.options.saveToDatabaseOption,
+    setSeatCushionOptionsUseCase(
+      options: SeatCushionSaveOptions(
+        saveToBufferOption: true,
+        saveToDatabaseOption: !getSeatCushionOptionsUseCase().saveToDatabaseOption,
+      ),
     );
   }
   @override
-  bool get isSaving => saveSeatCushionUseCase.options.saveToDatabaseOption;
+  bool get isSaving => getSeatCushionOptionsUseCase().saveToDatabaseOption;
   @override
-  Stream<bool> get isSavingStream => saveSeatCushionUseCase.optionsStream.map((options) => options.saveToDatabaseOption);
+  Stream<bool> get isSavingStream => getSeatCushionOptionsStreamUseCase().map((options) => options.saveToDatabaseOption);
   /// Get the current data from the buffer
   @override
-  SeatCushionEntity? get buffer => fetchSeatCushionUseCase.buffer;
+  SeatCushionEntity? get buffer => fetchLastSeatCushionEntityUseCase();
   @override
-  Stream<SeatCushionEntity> get bufferStream => fetchSeatCushionUseCase.bufferStream;
+  Stream<SeatCushionEntity> get bufferStream => fetchLastSeatCushionEntityStreamUseCase();
   @override
   Future<bool> downloadCsvFile({
     required String folder,
@@ -65,9 +76,9 @@ class ConcreteSeatCushionDataViewController extends SeatCushionDataViewControlle
   @override
   Future<bool> sendCommand({
     required String command,
-  }) => seatCushionDeviceUseCase.sendCommand(command: command);
+  }) => sendCommandToAllSeatCushionDeviceUseCase(command: command);
   @override
   Future<bool> clearOldData() {
-    return deleteSeatCushionUseCase.clearAllEntities();
+    return clearAllSeatCushionEntitiesUseCase();
   }
 }

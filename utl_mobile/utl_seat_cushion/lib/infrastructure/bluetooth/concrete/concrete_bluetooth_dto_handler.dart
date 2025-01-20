@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:async_locks/async_locks.dart';
-import 'package:utl_seat_cushion/domain/data/seat_cushion_data.dart';
+import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_dto_handler.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_packet.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 
 enum BluetoothPacketDtoForcesStage {
   first,

@@ -2,12 +2,16 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class LineChartDatasetController<Dataset> extends ValueNotifier<Dataset> {
+class LineChartDatasetController<Dataset> extends ChangeNotifier {
   LineChartDatasetController({
     required Dataset dataset,
-  }) : super(dataset);
-  set dataset(Dataset dataset) => super.value = dataset;
-  Dataset get dataset => super.value;
+  }) : _dataset = dataset;
+  Dataset _dataset;
+  set dataset(Dataset dataset) {
+    _dataset = dataset;
+    notifyListeners();
+  }
+  Dataset get dataset => _dataset;
   /// Finds the maximum X value across multiple collections of points.
   ///
   /// - [pointCollections]: A collection of point sets to search.
@@ -40,11 +44,12 @@ class LineChartDatasetController<Dataset> extends ValueNotifier<Dataset> {
 
     if (globalMinX == null || globalMaxX == null) return pointCollections;
 
-    return pointCollections.map((points) => points.isEmpty ? points : [
-      if (points.first.x != globalMinX) Point(globalMinX, points.first.y),
-      ...points,
-      if (points.last.x != globalMaxX) Point(globalMaxX, points.last.y),
-    ]);
+    return pointCollections.map((points) sync* {
+      if (points.isEmpty) return;
+      if (points.first.x != globalMinX) yield Point(globalMinX, points.first.y);
+      yield* points;
+      if (points.last.x != globalMaxX) yield Point(globalMaxX, points.last.y);
+    });
   }
 }
 

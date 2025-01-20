@@ -32,11 +32,11 @@ class FlutterBluePlusDeviceWidgetUtil {
       rssi: result.rssi,
     );
   }
-  bool checkDeviceExisted(ScanResult result) {
+  bool isExistingDevice(ScanResult result) {
     return result.device == bluetoothDevice;
   }
   final void Function(ScanResult result)? handleExistedResult;
-  void _handleExistedResult(ScanResult result) {
+  void _onExistingDeviceUpdated(ScanResult result) {
     isConnectable = result.advertisementData.connectable;
     rssi = result.rssi;
     handleExistedResult?.call(result);
@@ -68,20 +68,25 @@ class FlutterBluePlusDeviceWidgetUtil {
   }
   Future toggleConnection() {
     if(!isConnectableValueNotifier.value) Future.value();
-    debugPrint("FBP: toggleConnection: ${bluetoothDevice.isConnected}");
     return FlutterBluePlusWidgetUtil.toggleConnection(
       device: bluetoothDevice,
     );
   }
 }
 
-class FlutterBluePlusPersistDeviceWidgetsUtil<Device extends FlutterBluePlusDeviceWidgetUtil> extends FlutterBluePlusPersistDevicesUtil<Device> {
-  FlutterBluePlusPersistDeviceWidgetsUtil({
+class FlutterBluePlusPersistDeviceWidgetUtilsProvider<Device extends FlutterBluePlusDeviceWidgetUtil> extends FlutterBluePlusPersistDevicesProvider<Device> {
+  FlutterBluePlusPersistDeviceWidgetUtilsProvider({
     required super.devices,
     required super.resultToDevice,
+    super.onFinalUpdate,
+    super.onNewDeviceDetected,
+    void Function(ScanResult result, Device device)? onExistingDeviceUpdated,
   }) : super(
-    checkDeviceExisted: (result, device) => device.checkDeviceExisted(result),
-    handleExistedResult: (result, device) => device._handleExistedResult(result),
+    isExistingDevice: (result, device) => device.isExistingDevice(result),
+    onExistingDeviceUpdated: (result, device) {
+      device._onExistingDeviceUpdated(result);
+      onExistingDeviceUpdated?.call(result, device);
+    },
   );
   Timer readRssi({
     required Duration duration,

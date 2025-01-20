@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:utl_seat_cushion/domain/data/seat_cushion_data.dart';
-import 'package:utl_seat_cushion/domain/use_case/seat_cushion_use_case.dart';
+import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
 import 'package:utl_seat_cushion/resources/shared_preferences_resources.dart';
 
-class SharedPreferencesSeatCushionDataSaveOptionProvider implements SeatCushionSaveOptionsProvider {
+class SharedPreferencesSeatCushionDataSaveOptionProvider {
   final StreamController<SeatCushionSaveOptions> _optionsStreamController = StreamController.broadcast();
   final SharedPreferences sharedPreferences;
   static bool _fetchOption({
@@ -14,10 +13,8 @@ class SharedPreferencesSeatCushionDataSaveOptionProvider implements SeatCushionS
   }) {
     return sharedPreferences.getBool(key) ?? true;
   }
-  @override
   Stream<SeatCushionSaveOptions> get optionsStream => _optionsStreamController.stream;
   SeatCushionSaveOptions _options;
-  @override
   SeatCushionSaveOptions get options => _options;
   Future<void> saveToSharedPreferences({
     required SeatCushionSaveOptions options,
@@ -31,7 +28,6 @@ class SharedPreferencesSeatCushionDataSaveOptionProvider implements SeatCushionS
       options.saveToDatabaseOption,
     );
   }
-  @override
   set options(SeatCushionSaveOptions options) {
     saveToSharedPreferences(options: options);
     _options = options;

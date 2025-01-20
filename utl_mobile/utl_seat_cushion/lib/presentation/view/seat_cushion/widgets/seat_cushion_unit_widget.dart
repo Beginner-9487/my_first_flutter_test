@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_basic_utils/presentation/dataset_color_generator.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 
 class SeatCushionUnitWidget extends StatelessWidget {
   final int force;

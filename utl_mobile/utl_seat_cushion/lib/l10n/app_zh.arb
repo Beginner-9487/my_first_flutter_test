@@ -31,7 +31,7 @@
   "name": "名字",
   "time": "时间",
   "device": "设备",
-  "deviceId": "ID",
+  "deviceId": "设备 ID",
   "type": "类别",
   "index": "索引",
   "number": "数量",

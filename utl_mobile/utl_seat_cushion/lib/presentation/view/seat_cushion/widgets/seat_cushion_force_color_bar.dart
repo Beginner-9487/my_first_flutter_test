@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 import 'package:utl_seat_cushion/presentation/view/seat_cushion/widgets/seat_cushion_unit_widget.dart';
 
 class SeatCushionForceColorBar extends StatelessWidget {

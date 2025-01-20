@@ -1,4 +1,4 @@
-import 'package:utl_seat_cushion/domain/use_case/seat_cushion_use_case.dart';
+import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
 
 class SeatCushionResources {
   SeatCushionResources._();

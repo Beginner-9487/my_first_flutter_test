@@ -94,7 +94,7 @@ class FbpUtlBluetoothHandler<
         Packet,
         Resources extends FbpUtlBluetoothSharedResources<Device, Packet>
     >
-    extends FlutterBluePlusPersistDevicesUtil<Device>
+    extends FlutterBluePlusPersistDevicesProvider<Device>
     implements UtlBluetoothHandler<Device, Packet>
 {
   final Resources resources;
@@ -104,7 +104,7 @@ class FbpUtlBluetoothHandler<
     required Device Function(Resources, BluetoothDevice) bluetoothDeviceToDevice,
     required Device Function(Resources, ScanResult) resultToDevice,
   }) : super(
-    checkDeviceExisted: (result, device) => result.device == device.bluetoothDevice,
+    isExistingDevice: (result, device) => result.device == device.bluetoothDevice,
     devices: devices.map((d) => bluetoothDeviceToDevice(resources, d)).toList(),
     resultToDevice: (r) => resultToDevice(resources, r),
   );

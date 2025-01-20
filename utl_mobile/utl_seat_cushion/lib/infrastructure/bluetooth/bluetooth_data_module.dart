@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:utl_mobile/utl_bluetooth/fbp_utl_bluetooth_handler.dart';
-import 'package:utl_seat_cushion/domain/use_case/seat_cushion_use_case.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_packet.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_dto_handler.dart';
-import 'package:utl_seat_cushion/domain/entities/seat_cushion_entity.dart';
+import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 import 'package:utl_seat_cushion/resources/bluetooth_resources.dart';
 
 class _Resources extends FbpUtlBluetoothSharedResources<SeatCushionDevice, BluetoothPacket> {
@@ -28,11 +27,9 @@ class SeatCushionDevice extends UtlBluetoothDevice {
 
 class BluetoothDataModule extends FbpUtlBluetoothHandler<SeatCushionDevice, BluetoothPacket, _Resources>  {
   final BluetoothDtoHandler bluetoothDtoHandler;
-  final SaveSeatCushionUseCase saveSeatCushionUseCase;
   BluetoothDataModule({
     required super.devices,
     required this.bluetoothDtoHandler,
-    required this.saveSeatCushionUseCase,
   }) : super(
     resources: _Resources(
       sentUuid: BluetoothResources.sentUuids,
@@ -47,9 +44,6 @@ class BluetoothDataModule extends FbpUtlBluetoothHandler<SeatCushionDevice, Blue
       bluetoothDevice: result.device,
     ),
   ) {
-    _saveSeatCushionData = bluetoothDtoHandler.seatCushionEntityStream.listen((data) {
-      saveSeatCushionUseCase.save(data);
-    });
     _receivePacket = onReceivePacket.listen((packet) {
       bluetoothDtoHandler.addPacket(packet: packet);
     });

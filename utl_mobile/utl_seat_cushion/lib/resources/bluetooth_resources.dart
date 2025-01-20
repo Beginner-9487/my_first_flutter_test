@@ -14,7 +14,7 @@ class BluetoothResources {
     "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
   ];
   static final VoidCallback turnOnBluetooth = FlutterBluePlus.turnOn;
-  static late final FlutterBluePlusPersistDeviceWidgetsUtil<FlutterBluePlusDeviceWidgetUtil> bluetoothWidgetProvider;
+  static late final FlutterBluePlusPersistDeviceWidgetUtilsProvider<FlutterBluePlusDeviceWidgetUtil> bluetoothWidgetsProvider;
   static late final BluetoothDataModule bluetoothDataModule;
   static late final Timer readRssiTimer;
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basic_utils/presentation/language_observer_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:utl_mobile/theme/theme.dart';
 import 'package:utl_seat_cushion/application/controller/seat_cushion_data_view_controller.dart';
 import 'package:utl_seat_cushion/resources/application_resources.dart';
 import 'package:utl_seat_cushion/resources/path_resources.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:utl_seat_cushion/resources/theme_data.dart';
 import 'package:utl_seat_cushion/resources/widget_resources.dart';
 
 class SeatCushionButtonsBoard extends StatefulWidget {
@@ -26,25 +27,36 @@ class _SeatCushionButtonsBoardState extends State<SeatCushionButtonsBoard> {
     var commandTextField = TextField(
       controller: commandTextFieldController,
     );
-    var initButton = IconButton(
-      onPressed: null,
-      icon: WidgetResources.bluetoothInitIcon,
-      color: Colors.blue,
+    var initButton = Builder(
+      builder: (context) {
+        var themeData = Theme.of(context);
+        return IconButton(
+          onPressed: null,
+          icon: WidgetResources.bluetoothInitIcon,
+          color: themeData.bluetoothColor,
+        );
+      }
     );
-    var sendCommandButton = IconButton(
-      onPressed: () {
-        String command = commandTextFieldController.text;
-        seatCushionDataViewController.sendCommand(command: command);
-        commandTextFieldController.text = "";
-      },
-      icon: WidgetResources.bluetoothSendCommandIcon,
-      color: Colors.blue,
+    var sendCommandButton = Builder(
+        builder: (context) {
+          var themeData = Theme.of(context);
+          return IconButton(
+            onPressed: () {
+              String command = commandTextFieldController.text;
+              seatCushionDataViewController.sendCommand(command: command);
+              commandTextFieldController.text = "";
+            },
+            icon: WidgetResources.bluetoothSendCommandIcon,
+            color: themeData.bluetoothColor,
+          );
+        }
     );
     var saveStateChangeButton = StreamBuilder(
       initialData: seatCushionDataViewController.isSaving,
       stream: seatCushionDataViewController.isSavingStream,
       builder: (context, snapshot) {
         bool isSaving = (snapshot.data ?? seatCushionDataViewController.isSaving);
+        var themeData = Theme.of(context);
         return IconButton(
           onPressed: seatCushionDataViewController.toggleSavingState,
           icon: (!isSaving)
@@ -52,16 +64,17 @@ class _SeatCushionButtonsBoardState extends State<SeatCushionButtonsBoard> {
             : WidgetResources.endSavingIcon,
           color: (!isSaving)
             ? null
-            : Colors.orange,
+            : themeData.saveIconColor,
         );
       },
     );
     var clearOldDataButton = ValueListenableBuilder(
       valueListenable: clearOldDataButtonStateValueNotifier,
       builder: (context, isEnabled, child) {
-        return LanguageObserverView(
-          builder: (context, locales) {
+        return Builder(
+          builder: (context) {
             var appLocalizations = AppLocalizations.of(context)!;
+            var themeData = Theme.of(context);
             return IconButton(
               onPressed: (isEnabled)
                 ? () async {
@@ -77,7 +90,7 @@ class _SeatCushionButtonsBoardState extends State<SeatCushionButtonsBoard> {
                   }
                 : null,
               icon: WidgetResources.clearOldDataIcon,
-              color: Colors.red,
+              color: themeData.clearOldDataButtonIconColor,
             );
           },
         );
@@ -86,28 +99,29 @@ class _SeatCushionButtonsBoardState extends State<SeatCushionButtonsBoard> {
     var downloadCsvFileButton = ValueListenableBuilder(
       valueListenable: downloadingCsvFileButtonStateValueNotifier,
       builder: (context, isEnabled, child) {
-        return LanguageObserverView(
-          builder: (context, locales) {
+        return Builder(
+          builder: (context) {
             var appLocalizations = AppLocalizations.of(context)!;
+            var themeData = Theme.of(context);
             return IconButton(
               onPressed: (isEnabled)
-                ? () async {
-                    downloadingCsvFileButtonStateValueNotifier.value = false;
-                    await seatCushionDataViewController.downloadCsvFile(
-                      folder: PathResources.downloadPath,
-                      appLocalizations: appLocalizations,
-                    );
-                    try {
-                      downloadingCsvFileButtonStateValueNotifier.value = true;
-                    } catch(e) {}
-                    Fluttertoast.showToast(
-                      msg: appLocalizations.downloadFileFinishedNotification("csv"),
-                    );
-                    return;
-                  }
-                : null,
+                  ? () async {
+                downloadingCsvFileButtonStateValueNotifier.value = false;
+                await seatCushionDataViewController.downloadCsvFile(
+                  folder: PathResources.downloadPath,
+                  appLocalizations: appLocalizations,
+                );
+                try {
+                  downloadingCsvFileButtonStateValueNotifier.value = true;
+                } catch(e) {}
+                Fluttertoast.showToast(
+                  msg: appLocalizations.downloadFileFinishedNotification("csv"),
+                );
+                return;
+              }
+                  : null,
               icon: WidgetResources.downloadIcon,
-              color: Colors.green,
+              color: themeData.downloadIconColor,
             );
           },
         );

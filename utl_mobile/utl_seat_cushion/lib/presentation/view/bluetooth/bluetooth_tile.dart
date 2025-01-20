@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basic_utils/presentation/language_observer_view.dart';
 import 'package:flutter_bluetooth_utils/bluetooth_widget_util.dart';
 import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_device_widget_util.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:utl_mobile/theme/theme.dart';
 
 class BluetoothTile extends StatelessWidget {
   const BluetoothTile({
@@ -25,18 +25,20 @@ class BluetoothTile extends StatelessWidget {
           onPressed: (isConnectable)
               ? device.toggleConnection
               : null,
-          child: LanguageObserverView(
-              builder: (context, locales) {
+          child: Builder(
+              builder: (context) {
+                var appLocalizations = AppLocalizations.of(context)!;
                 return Text(device.bluetoothDevice.isConnected
-                    ? AppLocalizations.of(context)?.disconnectBluetoothButtonText ?? ""
-                    : AppLocalizations.of(context)?.connectBluetoothButtonText ?? ""
+                  ? appLocalizations.disconnectBluetoothButtonText
+                  : appLocalizations.connectBluetoothButtonText
                 );
               }
           ),
         );
+        var themeData = Theme.of(context);
         var backgroundColor = (isConnected)
-            ? Colors.blue
-            : Colors.red;
+            ? themeData.connectedBluetoothDeviceTileColor
+            : themeData.disconnectedBluetoothDeviceTileColor;
         return ListTile(
           leading: rssi,
           title: title,

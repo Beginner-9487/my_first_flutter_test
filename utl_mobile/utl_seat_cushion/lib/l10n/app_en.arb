@@ -31,7 +31,7 @@
   "name": "Name",
   "time": "Time",
   "device": "Device",
-  "deviceId": "ID",
+  "deviceId": "Device ID",
   "type": "Type",
   "index": "Index",
   "number": "Number",
