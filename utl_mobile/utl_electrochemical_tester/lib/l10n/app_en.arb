@@ -1,39 +1,9 @@
 {
   "@@locale": "en",
-  "appName": "UTL App",
-  "hello_world": "Hello World!",
-  "login": "Login",
+  "appName": "UTL Electrochemical Tester App",
 
-  "loginAsGuest": "Login as guest",
-
-  "logout": "Logout",
-
-  "register": "Register",
-  "password": "Password",
-  "retypePassword": "Retype Password",
-
-  "account": "Account",
-
-  "home": "Home",
-  "help": "Help",
-  "feedBack": "FeedBack",
-  "inviteFriend": "Invite Friend",
-  "rateTheApp": "Rate the app",
-  "aboutUs": "About Us",
-
-  "settings": "settings",
-
-  "service": "Service",
-  "characteristic": "Characteristic",
-  "descriptor": "Descriptor",
-
-  "ble_scanning_page": "BLE scanning page",
-  "line_chart_page": "Line Chart page",
-
-  "connect": "Connect",
-  "disconnect": "Disconnect",
-  "open": "Open",
-  "sendCommand": "Send Command",
+  "connectBluetoothButtonText": "Connect",
+  "disconnectBluetoothButtonText": "Disconnect",
 
   "name": "name",
   "time": "time",

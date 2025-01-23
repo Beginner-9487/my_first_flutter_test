@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:utl_mobile/utl_bluetooth/fbp_utl_bluetooth_handler.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_packet.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_dto_handler.dart';
-import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 import 'package:utl_seat_cushion/resources/bluetooth_resources.dart';
 
 class _Resources extends FbpUtlBluetoothSharedResources<SeatCushionDevice, BluetoothPacket> {
@@ -48,11 +47,9 @@ class BluetoothDataModule extends FbpUtlBluetoothHandler<SeatCushionDevice, Blue
       bluetoothDtoHandler.addPacket(packet: packet);
     });
   }
-  late final StreamSubscription<SeatCushionEntity> _saveSeatCushionData;
   late final StreamSubscription<BluetoothPacket> _receivePacket;
   @override
   void dispose() {
-    _saveSeatCushionData.cancel();
     _receivePacket.cancel();
     super.dispose();
   }

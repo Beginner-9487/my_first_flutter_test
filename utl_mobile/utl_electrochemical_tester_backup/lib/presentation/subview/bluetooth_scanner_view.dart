@@ -9,7 +9,7 @@ class BluetoothScannerView extends UtlBluetoothScannerView {
     super.key,
   }) : super(
     deviceListBuilder: (context) {
-      var util = context.read<FlutterBluePlusPersistDeviceWidgetsUtil<FlutterBluePlusDeviceWidgetUtil>>();
+      var util = context.read<FlutterBluePlusPersistDeviceWidgetUtilsProvider<FlutterBluePlusDeviceWidgetUtil>>();
       return util.buildDevicesList(
         builder: (context, device) {
           return BluetoothTile(

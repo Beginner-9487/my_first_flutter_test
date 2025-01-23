@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_basic_utils/presentation/language_observer_view.dart';
 import 'package:flutter_bluetooth_utils/bluetooth_widget_util.dart';
 import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_device_widget_util.dart';
 
@@ -25,11 +24,12 @@ class BluetoothTile extends StatelessWidget {
           onPressed: (isConnectable)
               ? device.toggleConnection
               : null,
-          child: LanguageObserverView(
-              builder: (context, locales) {
+          child: Builder(
+              builder: (context) {
+                var appLocalizations = AppLocalizations.of(context)!;
                 return Text(device.bluetoothDevice.isConnected
-                    ? AppLocalizations.of(context)?.disconnect ?? ""
-                    : AppLocalizations.of(context)?.connect ?? ""
+                    ? appLocalizations.disconnect
+                    : appLocalizations.connect
                 );
               }
           ),

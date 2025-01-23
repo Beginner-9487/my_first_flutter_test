@@ -8,16 +8,16 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:utl_electrochemical_tester/application/controller/electrochemical_command_controller.dart';
-import 'package:utl_electrochemical_tester/application/repository/database_repository.dart';
-import 'package:utl_electrochemical_tester/application/repository/hive_database_repository.dart';
+import 'package:utl_electrochemical_tester/controller/electrochemical_command_controller.dart';
+import 'package:utl_electrochemical_tester/domain/repository/electrochemical_entity_repository.dart';
+import 'package:utl_electrochemical_tester/infrastructure/source/hive_database_repository.dart';
 import 'package:utl_electrochemical_tester/application/repository/in_memory_repository.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_device.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_received_packet.dart';
 import 'package:utl_electrochemical_tester/application/service/bluetooth/bluetooth_service.dart';
 import 'package:utl_electrochemical_tester/application/service/electrochemical_data_service.dart';
 import 'package:utl_electrochemical_tester/presentation/screen/home_screen.dart';
-import 'package:utl_electrochemical_tester/resources/app_theme.dart';
+import 'package:utl_electrochemical_tester/resources/theme_data.dart';
 import 'package:utl_electrochemical_tester/resources/bt_uuid.dart';
 import 'package:utl_mobile/utl_bluetooth/utl_bluetooth_handler.dart';
 import 'package:utl_mobile/utl_bluetooth/fbp_utl_bluetooth_handler.dart';
@@ -29,7 +29,7 @@ late final ElectrochemicalCommandController electrochemicalCommandController;
 
 late final FlutterBluePlusPersistDeviceWidgetsUtil<FlutterBluePlusDeviceWidgetUtil> bluetoothScannerController;
 
-late final DatabaseRepository databaseRepository;
+late final ElectrochemicalEntityRepository databaseRepository;
 late final InMemoryRepository inMemoryRepository;
 late final ElectrochemicalDataService electrochemicalDataService;
 
@@ -40,8 +40,8 @@ void main() async {
 
   sharedPreferences = await SharedPreferences.getInstance();
 
-  await HiveDatabaseRepository.init();
-  databaseRepository = HiveDatabaseRepository();
+  await HiveRepository.init();
+  databaseRepository = HiveRepository();
 
   fbp.FlutterBluePlus.setLogLevel(fbp.LogLevel.none);
   List<fbp.BluetoothDevice> bluetoothDevices = await fbp.FlutterBluePlus.systemDevices([]);
@@ -111,7 +111,7 @@ class AppRoot extends StatelessWidget {
           Provider<UtlBluetoothHandler<ConcreteElectrochemicalSensor, ElectrochemicalSensorReceivedPacket>>(create: (_) => utlBluetoothHandler),
           Provider<ElectrochemicalSensorService>(create: (_) => electrochemicalSensorService),
           Provider<ElectrochemicalCommandController>(create: (_) => electrochemicalCommandController),
-          Provider<DatabaseRepository>(create: (_) => databaseRepository),
+          Provider<ElectrochemicalEntityRepository>(create: (_) => databaseRepository),
           Provider<InMemoryRepository>(create: (_) => inMemoryRepository),
           Provider<ElectrochemicalDataService>(create: (_) => electrochemicalDataService),
         ],

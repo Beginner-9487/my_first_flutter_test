@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_device_widget_util.dart';
-import 'package:provider/provider.dart';
 import 'package:utl_mobile/theme/theme.dart';
 import 'package:utl_seat_cushion/application/seat_cushion_devices_data_handler.dart';
 import 'package:utl_seat_cushion/resources/application_resources.dart';
-import 'package:utl_seat_cushion/resources/bluetooth_resources.dart';
 import 'package:utl_seat_cushion/resources/initializer.dart';
 import 'package:utl_seat_cushion/presentation/screen/home_screen.dart';
 

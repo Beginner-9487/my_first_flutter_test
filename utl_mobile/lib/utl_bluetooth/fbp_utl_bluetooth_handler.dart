@@ -16,6 +16,8 @@ class FbpUtlBluetoothSharedResources<Device extends UtlBluetoothDevice, Packet> 
 }
 
 class UtlBluetoothDevice {
+  String get deviceName => bluetoothDevice.platformName;
+  String get deviceId => bluetoothDevice.remoteId.str;
   FbpUtlBluetoothSharedResources resource;
   Iterable<String> get sentUuid => resource.sentUuid;
   Iterable<String> get receivedUuid => resource.receivedUuid;
@@ -29,7 +31,7 @@ class UtlBluetoothDevice {
   List<BluetoothService> services = [];
   late final StreamSubscription<BluetoothConnectionState> _onConnection;
   final List<StreamSubscription<Uint8List>> _onReceivePackets = [];
-  void _handleConnectionState(BluetoothConnectionState state) async {
+  Future<void> _handleConnectionState(BluetoothConnectionState state) async {
     if (state == BluetoothConnectionState.connected) {
       try {
         _addServices(await bluetoothDevice.discoverServices());
@@ -38,21 +40,21 @@ class UtlBluetoothDevice {
       _clearServices();
     }
   }
-  void write(Uint8List bytes) {
+  Future<void> write(Uint8List bytes) async {
     for (var service in services) {
       for (var characteristic in service.characteristics) {
         if (sentUuid.contains(characteristic.uuid.str)) {
-          characteristic.write(bytes);
+          await characteristic.write(bytes);
         }
         for (var descriptor in characteristic.descriptors) {
           if (sentUuid.contains(descriptor.uuid.str)) {
-            descriptor.write(bytes);
+            await descriptor.write(bytes);
           }
         }
       }
     }
   }
-  void _addServices(List<BluetoothService> services) async {
+  Future<void> _addServices(List<BluetoothService> services) async {
     this.services = services;
     try {
       for (var service in this.services) {
@@ -109,15 +111,15 @@ class FbpUtlBluetoothHandler<
     resultToDevice: (r) => resultToDevice(resources, r),
   );
   @override
-  sendBytes(Uint8List bytes) {
+  Future<void> sendBytes(Uint8List bytes) async {
     for(var d in devices.where((device) => device.bluetoothDevice.isConnected)) {
-      d.write(bytes);
+      await d.write(bytes);
     }
   }
   @override
-  sendHexString(String hexString) {
+  Future<void> sendHexString(String hexString) async {
     for(var d in devices.where((device) => device.bluetoothDevice.isConnected)) {
-      d.write(hexString.hexToUint8List());
+      await d.write(hexString.hexToUint8List());
     }
   }
   @override

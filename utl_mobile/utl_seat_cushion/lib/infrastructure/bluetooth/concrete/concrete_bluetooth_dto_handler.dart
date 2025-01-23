@@ -75,6 +75,7 @@ class BluetoothPacketBuffer {
     required int offset,
   }) {
     if(bytes.length <= offset) return null;
+    if((bytes.length - 1) % 2 != 0) return null;
     final byteData = ByteData.sublistView(bytes);
     return [
       for (var i = offset; i < byteData.lengthInBytes; i += 2)

@@ -1,0 +1,82 @@
+import 'package:hive_flutter/adapters.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:utl_electrochemical_tester/domain/entity/electrochemical_entity.dart';
+import 'package:utl_electrochemical_tester/domain/value/electrochemical_data.dart';
+import 'package:utl_electrochemical_tester/domain/value/electrochemical_header.dart';
+import 'package:utl_electrochemical_tester/domain/value/electrochemical_parameters.dart';
+import 'package:utl_electrochemical_tester/domain/model/value/electrochemical_type.dart';
+import 'package:utl_electrochemical_tester/domain/repository/electrochemical_entity_repository.dart';
+
+class HiveRepository implements ElectrochemicalEntityRepository {
+  static const String entityBoxName = "entityBox";
+
+  // final Box<ElectrochemicalDataEntity> entityBox = Hive.box(HiveDatabaseRepository.entityBoxName);
+  static late final Box<ElectrochemicalEntity> entityBox;
+
+  static Future<void> init() async {
+    await Hive.initFlutter();
+
+    Hive.init((await getApplicationDocumentsDirectory()).absolute.path);
+
+    Hive.registerAdapter(ElectrochemicalEntityAdapter());
+    Hive.registerAdapter(ElectrochemicalDataAdapter());
+    Hive.registerAdapter(ElectrochemicalHeaderAdapter());
+    Hive.registerAdapter(ElectrochemicalTypeAdapter());
+    Hive.registerAdapter(CaElectrochemicalParametersAdapter());
+    Hive.registerAdapter(CvElectrochemicalParametersAdapter());
+    Hive.registerAdapter(DpvElectrochemicalParametersAdapter());
+    Hive.registerAdapter(InversionOptionAdapter());
+
+    return Hive.openBox<ElectrochemicalEntity>(HiveRepository.entityBoxName).then((value) {
+      entityBox = value;
+      return;
+    });
+  }
+
+  @override
+  Future<Iterable<ElectrochemicalEntity>> getEntities(Iterable<int> ids) async {
+    return ids.map((id) => entityBox.get(id)).whereType<ElectrochemicalEntity>();
+  }
+
+  @override
+  Future<int> getEntitiesLength() async {
+    return entityBox.length;
+  }
+
+  @override
+  Future<ElectrochemicalEntity> create(ElectrochemicalHeader header) async {
+    final id = entityBox.length;
+    final newEntity = ElectrochemicalEntity(
+      id: id,
+      dataName: header.dataName,
+      deviceId: header.deviceId,
+      createdTime: header.createdTime,
+      temperature: header.temperature,
+      parameters: header.parameters,
+      data: [],
+    );
+    await entityBox.put(id, newEntity);
+    return newEntity;
+  }
+
+  @override
+  Future<ElectrochemicalEntity> update(ElectrochemicalEntity entity, Iterable<ElectrochemicalData> data) async {
+    final updatedEntity = ElectrochemicalEntity(
+      id: entity.id,
+      dataName: entity.dataName,
+      deviceId: entity.deviceId,
+      createdTime: entity.createdTime,
+      temperature: entity.temperature,
+      parameters: entity.parameters,
+      data: data.toList(),
+    );
+    await entityBox.put(entity.id, updatedEntity);
+    return updatedEntity;
+  }
+
+  @override
+  Future<bool> clear() async {
+    await entityBox.clear();
+    return true;
+  }
+}
