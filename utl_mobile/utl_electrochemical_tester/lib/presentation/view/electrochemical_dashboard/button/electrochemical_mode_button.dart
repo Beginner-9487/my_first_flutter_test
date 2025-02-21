@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:utl_electrochemical_tester/controller/electrochemical_dashboard_controller.dart';
+import 'package:utl_electrochemical_tester/controller/electrochemical_line_chart_controller.dart';
 import 'package:utl_electrochemical_tester/presentation/widget/icons.dart';
-import 'package:utl_electrochemical_tester/resources/controller_registry.dart';
+import 'package:utl_electrochemical_tester/init/controller_registry.dart';
 
-import 'package:utl_electrochemical_tester/resources/theme_data.dart';
+import 'package:utl_electrochemical_tester/presentation/theme/theme_data.dart';
 
 class ElectrochemicalModeButton extends StatelessWidget {
   final ElectrochemicalLineChartMode mode;
@@ -14,13 +14,14 @@ class ElectrochemicalModeButton extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    var electrochemicalLineChartSetterController = ControllerRegistry.electrochemicalLineChartSetterController;
-    return ChangeNotifierProvider<LineChartDatasetModeChangeNotifier>(
-      create: (_) => electrochemicalLineChartSetterController.lineChartMode,
-      child: Consumer<LineChartDatasetModeChangeNotifier>(
+    final electrochemicalLineChartSetterController = ControllerRegistry.electrochemicalLineChartSetterController;
+    return ChangeNotifierProvider<LineChartModeChangeNotifier>(
+      create: electrochemicalLineChartSetterController.createLineChartModeChangeNotifier,
+      child: Consumer<LineChartModeChangeNotifier>(
         builder: (context, modeNotifier, child) {
-          var theme = Theme.of(context);
+          final theme = Theme.of(context);
           int index = mode.index;
+          final iconData = ElectrochemicalIcons.modeIconData.skip(index).first;
           Color? color = (modeNotifier.mode == mode)
             ? theme.lineChartModeEnabledColor
             : null;
@@ -28,7 +29,7 @@ class ElectrochemicalModeButton extends StatelessWidget {
             onPressed: () {
               electrochemicalLineChartSetterController.mode = mode;
             },
-            icon: ElectrochemicalIcons.modeIcons.skip(index).first,
+            icon: Icon(iconData),
             color: color,
           );
         },

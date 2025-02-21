@@ -7,7 +7,7 @@ enum SeatCushionType {
 
 class SeatCushionEntity extends Equatable {
   static const int forceLength = 248;
-  static const int forceMax = 5000;
+  static const int forceMax = 3500;
   static const int forceMin = 0;
   final int id;
   final String deviceId;

@@ -1,4 +1,4 @@
-import 'package:utl_electrochemical_tester/adapter/dto/electrochemical_device_received_dto.dart';
+import 'package:utl_electrochemical_tester/adapter/electrochemical_devices/dto/electrochemical_device_received_dto.dart';
 import 'package:utl_electrochemical_tester/infrastructure/source/bluetooth/bluetooth_received_packet.dart';
 
 abstract class BluetoothPacketHandler {

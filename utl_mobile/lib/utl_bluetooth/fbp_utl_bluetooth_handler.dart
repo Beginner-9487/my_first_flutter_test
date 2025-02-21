@@ -6,7 +6,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_bluetooth_utils/fbp/flutter_blue_plus_persist_devices_util.dart';
 import 'package:utl_mobile/utl_bluetooth/utl_bluetooth_handler.dart';
 
-class FbpUtlBluetoothSharedResources<Device extends UtlBluetoothDevice, Packet> extends UtlBluetoothSharedResources<Device, Packet> {
+class FbpUtlBluetoothSharedResources<Device extends UtlBluetoothDevice<Device, Packet>, Packet> extends UtlBluetoothSharedResources<Device, Packet> {
   final StreamController<Packet> _onReceivedController = StreamController();
   FbpUtlBluetoothSharedResources({
     required super.toPacket,
@@ -15,10 +15,10 @@ class FbpUtlBluetoothSharedResources<Device extends UtlBluetoothDevice, Packet> 
   });
 }
 
-class UtlBluetoothDevice {
+class UtlBluetoothDevice<Device extends UtlBluetoothDevice<Device, Packet>, Packet> {
   String get deviceName => bluetoothDevice.platformName;
   String get deviceId => bluetoothDevice.remoteId.str;
-  FbpUtlBluetoothSharedResources resource;
+  FbpUtlBluetoothSharedResources<Device, Packet> resource;
   Iterable<String> get sentUuid => resource.sentUuid;
   Iterable<String> get receivedUuid => resource.receivedUuid;
   UtlBluetoothDevice({
@@ -30,7 +30,7 @@ class UtlBluetoothDevice {
   final BluetoothDevice bluetoothDevice;
   List<BluetoothService> services = [];
   late final StreamSubscription<BluetoothConnectionState> _onConnection;
-  final List<StreamSubscription<Uint8List>> _onReceivePackets = [];
+  final List<StreamSubscription> _onReceivePackets = [];
   Future<void> _handleConnectionState(BluetoothConnectionState state) async {
     if (state == BluetoothConnectionState.connected) {
       try {
@@ -44,11 +44,15 @@ class UtlBluetoothDevice {
     for (var service in services) {
       for (var characteristic in service.characteristics) {
         if (sentUuid.contains(characteristic.uuid.str)) {
-          await characteristic.write(bytes);
+          try {
+            await characteristic.write(bytes);
+          } catch(e) {}
         }
         for (var descriptor in characteristic.descriptors) {
           if (sentUuid.contains(descriptor.uuid.str)) {
-            await descriptor.write(bytes);
+            try {
+              await descriptor.write(bytes);
+            } catch(e) {}
           }
         }
       }
@@ -61,19 +65,19 @@ class UtlBluetoothDevice {
         for (var characteristic in service.characteristics) {
           if (receivedUuid.contains(characteristic.uuid.str)) {
             await characteristic.setNotifyValue(true);
-            _onReceivePackets.add(characteristic.onValueReceived.map((data) => data.asUint8List()).listen((data) {
+            _onReceivePackets.add(characteristic.onValueReceived.listen((data) {
               resource._onReceivedController.add(resource.toPacket(
-                this,
-                data,
+                this as Device,
+                data.asUint8List(),
               ));
             }));
           }
           for (var descriptor in characteristic.descriptors) {
             if (receivedUuid.contains(descriptor.uuid.str)) {
-              _onReceivePackets.add(characteristic.onValueReceived.map((data) => data.asUint8List()).listen((data) {
+              _onReceivePackets.add(descriptor.onValueReceived.listen((data) {
                 resource._onReceivedController.add(resource.toPacket(
-                  this,
-                  data,
+                  this as Device,
+                  data.asUint8List(),
                 ));
               }));
             }
@@ -89,14 +93,18 @@ class UtlBluetoothDevice {
     _onReceivePackets.clear();
     services = [];
   }
+  void dispose() {
+    _clearServices();
+    _onConnection.cancel();
+  }
 }
 
 class FbpUtlBluetoothHandler<
-        Device extends UtlBluetoothDevice,
+        Device extends UtlBluetoothDevice<Device, Packet>,
         Packet,
         Resources extends FbpUtlBluetoothSharedResources<Device, Packet>
     >
-    extends FlutterBluePlusPersistDevicesProvider<Device>
+    extends FlutterBluePlusPersistBluetoothDevicesToDevices<Device>
     implements UtlBluetoothHandler<Device, Packet>
 {
   final Resources resources;
@@ -108,7 +116,7 @@ class FbpUtlBluetoothHandler<
   }) : super(
     isExistingDevice: (result, device) => result.device == device.bluetoothDevice,
     devices: devices.map((d) => bluetoothDeviceToDevice(resources, d)).toList(),
-    resultToDevice: (r) => resultToDevice(resources, r),
+    addNewDeviceHandler: (r) => resultToDevice(resources, r),
   );
   @override
   Future<void> sendBytes(Uint8List bytes) async {
@@ -124,4 +132,11 @@ class FbpUtlBluetoothHandler<
   }
   @override
   Stream<Packet> get onReceivePacket => resources._onReceivedController.stream;
+  @override
+  void dispose() {
+    for(var device in devices) {
+      device.dispose();
+    }
+    super.dispose();
+  }
 }

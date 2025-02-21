@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:utl_electrochemical_tester/domain/value/electrochemical_parameters.dart';
 import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/electrochemical_command_tab_view.dart';
 import 'package:utl_electrochemical_tester/presentation/widget/icons.dart';
-import 'package:utl_electrochemical_tester/resources/controller_registry.dart';
+import 'package:utl_electrochemical_tester/init/controller_registry.dart';
 
 class ElectrochemicalCommandView extends StatelessWidget {
   const ElectrochemicalCommandView({
@@ -10,31 +10,27 @@ class ElectrochemicalCommandView extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    var electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
-    var tabIcons = ElectrochemicalIcons.typeIcons;
-    var electrochemicalCommandTabViews = ElectrochemicalType.values.map((type) => ElectrochemicalCommandTabView(type: type));
-    var tabBar = TabBar(
+    final electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
+    final tabIconData = ElectrochemicalIcons.typeIconData;
+    final electrochemicalCommandTabViews = ElectrochemicalType.values.map((type) => ElectrochemicalCommandTabView(type: type));
+    final tabBar = TabBar(
       isScrollable: false,
-      tabs: tabIcons.map((icon) {
+      tabs: tabIconData.map((iconData) {
         return Tab(
-          icon: icon,
+          icon: Icon(iconData),
         );
       }).toList(),
       onTap: electrochemicalCommandController.setCommandTabIndexBuffer,
     );
-    var tabView = TabBarView(
+    final tabView = TabBarView(
       children: electrochemicalCommandTabViews.toList(),
     );
-    var tabController = DefaultTabController(
+    final tabController = DefaultTabController(
       length: ElectrochemicalType.values.length,
       initialIndex: electrochemicalCommandController.getCommandTabIndexBuffer(),
       child: Scaffold(
-        appBar: AppBar(
-          bottom: tabBar,
-        ),
-        body: Expanded(
-          child: tabView,
-        ),
+        appBar: tabBar,
+        body: tabView,
       ),
     );
     return tabController;

@@ -3,6 +3,20 @@
 
   "appName": "UTL 電化學測試 App",
 
+  "downloadFileFinishedNotification": "下載 {format} 完成。",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+
+  "clearAllDataTitle": "清除資料",
+  "areYouSureYouWantToClearAllDataMessage": "您確定要清除所有資料?",
+  "yesButtonText": "確定",
+  "noButtonText": "取消",
+
   "connectBluetoothButtonText": "連接",
   "disconnectBluetoothButtonText": "斷開連接",
 

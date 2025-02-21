@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bluetooth_utils/bluetooth_widget_util.dart';
-import 'package:utl_seat_cushion/resources/bluetooth_resources.dart';
+import 'package:utl_seat_cushion/init/resources/bluetooth_resources.dart';
 
 class BluetoothOffView extends StatelessWidget {
   const BluetoothOffView({

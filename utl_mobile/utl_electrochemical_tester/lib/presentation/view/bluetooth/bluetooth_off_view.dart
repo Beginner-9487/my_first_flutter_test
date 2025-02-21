@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bluetooth_utils/bluetooth_widget_util.dart';
-import 'package:utl_electrochemical_tester/resources/bluetooth_resources.dart';
+import 'package:utl_electrochemical_tester/init/resources/infrastructure/bluetooth_resource.dart';
 
 class BluetoothOffView extends StatelessWidget {
   const BluetoothOffView({
@@ -10,7 +10,7 @@ class BluetoothOffView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BluetoothWidgetUtil.buildOffScreen(
       context: context,
-      turnOn: BluetoothResources.turnOnBluetooth,
+      turnOn: BluetoothResource.turnOnBluetooth,
     );
   }
 }

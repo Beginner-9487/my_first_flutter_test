@@ -1,5 +1,5 @@
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_dto_handler.dart';
-import 'package:utl_seat_cushion/resources/initializer.dart';
+import 'package:utl_seat_cushion/init/initializer.dart';
 
 import 'data/fake_bluetooth_dto_handler.dart';
 

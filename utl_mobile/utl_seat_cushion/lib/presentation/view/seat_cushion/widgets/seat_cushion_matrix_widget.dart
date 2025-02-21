@@ -21,7 +21,7 @@ class SeatCushionMatrixWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Iterable<Iterable<int>> forceMatrix = Iterable.generate(row, (indexRow) {
       return Iterable.generate(column, (indexColumn) {
-        return (forces ?? nullForces).skip(indexRow * column + indexColumn).first;
+        return (forces ?? nullForces).skip(indexColumn * row + indexRow).first;
       });
     });
     return Column(

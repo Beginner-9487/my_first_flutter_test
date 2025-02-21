@@ -10,8 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:utl_seat_cushion/application/seat_cushion_devices_data_handler.dart';
 
 import 'package:utl_seat_cushion/main.dart';
-import 'package:utl_seat_cushion/resources/application_resources.dart';
-import 'package:utl_seat_cushion/resources/initializer.dart';
+import 'package:utl_seat_cushion/init/application_persist.dart';
+import 'package:utl_seat_cushion/init/initializer.dart';
 
 import 'data/fake_data_generator.dart';
 
@@ -23,7 +23,7 @@ void main() async {
   ]);
   Initializer initializer = ConcreteInitializer();
   await initializer();
-  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationResources.seatCushionDevicesDataHandler;
+  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationPersist.seatCushionDevicesDataHandler;
   FakeDataGenerator().startGenerateBluetoothPackets();
   runApp(const MyApp());
 }

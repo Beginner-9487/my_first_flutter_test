@@ -1,23 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothWidgetUtil {
   const BluetoothWidgetUtil._();
-  static Future<bool> requestPermission() async {
-    if(!(await Permission.bluetooth.isGranted)) {
-      if(!(await Permission.bluetooth.request().isGranted)) {
-        return false;
-      }
-    }
-    if(!(await Permission.location.isGranted)) {
-      if(!(await Permission.location.request().isGranted)) {
-        return false;
-      }
-    }
-    return true;
-  }
   static Widget buildScanButton({
     required bool isScanning,
     required VoidCallback? toggleScan,
@@ -37,17 +23,14 @@ class BluetoothWidgetUtil {
     );
   }
   static Widget buildScanner({
-    required VoidCallback rescan,
-    required Widget devicesWidget,
+    required Future<void> Function() rescan,
+    required Widget devices,
     Widget? scanButton,
   }) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () => BluetoothWidgetUtil.requestPermission().then((value) {
-          if(!value) return;
-          rescan();
-        }),
-        child: devicesWidget,
+        onRefresh: rescan,
+        child: devices,
       ),
       floatingActionButton: scanButton,
     );
@@ -63,20 +46,19 @@ class BluetoothWidgetUtil {
       size: 200.0,
       color: Colors.white54,
     );
-    final Widget title = Text(
-      message,
-      style: Theme.of(context).primaryTextTheme.titleSmall?.copyWith(color: Colors.white),
+    final Widget title = Builder(
+      builder: (context) {
+        return Text(
+          message,
+          style: Theme.of(context).primaryTextTheme.titleSmall?.copyWith(color: Colors.white),
+        );
+      },
     );
     final Widget turnOnButton = Padding(
       padding: const EdgeInsets.all(20.0),
       child: ElevatedButton(
+        onPressed: turnOn,
         child: Text(buttonText),
-        onPressed: () async {
-          return BluetoothWidgetUtil.requestPermission().then((value) {
-            if(!value) return;
-            turnOn();
-          });
-        },
       ),
     );
     return ScaffoldMessenger(
@@ -109,9 +91,13 @@ class BluetoothWidgetUtil {
               deviceName,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              deviceId,
-              style: Theme.of(context).textTheme.bodySmall,
+            Builder(
+              builder: (context) {
+                return Text(
+                  deviceId,
+                  style: Theme.of(context).textTheme.bodySmall,
+                );
+              },
             ),
           ],
         )

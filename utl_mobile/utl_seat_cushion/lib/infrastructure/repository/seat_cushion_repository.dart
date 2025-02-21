@@ -29,8 +29,8 @@ class ConcreteSeatCushionRepository implements SeatCushionRepository {
   }
 
   @override
-  Future<List<SeatCushionEntity>> fetchEntities({required int start, required int end}) {
-    return inMemoryRepository.fetchEntities(start: start, end: end);
+  Stream<SeatCushionEntity> fetchEntities() {
+    return inMemoryRepository.fetchEntities();
   }
 
   @override

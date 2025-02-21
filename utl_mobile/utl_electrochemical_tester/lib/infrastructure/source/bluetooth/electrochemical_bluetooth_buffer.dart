@@ -16,19 +16,27 @@ class _Buffer {
 }
 
 class ElectrochemicalBluetoothBuffer {
+  ElectrochemicalBluetoothBuffer._();
   static final List<_Buffer> _buffers = [];
-  static late final StreamSubscription _streamSubscription;
+  static late final StreamSubscription _syncStreamSubscription;
+  static late final StreamSubscription _removedStreamSubscription;
   static void init({
     required ElectrochemicalEntityRepository electrochemicalEntityRepository,
   }) {
-    _streamSubscription = electrochemicalEntityRepository.entitySyncStream.listen((entity) {
+    _syncStreamSubscription = electrochemicalEntityRepository.entitySyncStream.listen((entity) {
       var buffer = _buffers.where((b) => b.deviceId == entity.electrochemicalHeader.deviceId).firstOrNull;
       if(buffer == null) return;
       buffer.entityId = entity.id;
     });
+    _removedStreamSubscription = electrochemicalEntityRepository.entityRemovedStream.listen((entityId) {
+      var buffer = _buffers.where((b) => b.entityId == entityId).firstOrNull;
+      if(buffer == null) return;
+      buffer.entityId = null;
+    });
   }
   static void dispose() {
-    _streamSubscription.cancel();
+    _syncStreamSubscription.cancel();
+    _removedStreamSubscription.cancel();
     _buffers.clear();
   }
   static void setBuffer({

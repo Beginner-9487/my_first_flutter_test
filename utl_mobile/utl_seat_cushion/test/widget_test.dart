@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:utl_seat_cushion/main.dart';
-import 'package:utl_seat_cushion/resources/initializer.dart';
+import 'package:utl_seat_cushion/init/initializer.dart';
 
 import 'fake_initializer.dart';
 

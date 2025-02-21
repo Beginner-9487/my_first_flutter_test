@@ -1,54 +1,45 @@
 {
   "@@locale": "zh",
 
-  "appName": "UTL App",
+  "appName": "UTL 平安符 App",
 
-  "hello_world": "你好，世界",
-  "login": "登入",
-  "loginAsGuest": "以游客方式登入",
-  "logout": "登出",
-  "account": "帐号",
+  "downloadFileFinishedNotification": "下载 {format} 完成。",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
 
-  "register": "注册",
-  "password": "密码",
-  "retypePassword": "请再次输入密码",
+  "connectBluetoothButtonText": "连接",
+  "disconnectBluetoothButtonText": "断开连接",
 
-  "home": "首页",
-  "help": "帮助",
-  "feedBack": "回馈",
-  "inviteFriend": "邀请朋友",
-  "rateTheApp": "评分",
-  "aboutUs": "关于我们",
-  "settings": "设定",
-
-  "service": "服务",
-  "characteristic": "特征",
-  "descriptor": "描述",
-  "ble_scanning_page": "蓝牙低功耗扫描页面",
-  "line_chart_page": "折线图页面",
-  "connect": "连线",
-  "disconnect": "断线",
-  "open": "打开",
-  "sendCommand": "送出命令",
-
-  "voltage": "电压",
-  "current": "电流",
   "id": "id",
+  "deviceId": "设备 ID",
   "time": "时间",
   "accX": "加速度X",
   "accY": "加速度Y",
   "accZ": "加速度Z",
-  "gyroX": "角速度X",
-  "gyroY": "角速度Y",
-  "gyroZ": "角速度Z",
-  "magX": "磁力X",
-  "magY": "磁力Y",
-  "magZ": "磁力Z",
+  "accTotal": "加速度Total",
+  "gyroX": "陀螺仪X",
+  "gyroY": "陀螺仪Y",
+  "gyroZ": "陀螺仪Z",
+  "gyroTotal": "陀螺仪Total",
+  "magX": "磁场X",
+  "magY": "磁场Y",
+  "magZ": "磁场Z",
+  "magTotal": "磁场Total",
   "pitch": "俯仰角",
-  "roll": "翻滚角",
+  "roll": "横滚角",
   "yaw": "偏航角",
-  "gValue": "G值",
-  "temperature": "温度",
+  "gValue": "重力值",
   "pressure": "气压",
-  "posture": "姿势"
+  "temperature": "温度",
+  "posture": "姿态",
+  "adc": "模数转换",
+  "battery": "电池",
+  "area": "区域",
+  "step": "步数",
+  "direction": "方向"
 }

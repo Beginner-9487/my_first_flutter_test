@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:utl_mobile/theme/theme.dart';
 import 'package:utl_seat_cushion/application/seat_cushion_devices_data_handler.dart';
-import 'package:utl_seat_cushion/resources/application_resources.dart';
-import 'package:utl_seat_cushion/resources/initializer.dart';
+import 'package:utl_seat_cushion/init/application_persist.dart';
+import 'package:utl_seat_cushion/init/initializer.dart';
 import 'package:utl_seat_cushion/presentation/screen/home_screen.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,7 +16,6 @@ void main() async {
   ]);
   Initializer initializer = ConcreteInitializer();
   await initializer();
-  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationResources.seatCushionDevicesDataHandler;
   runApp(const MyApp());
 }
 

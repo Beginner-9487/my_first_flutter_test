@@ -5,7 +5,7 @@
 import FlutterMacOS
 import Foundation
 
-import flutter_blue_plus_macos
+import flutter_blue_plus_darwin
 import path_provider_foundation
 import rive_common
 import shared_preferences_foundation

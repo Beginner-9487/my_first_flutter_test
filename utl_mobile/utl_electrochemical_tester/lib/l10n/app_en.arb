@@ -2,6 +2,20 @@
   "@@locale": "en",
   "appName": "UTL Electrochemical Tester App",
 
+  "downloadFileFinishedNotification": "Download {format} file finished.",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+
+  "clearAllDataTitle": "Clear all data",
+  "areYouSureYouWantToClearAllDataMessage": "Are you sure you want to clear all data?",
+  "yesButtonText": "Yes",
+  "noButtonText": "No",
+
   "connectBluetoothButtonText": "Connect",
   "disconnectBluetoothButtonText": "Disconnect",
 
@@ -39,5 +53,6 @@
   "scanRate": "scan rate",
   "inversionOption": "inversion option",
 
+  "ad5940ParametersElectrochemicalWorkingElectrode": "AD5940 Working Electrode",
   "ad5940HsRTia": "AD5940 HsRTia"
 }

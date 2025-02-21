@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:utl_electrochemical_tester/domain/value/electrochemical_parameters.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:utl_electrochemical_tester/resources/controller_registry.dart';
+import 'package:utl_electrochemical_tester/init/controller_registry.dart';
 
 class ElectrochemicalCommandHeaderView extends StatelessWidget {
   final ElectrochemicalType type;
@@ -22,16 +22,14 @@ class ElectrochemicalCommandHeaderView extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    var electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
-    var appLocalizations = AppLocalizations.of(context)!;
-    var title = getTitle(appLocalizations);
+    final electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
+    final appLocalizations = AppLocalizations.of(context)!;
+    final title = getTitle(appLocalizations);
     return ListTile(
       leading: Text(title),
-      title: Expanded(
-        child: TextFormField(
-          initialValue: electrochemicalCommandController.getDataNameBuffer(),
-          onChanged: electrochemicalCommandController.setDataNameBuffer,
-        ),
+      title: TextFormField(
+        initialValue: electrochemicalCommandController.getDataNameBuffer(),
+        onChanged: electrochemicalCommandController.setDataNameBuffer,
       ),
       trailing: IconButton(
         onPressed: () => electrochemicalCommandController.start(type: type),

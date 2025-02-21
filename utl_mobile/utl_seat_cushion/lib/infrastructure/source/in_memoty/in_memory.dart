@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:async_locks/async_locks.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
 import 'package:utl_seat_cushion/domain/model/entity/seat_cushion_entity.dart';
 
@@ -22,86 +22,50 @@ class InMemoryBuffer {
 class InMemoryRepository {
   final StreamController<SeatCushionEntity> lastEntityController = StreamController.broadcast();
   final List<SeatCushionEntity> entities = [];
-  Lock entityLock = Lock();
-  @override
+  final Lock _entityLock = Lock();
   Future<bool> add({
     required SeatCushionEntity entity,
-  }) async {
-    try {
-      await entityLock.acquire();
+  }) {
+    return _entityLock.synchronized(() {
       entities.add(entity);
       lastEntityController.add(entity);
       return true;
-    } catch(e) {
-      return false;
-    } finally {
-      entityLock.release();
-    }
+    });
   }
-  @override
   Stream<SeatCushionEntity> get lastEntityStream => lastEntityController.stream;
-  @override
-  Future<List<SeatCushionEntity>> fetchEntities({
-    required int start,
-    required int end,
-  }) async {
-    try {
-      await entityLock.acquire();
-      return entities.skip(start).take(end).toList();
-    } catch(e) {
-      return List.empty();
-    } finally {
-      entityLock.release();
+  Stream<SeatCushionEntity> fetchEntities() async* {
+    for(var entity in entities.toList()) {
+      yield entity;
     }
   }
-  @override
   Future<bool> handleEntities({
     required int start,
     required int end,
     required void Function(SeatCushionEntity entity) handler,
   }) async {
-    try {
-      await entityLock.acquire();
+    return _entityLock.synchronized(() {
       for(var entity in entities.skip(start).take(end)) {
-        handler(entity) as Future;
+        handler(entity);
       }
       return true;
-    } catch(e) {
-      return false;
-    } finally {
-      entityLock.release();
-    }
+    });
   }
-  @override
-  Future<int> fetchEntitiesLength() async {
-    try {
-      await entityLock.acquire();
+  Future<int> fetchEntitiesLength() {
+    return _entityLock.synchronized(() {
       return entities.length;
-    } catch(e) {
-      return 0;
-    } finally {
-      entityLock.release();
-    }
+    });
   }
-  @override
-  Future<int> generateEntityId() async {
+  Future<int> generateEntityId() {
     return fetchEntitiesLength();
   }
-  @override
-  Future<bool> clearAllEntities() async {
-    try {
-      await entityLock.acquire();
+  Future<bool> clearAllEntities() {
+    return _entityLock.synchronized(() {
       entities.clear();
       return true;
-    } catch(e) {
-      return false;
-    } finally {
-      entityLock.release();
-    }
+    });
   }
   void dispose() {
     lastEntityController.close();
-    entityLock.cancelAll();
   }
 }
 

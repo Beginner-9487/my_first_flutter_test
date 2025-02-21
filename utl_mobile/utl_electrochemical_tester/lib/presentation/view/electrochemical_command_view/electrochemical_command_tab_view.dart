@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:utl_electrochemical_tester/domain/value/electrochemical_parameters.dart';
 import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/item/electrochemical_command_ad5940_view.dart';
 import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/item/electrochemical_command_header_view.dart';
+import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/item/electrochemical_command_type_view.dart';
 
 class ElectrochemicalCommandTabView extends StatelessWidget {
   final ElectrochemicalType type;
@@ -14,13 +15,14 @@ class ElectrochemicalCommandTabView extends StatelessWidget {
     return Column(
       children: [
         ElectrochemicalCommandHeaderView(type: type),
+        Divider(),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(8.0),
             children: [
               ElectrochemicalCommandAd5940View(),
               Divider(),
-              ElectrochemicalCommandTabView(type: type),
+              ElectrochemicalCommandTypeView(type: type),
             ],
           ),
         ),

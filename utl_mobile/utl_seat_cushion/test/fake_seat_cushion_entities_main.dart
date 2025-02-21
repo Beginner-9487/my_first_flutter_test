@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:utl_seat_cushion/application/seat_cushion_devices_data_handler.dart';
 
 import 'package:utl_seat_cushion/main.dart';
-import 'package:utl_seat_cushion/resources/application_resources.dart';
+import 'package:utl_seat_cushion/init/application_persist.dart';
 
 import 'data/fake_data_generator.dart';
 import 'fake_initializer.dart';
@@ -23,7 +23,7 @@ void main() async {
   ]);
   FakeInitializer fakeInitializer = FakeInitializer();
   await fakeInitializer();
-  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationResources.seatCushionDevicesDataHandler;
+  SeatCushionDevicesDataHandler seatCushionDevicesDataHandler = ApplicationPersist.seatCushionDevicesDataHandler;
   FakeDataGenerator().startGenerateFakeSeatCushionEntities(fakeInitializer: fakeInitializer);
   runApp(const MyApp());
 }

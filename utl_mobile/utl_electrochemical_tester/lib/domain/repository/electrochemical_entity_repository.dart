@@ -3,29 +3,31 @@ import 'package:utl_electrochemical_tester/domain/value/electrochemical_data.dar
 import 'package:utl_electrochemical_tester/domain/value/electrochemical_header.dart';
 
 abstract class ElectrochemicalEntityRepository {
-  Iterable<Future<ElectrochemicalEntity?>> fetchEntitiesByIds({
+  Stream<ElectrochemicalEntity?> fetchEntitiesByIds({
     required Iterable<int> entityIds,
   });
 
-  Iterable<Future<ElectrochemicalEntity?>> fetchEntities();
+  Stream<ElectrochemicalEntity> fetchEntities();
 
-  Iterable<Future<ElectrochemicalEntity?>> fetchHeadersByIds({
-    required Iterable<int> headerIds,
+  Stream<ElectrochemicalHeader?> fetchHeadersByIds({
+    required Iterable<int> entityIds,
   });
 
-  Iterable<Future<ElectrochemicalEntity?>> fetchHeaders();
+  Stream<ElectrochemicalHeader> fetchHeaders();
 
   Future<int> countEntities();
 
-  Iterable<Future<int?>> fetchIds();
+  Stream<int> fetchIds();
 
   Stream<ElectrochemicalEntity> get entitySyncStream;
+
+  Stream<int> get entityRemovedStream;
 
   Future<ElectrochemicalEntity> createEntityFromHeader({
     required ElectrochemicalHeader header,
   });
 
-  Future<ElectrochemicalEntity> appendDataToEntity({
+  Future<ElectrochemicalEntity?> appendDataToEntity({
     required int entityId,
     required Iterable<ElectrochemicalData> data,
   });

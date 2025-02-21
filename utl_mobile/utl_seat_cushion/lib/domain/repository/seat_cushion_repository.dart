@@ -8,15 +8,7 @@ abstract class SeatCushionRepository {
   });
   SeatCushionEntity? get lastEntity;
   Stream<SeatCushionEntity> get lastEntityStream;
-  Future<List<SeatCushionEntity>> fetchEntities({
-    required int start,
-    required int end,
-  });
-  Future<bool> handleEntities({
-    required int start,
-    required int end,
-    required void Function(SeatCushionEntity entity) handler,
-  });
+  Stream<SeatCushionEntity> fetchEntities();
   Future<int> fetchEntitiesLength();
   Future<int> generateEntityId();
   Future<bool> clearAllEntities();

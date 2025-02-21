@@ -1,58 +1,44 @@
 {
   "@@locale": "en",
-  "appName": "UTL App",
-  "hello_world": "Hello World!",
-  "login": "Login",
+  "appName": "UTL Amulet App",
 
-  "loginAsGuest": "Login as guest",
+  "downloadFileFinishedNotification": "Download {format} file finished.",
+  "@downloadFileButtonText": {
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
 
-  "logout": "Logout",
+  "connectBluetoothButtonText": "Connect",
+  "disconnectBluetoothButtonText": "Disconnect",
 
-  "register": "Register",
-  "password": "Password",
-  "retypePassword": "Retype Password",
-
-  "account": "Account",
-
-  "home": "Home",
-  "help": "Help",
-  "feedBack": "FeedBack",
-  "inviteFriend": "Invite Friend",
-  "rateTheApp": "Rate the app",
-  "aboutUs": "About Us",
-
-  "settings": "settings",
-
-  "service": "Service",
-  "characteristic": "Characteristic",
-  "descriptor": "Descriptor",
-
-  "ble_scanning_page": "BLE scanning page",
-  "line_chart_page": "Line Chart page",
-
-  "connect": "Connect",
-  "disconnect": "Disconnect",
-  "open": "Open",
-  "sendCommand": "Send Command",
-
-  "voltage": "voltage",
-  "current": "current",
   "id": "id",
+  "deviceId": "device ID",
   "time": "time",
   "accX": "accX",
   "accY": "accY",
   "accZ": "accZ",
+  "accTotal": "accTotal",
   "gyroX": "gyroX",
   "gyroY": "gyroY",
   "gyroZ": "gyroZ",
+  "gyroTotal": "gyroTotal",
   "magX": "magX",
   "magY": "magY",
   "magZ": "magZ",
+  "magTotal": "magTotal",
   "pitch": "pitch",
   "roll": "roll",
   "yaw": "yaw",
   "gValue": "gValue",
-  "temperature": "temperature",
   "pressure": "pressure",
-  "posture": "posture"
+  "temperature": "temperature",
+  "posture": "posture",
+  "adc": "adc",
+  "battery": "battery",
+  "area": "area",
+  "step": "step",
+  "direction": "direction"
 }

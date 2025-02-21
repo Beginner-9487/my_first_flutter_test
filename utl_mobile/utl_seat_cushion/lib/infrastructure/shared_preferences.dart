@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
-import 'package:utl_seat_cushion/resources/shared_preferences_resources.dart';
+import 'package:utl_seat_cushion/init/resources/shared_preferences_resources.dart';
 
 class SharedPreferencesSeatCushionDataSaveOptionProvider {
   final StreamController<SeatCushionSaveOptions> _optionsStreamController = StreamController.broadcast();

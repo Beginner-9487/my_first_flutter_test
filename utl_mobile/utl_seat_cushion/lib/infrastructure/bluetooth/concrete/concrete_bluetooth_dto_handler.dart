@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:async_locks/async_locks.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:utl_seat_cushion/domain/repository/seat_cushion_repository.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_dto_handler.dart';
 import 'package:utl_seat_cushion/infrastructure/bluetooth/bluetooth_packet.dart';
@@ -12,6 +12,22 @@ enum BluetoothPacketDtoForcesStage {
   second,
   third,
 }
+
+Map<BluetoothPacketDtoForcesStage, int> bluetoothPacketDtoForcesStageLengthMap = Map.fromIterable(
+  BluetoothPacketDtoForcesStage.values,
+  key: (stage) => stage,
+  value: (stage) {
+    switch(stage) {
+      case BluetoothPacketDtoForcesStage.first:
+        return 243;
+      case BluetoothPacketDtoForcesStage.second:
+        return 243;
+      case BluetoothPacketDtoForcesStage.third:
+        return 13;
+    }
+    throw Exception();
+  },
+);
 
 class BluetoothPacketBuffer {
   final SeatCushionType seatCushionType;
@@ -27,7 +43,7 @@ class BluetoothPacketBuffer {
       if(packetLength != packet.data.length) return null;
       var seatCushionType = _extractSeatCushionType(bytes: packet.data);
       if(seatCushionType == null) return null;
-      var partForces = _extractPartForces(bytes: packet.data, offset: 1);
+      var partForces = _extractPartForces(bytes: packet.data);
       if(partForces == null) return null;
       var forcesStage = _extractForcesStage(bytes: packet.data);
       if(forcesStage == null) return null;
@@ -50,10 +66,9 @@ class BluetoothPacketBuffer {
   static int? _extractPacketLength({
     required Uint8List bytes,
   }) {
-    if(bytes.first & 0x0F == 0x01) return 243;
-    if(bytes.first & 0x0F == 0x02) return 243;
-    if(bytes.first & 0x0F == 0x03) return 13;
-    return null;
+    var stage = _extractForcesStage(bytes: bytes);
+    if(stage == null) return null;
+    return bluetoothPacketDtoForcesStageLengthMap[stage];
   }
   static SeatCushionType? _extractSeatCushionType({
     required Uint8List bytes,
@@ -72,14 +87,14 @@ class BluetoothPacketBuffer {
   }
   static List<int>? _extractPartForces({
     required Uint8List bytes,
-    required int offset,
   }) {
+    final int offset = 1;
     if(bytes.length <= offset) return null;
     if((bytes.length - 1) % 2 != 0) return null;
     final byteData = ByteData.sublistView(bytes);
     return [
       for (var i = offset; i < byteData.lengthInBytes; i += 2)
-        byteData.getUint16(i, Endian.little)
+        byteData.getInt16(i, Endian.little)
     ];
   }
   @override
@@ -102,9 +117,8 @@ class ConcreteBluetoothDtoHandler extends BluetoothDtoHandler {
   @override
   void addPacket({
     required BluetoothPacket packet,
-  }) async {
-    try {
-      await packetsLock.acquire();
+  }) {
+    packetsLock.synchronized(() async {
       if(!_seatCushionDeviceIdWhitelist.contains(packet.deviceId)) _seatCushionDeviceIdWhitelist.add(packet.deviceId);
       var buffer = BluetoothPacketBuffer.create(packet: packet);
       if(buffer != null) {
@@ -113,11 +127,7 @@ class ConcreteBluetoothDtoHandler extends BluetoothDtoHandler {
         return;
       }
       return;
-    } catch(e) {
-      return;
-    } finally {
-      packetsLock.release();
-    }
+    });
   }
   @override
   Stream<SeatCushionEntity> get seatCushionEntityStream => _seatCushionDataStreamController.stream;
@@ -155,7 +165,6 @@ class ConcreteBluetoothDtoHandler extends BluetoothDtoHandler {
     }
   }
   void dispose() {
-    packetsLock.cancelAll();
     _seatCushionDataStreamController.close();
   }
 }

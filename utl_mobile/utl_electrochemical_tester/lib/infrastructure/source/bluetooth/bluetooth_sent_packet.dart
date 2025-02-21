@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:utl_electrochemical_tester/adapter/dto/ad5940_parameters.dart';
-import 'package:utl_electrochemical_tester/adapter/dto/electrochemical_device_sent_dto.dart';
+import 'package:utl_electrochemical_tester/adapter/electrochemical_devices/dto/ad5940_parameters.dart';
+import 'package:utl_electrochemical_tester/adapter/electrochemical_devices/dto/electrochemical_device_sent_dto.dart';
 import 'package:utl_electrochemical_tester/domain/value/electrochemical_parameters.dart';
 
 class BluetoothSentPacket {
@@ -18,16 +18,19 @@ class BluetoothSentPacket {
   static ByteData _mapAD5940ParametersToByteData({
     required Ad5940Parameters parameters,
   }) {
-    return ByteData(4)
-      ..setUint32(0, parameters.hsTiaRTia.index, Endian.little);
+    return ByteData(1)
+      ..setUint8(0, parameters.workingElectrode.index)
+      // ..setUint32(0, parameters.hsTiaRTia.index, Endian.little)
+    ;
   }
   static ByteData _mapCaElectrochemicalParametersToByteData({
     required CaElectrochemicalParameters parameters,
   }) {
     return ByteData(8)
-      ..setUint16(0, parameters.tInterval, Endian.little)
-      ..setInt16(2, parameters.eDc, Endian.little)
-      ..setUint32(4, parameters.tRun, Endian.little);
+      ..setInt16(0, parameters.eDc, Endian.little)
+      ..setUint16(2, parameters.tInterval, Endian.little)
+      ..setUint32(4, parameters.tRun, Endian.little)
+    ;
   }
   static ByteData _mapCvElectrochemicalParametersToByteData({
     required CvElectrochemicalParameters parameters,
@@ -38,7 +41,8 @@ class BluetoothSentPacket {
       ..setInt16(3, parameters.eVertex1, Endian.little)
       ..setInt16(5, parameters.eVertex2, Endian.little)
       ..setUint16(7, parameters.eStep, Endian.little)
-      ..setUint16(9, parameters.scanRate, Endian.little);
+      ..setUint16(9, parameters.scanRate, Endian.little)
+    ;
   }
   static ByteData _mapDpvElectrochemicalParametersToByteData({
     required DpvElectrochemicalParameters parameters,
@@ -50,7 +54,8 @@ class BluetoothSentPacket {
       ..setUint16(6, parameters.ePulse, Endian.little)
       ..setUint16(8, parameters.tPulse, Endian.little)
       ..setUint16(10, parameters.scanRate, Endian.little)
-      ..setUint8(12, parameters.inversionOption.index);
+      ..setUint8(12, parameters.inversionOption.index)
+    ;
   }
   static BluetoothSentPacket fromCa({
     required CaElectrochemicalDeviceSentDto dto,

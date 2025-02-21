@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:utl_seat_cushion/presentation/view/bluetooth/bluetooth_is_enabled_screen.dart';
+import 'package:utl_seat_cushion/presentation/view/bluetooth/bluetooth_is_on_screen.dart';
 import 'package:utl_seat_cushion/presentation/view/bluetooth/bluetooth_off_view.dart';
 import 'package:utl_seat_cushion/presentation/view/bluetooth/bluetooth_scanner_view.dart';
 import 'package:utl_seat_cushion/presentation/view/seat_cushion/seat_cushion_dashboard_view.dart';
 import 'package:utl_seat_cushion/presentation/view/seat_cushion/widgets/seat_cushion_widget.dart';
-import 'package:utl_seat_cushion/resources/widget_resources.dart';
+import 'package:utl_seat_cushion/presentation/widget/widget_resources.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -24,9 +24,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Tic
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: BluetoothIsEnabledView(
-          builder: (context, isEnabled) {
-            if(!isEnabled) return BluetoothOffView();
+      body: BluetoothIsOnView(
+          builder: (context, isOn) {
+            if(!isOn) return BluetoothOffView();
             var bluetoothScannerView = BluetoothScannerView();
             var seatCushionDashboardView = SeatCushionDashboardView();
             var tabViewMap = {

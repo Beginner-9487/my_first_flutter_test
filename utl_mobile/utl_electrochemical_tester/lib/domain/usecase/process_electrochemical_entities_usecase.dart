@@ -10,8 +10,7 @@ class ProcessElectrochemicalEntitiesWithIdsUsecase {
     required Iterable<int> entityIds,
     required bool Function(ElectrochemicalEntity entity) processor,
   }) async {
-    for(var event in electrochemicalEntityRepository.fetchEntitiesByIds(entityIds: entityIds).toList()) {
-      var entity = await event;
+    await for (var entity in electrochemicalEntityRepository.fetchEntitiesByIds(entityIds: entityIds)) {
       if(entity == null) continue;
       if(!processor(entity)) return;
     }
@@ -26,8 +25,7 @@ class ProcessElectrochemicalEntitiesUsecase {
   Future<void> call({
     required bool Function(ElectrochemicalEntity? entity) processor,
   }) async {
-    for(var event in electrochemicalEntityRepository.fetchEntities().toList()) {
-      var entity = await event;
+    await for (var entity in electrochemicalEntityRepository.fetchEntities()) {
       if(!processor(entity)) return;
     }
   }

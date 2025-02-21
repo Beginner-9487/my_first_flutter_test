@@ -4,7 +4,7 @@ import 'package:utl_electrochemical_tester/domain/value/electrochemical_paramete
 import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/electrochemical_command_widget_builder.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:utl_electrochemical_tester/resources/controller_registry.dart';
+import 'package:utl_electrochemical_tester/init/controller_registry.dart';
 
 class ElectrochemicalCommandTypeView extends StatelessWidget {
   final ElectrochemicalType type;
@@ -18,27 +18,27 @@ class ElectrochemicalCommandTypeView extends StatelessWidget {
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eDc,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCaElectrochemicalParametersEDc() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCaElectrochemicalParametersEDc(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCaElectrochemicalParametersEDc((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCaElectrochemicalParametersEDc,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.tInterval,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCaElectrochemicalParametersTInterval() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCaElectrochemicalParametersTInterval(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCaElectrochemicalParametersTInterval((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCaElectrochemicalParametersTInterval,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.tRun,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCaElectrochemicalParametersTRun() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCaElectrochemicalParametersTRun(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCaElectrochemicalParametersTRun((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCaElectrochemicalParametersTRun,
           ),
         ),
       ],
@@ -50,54 +50,54 @@ class ElectrochemicalCommandTypeView extends StatelessWidget {
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eBegin,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCvElectrochemicalParametersEBegin() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersEBegin(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersEBegin((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersEBegin,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eVertex1,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCvElectrochemicalParametersEVertex1() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersEVertex1(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersEVertex1((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersEVertex1,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eVertex2,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCvElectrochemicalParametersEVertex2() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersEVertex2(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersEVertex2((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersEVertex2,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eStep,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCvElectrochemicalParametersEStep() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersEStep(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersEStep((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersEStep,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.scanRate,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getCvElectrochemicalParametersScanRate() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersScanRate(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersScanRate((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersScanRate,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.numberOfScans,
           body: TextFormField(
-            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersNumberOfScans().toString(),
+            initialValue: electrochemicalCommandController.getCvElectrochemicalParametersNumberOfScans(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setCvElectrochemicalParametersNumberOfScans(int.parse(source)),
+            onChanged: electrochemicalCommandController.setCvElectrochemicalParametersNumberOfScans,
           ),
         ),
       ],
@@ -109,68 +109,76 @@ class ElectrochemicalCommandTypeView extends StatelessWidget {
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eBegin,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersEBegin() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersEBegin(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersEBegin((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersEBegin,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eEnd,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersEEnd() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersEEnd(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersEEnd((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersEEnd,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.eStep,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersEStep() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersEStep(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersEStep((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersEStep,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.ePulse,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersEPulse() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersEPulse(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersEPulse((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersEPulse,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.tPulse,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersTPulse() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersTPulse(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersTPulse((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersTPulse,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.scanRate,
           body: TextFormField(
-            initialValue: (electrochemicalCommandController.getDpvElectrochemicalParametersScanRate() / 1000.0).toString(),
+            initialValue: electrochemicalCommandController.getDpvElectrochemicalParametersScanRate(),
             keyboardType: TextInputType.number,
-            onChanged: (source) => electrochemicalCommandController.setDpvElectrochemicalParametersScanRate((double.parse(source) * 1000.0).toInt()),
+            onChanged: electrochemicalCommandController.setDpvElectrochemicalParametersScanRate,
           ),
         ),
 
         ElectrochemicalCommandWidgetBuilder.buildTile(
           label: appLocalizations.inversionOption,
-          body: DropdownButton<DpvElectrochemicalParametersInversionOption>(
-            value: electrochemicalCommandController.getDpvElectrochemicalParametersInversionOption(),
-            onChanged: (newValue) => electrochemicalCommandController.setDpvElectrochemicalParametersInversionOption(newValue!),
-            items: DpvElectrochemicalParametersInversionOption.values.map((option) {
-              return DropdownMenuItem(
-                value: option,
-                child: Text(option.name),
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              return DropdownButton<DpvElectrochemicalParametersInversionOption>(
+                value: electrochemicalCommandController.getDpvElectrochemicalParametersInversionOption(),
+                onChanged: (newValue) {
+                  setState(() {
+                    electrochemicalCommandController.setDpvElectrochemicalParametersInversionOption(newValue!);
+                  });
+                },
+                items: DpvElectrochemicalParametersInversionOption.values.map((option) {
+                  return DropdownMenuItem(
+                    value: option,
+                    child: Text(option.name),
+                  );
+                }).toList(),
               );
-            }).toList(),
+            },
           ),
         ),
       ],
@@ -178,8 +186,8 @@ class ElectrochemicalCommandTypeView extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    var electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
-    var appLocalizations = AppLocalizations.of(context)!;
+    final electrochemicalCommandController = ControllerRegistry.electrochemicalCommandController;
+    final appLocalizations = AppLocalizations.of(context)!;
     switch (type) {
       case ElectrochemicalType.ca:
         return buildCa(electrochemicalCommandController, appLocalizations);

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:utl_mobile/theme/theme.dart';
-import 'package:utl_seat_cushion/application/controller/seat_cushion_data_view_controller.dart';
-import 'package:utl_seat_cushion/resources/application_resources.dart';
-import 'package:utl_seat_cushion/resources/path_resources.dart';
+import 'package:utl_seat_cushion/controller/seat_cushion_data_view_controller.dart';
+import 'package:utl_seat_cushion/init/controller_registry.dart';
+import 'package:utl_seat_cushion/init/resources/path_resources.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:utl_seat_cushion/resources/theme_data.dart';
-import 'package:utl_seat_cushion/resources/widget_resources.dart';
+import 'package:utl_seat_cushion/presentation/theme/theme_data.dart';
+import 'package:utl_seat_cushion/presentation/widget/widget_resources.dart';
 
 class SeatCushionButtonsBoard extends StatefulWidget {
   const SeatCushionButtonsBoard({
@@ -21,7 +21,7 @@ class _SeatCushionButtonsBoardState extends State<SeatCushionButtonsBoard> {
   final TextEditingController commandTextFieldController = TextEditingController();
   final ValueNotifier<bool> downloadingCsvFileButtonStateValueNotifier = ValueNotifier(true);
   final ValueNotifier<bool> clearOldDataButtonStateValueNotifier = ValueNotifier(true);
-  final SeatCushionDataViewController seatCushionDataViewController = ApplicationResources.seatCushionDataViewController;
+  final SeatCushionDataViewController seatCushionDataViewController = ControllerRegistry.seatCushionDataViewController;
   @override
   Widget build(BuildContext context) {
     var commandTextField = TextField(

@@ -21,13 +21,7 @@ class FetchSeatCushionEntitiesUseCase {
     required this.repository,
   });
 
-  Future<List<SeatCushionEntity>> call({
-    required int start,
-    required int end,
-  }) => repository.fetchEntities(
-    start: start,
-    end: end,
-  );
+  Stream<SeatCushionEntity> call() => repository.fetchEntities();
 }
 
 /// Handle entities use case
@@ -42,11 +36,12 @@ class HandleSeatCushionEntitiesUseCase {
     required int start,
     required int end,
     required void Function(SeatCushionEntity entity) handler,
-  }) => repository.handleEntities(
-    start: start,
-    end: end,
-    handler: handler,
-  );
+  }) async {
+    await for (var entity in repository.fetchEntities().skip(start).take(end - start)) {
+      handler(entity);
+    }
+    return true;
+  }
 }
 
 /// Fetch entities length use case

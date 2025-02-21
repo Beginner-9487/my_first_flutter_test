@@ -1,5 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:utl_electrochemical_tester/presentation/view/bluetooth/bluetooth_is_enabled_screen.dart';
+import 'package:utl_electrochemical_tester/presentation/view/bluetooth/bluetooth_is_on_screen.dart';
 import 'package:utl_electrochemical_tester/presentation/view/bluetooth/bluetooth_off_view.dart';
 import 'package:utl_electrochemical_tester/presentation/view/bluetooth/bluetooth_scanner_view.dart';
 import 'package:utl_electrochemical_tester/presentation/view/electrochemical_command_view/electrochemical_command_view.dart';
@@ -12,14 +14,14 @@ class HomeScreen extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    return BluetoothIsEnabledView(
-      builder: (context, isEnabled) {
-        if(!isEnabled) return BluetoothOffView();
-        var bluetoothScannerView = BluetoothScannerView();
-        var electrochemicalLineChart = ElectrochemicalLineChart();
-        var electrochemicalLineChartDashboard = ElectrochemicalLineChartDashboard();
-        var electrochemicalCommandView = ElectrochemicalCommandView();
-        var tabViewMap = {
+    return BluetoothIsOnView(
+      builder: (context, isOn) {
+        if(!isOn) return const BluetoothOffView();
+        final bluetoothScannerView = BluetoothScannerView();
+        const electrochemicalLineChart = ElectrochemicalLineChart();
+        const electrochemicalLineChartDashboard = ElectrochemicalLineChartDashboard();
+        const electrochemicalCommandView = ElectrochemicalCommandView();
+        final tabViewMap = {
           const Icon(Icons.bluetooth_searching_rounded):
           bluetoothScannerView,
           const Icon(Icons.list_alt):
@@ -27,7 +29,7 @@ class HomeScreen extends StatelessWidget {
           const Icon(Icons.smart_button_sharp):
           electrochemicalLineChartDashboard,
         };
-        var tabBar = TabBar(
+        final tabBar = TabBar(
           isScrollable: false,
           tabs: tabViewMap.keys.map((icon) {
             return Tab(
@@ -35,22 +37,20 @@ class HomeScreen extends StatelessWidget {
             );
           }).toList(),
         );
-        var tabView = TabBarView(
+        final tabView = TabBarView(
           children: tabViewMap.values.toList(),
         );
-        var tabController = DefaultTabController(
+        final tabController = DefaultTabController(
           length: tabViewMap.length,
           child: Scaffold(
-            appBar: AppBar(
-              bottom: tabBar,
-            ),
-            body: Expanded(
-              child: tabView,
-            ),
+            appBar: tabBar,
+            body: tabView,
           ),
         );
         return LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
+            final mediaQueryData = MediaQuery.of(context);
+            final controllerHeight = min(constraints.maxHeight / 2, (constraints.maxHeight - mediaQueryData.viewInsets.vertical));
             return Scaffold(
               body: SafeArea(
                 child: Column(children: <Widget>[
@@ -58,9 +58,8 @@ class HomeScreen extends StatelessWidget {
                     child: electrochemicalLineChart,
                   ),
                   Divider(),
-                  tabBar,
                   SizedBox(
-                    height: constraints.maxHeight / 2,
+                    height: controllerHeight,
                     child: tabController,
                   ),
                 ]),

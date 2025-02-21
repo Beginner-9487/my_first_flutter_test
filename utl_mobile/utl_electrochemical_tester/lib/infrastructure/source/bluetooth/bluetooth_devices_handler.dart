@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:utl_electrochemical_tester/infrastructure/source/bluetooth/bluetooth_packet_handler.dart';
 import 'package:utl_electrochemical_tester/infrastructure/source/bluetooth/bluetooth_received_packet.dart';
-import 'package:utl_electrochemical_tester/resources/bluetooth_resources.dart';
+import 'package:utl_electrochemical_tester/init/resources/infrastructure/bluetooth_resource.dart';
 import 'package:utl_mobile/utl_bluetooth/fbp_utl_bluetooth_handler.dart';
 
-class _Resources extends FbpUtlBluetoothSharedResources<UtlBluetoothDevice, BluetoothReceivedPacket> {
+class _Resources extends FbpUtlBluetoothSharedResources<ConcreteBluetoothDevice, BluetoothReceivedPacket> {
   _Resources({
     required super.sentUuid,
     required super.receivedUuid,
@@ -18,21 +18,25 @@ class _Resources extends FbpUtlBluetoothSharedResources<UtlBluetoothDevice, Blue
   );
 }
 
-class BluetoothDevicesHandler extends FbpUtlBluetoothHandler<UtlBluetoothDevice, BluetoothReceivedPacket, _Resources>  {
+class ConcreteBluetoothDevice extends UtlBluetoothDevice<ConcreteBluetoothDevice, BluetoothReceivedPacket> {
+  ConcreteBluetoothDevice({required super.resource, required super.bluetoothDevice});
+}
+
+class BluetoothDevicesHandler extends FbpUtlBluetoothHandler<ConcreteBluetoothDevice, BluetoothReceivedPacket, _Resources>  {
   final BluetoothPacketHandler bluetoothPacketHandler;
   BluetoothDevicesHandler({
     required super.devices,
     required this.bluetoothPacketHandler,
   }) : super(
     resources: _Resources(
-      sentUuid: BluetoothResources.sentUuids,
-      receivedUuid: BluetoothResources.receivedUuids,
+      sentUuid: BluetoothResource.sentUuids,
+      receivedUuid: BluetoothResource.receivedUuids,
     ),
-    bluetoothDeviceToDevice: (resource, bluetoothDevice) => UtlBluetoothDevice(
+    bluetoothDeviceToDevice: (resource, bluetoothDevice) => ConcreteBluetoothDevice(
       resource: resource,
       bluetoothDevice: bluetoothDevice,
     ),
-    resultToDevice: (resource, result) => UtlBluetoothDevice(
+    resultToDevice: (resource, result) => ConcreteBluetoothDevice(
       resource: resource,
       bluetoothDevice: result.device,
     ),
